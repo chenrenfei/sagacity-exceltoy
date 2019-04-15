@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.sagframe.com/schema/exceltoy"
+	xmlns:tns="http://www.sagframe.com/schema/exceltoy"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.sagframe.com/schema/exceltoy"
+	elementFormDefault="qualified">
+	<xsd:element name="exceltoy">
+		<xsd:annotation>
+			<xsd:documentation><![CDATA[全局类型，便于将来给报表schema公用]]></xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:choice maxOccurs="unbounded">
+				<xsd:element name="property" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:attribute name="name" type="xsd:string" />
+						<xsd:attribute name="value" type="xsd:string" />
+						<xsd:attribute name="file" type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="include" minOccurs="0"
+					maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:attribute name="file" type="xsd:string"
+							use="required" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="datasource" minOccurs="1"
+					maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:attribute name="id" type="xsd:string"
+							use="required" />
+						<xsd:attribute name="url" type="xsd:string"
+							use="required" />
+						<xsd:attribute name="driver" type="xsd:string"
+							use="required" />
+						<xsd:attribute name="username" type="xsd:string"
+							use="required" />
+						<xsd:attribute name="password" type="xsd:string"
+							use="required" />
+						<xsd:attribute name="catalog" type="xsd:string" />
+						<xsd:attribute name="schema" type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="convert" minOccurs="0"
+					maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:choice maxOccurs="unbounded">
+							<xsd:element name="param" maxOccurs="unbounded">
+								<xsd:complexType mixed="true">
+									<xsd:attribute name="name" type="xsd:string"
+										use="required" />
+									<xsd:attribute name="value" type="xsd:string" />
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:choice>
+						<xsd:attribute name="id" type="xsd:string"
+							use="required" />
+						<xsd:attribute name="extend" type="xsd:string" />
+						<xsd:attribute name="class" type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="eqlwrap" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[协助完成表跟excel标题对应并输出eql语句]]></xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:attributeGroup ref="excelToyCommonAttrs" />
+						<xsd:attribute name="table" type="xsd:string"
+							use="required" />
+						<xsd:attribute name="titleRow" type="xsd:integer"
+							use="required" />
+						<!-- 智能匹配 -->
+						<xsd:attribute name="intelligent-match"
+							type="xsd:boolean" />
+						<xsd:attribute name="beginCol" type="xsd:integer" />
+						<xsd:attribute name="endCol" type="xsd:integer" />
+						<xsd:attribute name="sheet" type="xsd:string" />
+						<xsd:attribute name="file" type="xsd:string"
+							use="required" />
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="import" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[通过excel向数据库导入数据任务配置]]></xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="pre-do" minOccurs="0"
+								maxOccurs="unbounded">
+								<xsd:complexType mixed="true">
+									<xsd:attribute name="encoding" type="xsd:string" />
+									<xsd:attribute name="property" type="xsd:string" />
+									<xsd:attribute name="value" type="xsd:string" />
+									<xsd:attribute name="file" type="xsd:string" />
+									<xsd:attribute name="split" type="xsd:string" />
+									<xsd:attribute name="autoCommit"
+										type="xsd:boolean" />
+									<xsd:attribute name="loopBeforeMain"
+										type="xsd:boolean" />
+								</xsd:complexType>
+							</xsd:element>
+							<xsd:element name="do">
+								<xsd:complexType>
+									<xsd:choice minOccurs="1" maxOccurs="unbounded">
+										<xsd:element name="filter" minOccurs="0">
+											<xsd:complexType mixed="true">
+												<xsd:attribute name="message"
+													type="xsd:string" use="required" />
+												<xsd:attribute name="break" type="xsd:boolean"
+													default="true" />
+											</xsd:complexType>
+										</xsd:element>
+										<xsd:element name="mainTable" maxOccurs="1">
+											<xsd:complexType mixed="true">
+												<xsd:attribute name="pk" type="xsd:string" />
+												<xsd:attribute name="pk-data-merge" type="xsd:boolean"
+													default="false" />
+												<xsd:attribute name="clear" type="xsd:boolean"
+													default="true" />
+											</xsd:complexType>
+										</xsd:element>
+										<xsd:element name="subTables" minOccurs="0"
+											maxOccurs="1">
+											<xsd:complexType>
+												<xsd:choice minOccurs="1" maxOccurs="unbounded">
+													<xsd:element name="subTable">
+														<xsd:complexType mixed="true">
+															<xsd:attribute name="loop-column"
+																type="xsd:string" />
+															<xsd:attribute name="as" type="xsd:string" />
+															<xsd:attribute name="message"
+																type="xsd:string" />
+															<xsd:attribute name="clear"
+																type="xsd:boolean" />
+															<xsd:attribute name="active"
+																type="xsd:boolean" />
+															<xsd:attribute name="minSize"
+																type="xsd:integer" />
+															<xsd:attribute name="break"
+																type="xsd:boolean" />
+															<xsd:attribute name="split"
+																type="xsd:string" />
+															<xsd:attribute name="skipNull"
+																type="xsd:boolean" />
+															<xsd:attribute name="skipRepeat"
+																type="xsd:boolean" />
+														</xsd:complexType>
+													</xsd:element>
+												</xsd:choice>
+											</xsd:complexType>
+										</xsd:element>
+									</xsd:choice>
+								</xsd:complexType>
+							</xsd:element>
+							<xsd:element name="end-do" minOccurs="0"
+								maxOccurs="unbounded">
+								<xsd:complexType mixed="true">
+									<xsd:attribute name="split" type="xsd:string" />
+									<xsd:attribute name="encoding" type="xsd:string" />
+									<xsd:attribute name="file" type="xsd:string" />
+									<xsd:attribute name="autoCommit"
+										type="xsd:boolean" />
+									<xsd:attribute name="loopAfterMain"
+										type="xsd:boolean" />
+									<xsd:attribute name="errorRun" type="xsd:boolean" />
+									<xsd:attribute name="onlyError"
+										type="xsd:boolean" />
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+						<xsd:attributeGroup ref="excelToyCommonAttrs" />
+						<xsd:attribute name="charset" type="xsd:string"
+							default="UTF-8" />
+						<xsd:attribute name="isolationlevel">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:string">
+									<xsd:enumeration value="TRANSACTION_NONE" />
+									<xsd:enumeration
+										value="TRANSACTION_READ_COMMITTED" />
+									<xsd:enumeration
+										value="TRANSACTION_READ_UNCOMMITTED" />
+									<xsd:enumeration
+										value="TRANSACTION_REPEATABLE_READ" />
+									<xsd:enumeration
+										value="TRANSACTION_SERIALIZABLE" />
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+						<xsd:attribute name="autoCommit" type="xsd:boolean"
+							default="true" />
+						<xsd:attribute name="clear" type="xsd:boolean"
+							default="false" />
+						<xsd:attribute name="depends" type="xsd:string" />
+						<xsd:attribute name="mapping-tables"
+							type="xsd:string" />
+						<xsd:attribute name="startRow" type="xsd:integer" />
+						<xsd:attribute name="endRow" type="xsd:integer" />
+						<xsd:attribute name="startCol" type="xsd:integer" />
+						<xsd:attribute name="endCol" type="xsd:integer" />
+						<xsd:attribute name="titleRow" type="xsd:integer" />
+						<xsd:attribute name="fkFilter" type="xsd:boolean"
+							default="false" />
+						<xsd:attribute name="dist" type="xsd:string" />
+						<xsd:attribute name="files" type="xsd:string" />
+						<xsd:attribute name="sheet" type="xsd:string" />
+						<xsd:attribute name="blobAsFile" type="xsd:string" />
+						<xsd:attribute name="reportFile" type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="export" minOccurs="0" maxOccurs="unbounded">
+					<xsd:annotation>
+						<xsd:documentation><![CDATA[将数据库数据导出到excel的任务配置]]></xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType mixed="true">
+						<xsd:attributeGroup ref="excelToyCommonAttrs" />
+						<xsd:attribute name="autoCommit" type="xsd:boolean"
+							default="true" />
+						<xsd:attribute name="charset" type="xsd:string"
+							default="UTF-8" />
+						<xsd:attribute name="sheet" type="xsd:string" />
+						<xsd:attribute name="maxLimit" type="xsd:integer" />
+						<xsd:attribute name="delete">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:string">
+									<xsd:enumeration value="file" />
+									<xsd:enumeration value="path" />
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+						<xsd:attribute name="dist" type="xsd:string" />
+						<xsd:attribute name="blobAsFile" type="xsd:string" />
+						<xsd:attribute name="mapping-tables"
+							type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+
+				<xsd:element name="update" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType mixed="true">
+						<xsd:attributeGroup ref="excelToyCommonAttrs" />
+						<xsd:attribute name="sheet" type="xsd:string" />
+						<xsd:attribute name="autoCommit" type="xsd:boolean"
+							default="true" />
+						<xsd:attribute name="prepared" type="xsd:boolean"
+							default="true" />
+						<xsd:attribute name="batchSize" type="xsd:integer"
+							default="200" />
+						<xsd:attribute name="startRow" type="xsd:integer" />
+						<xsd:attribute name="endRow" type="xsd:integer" />
+						<xsd:attribute name="startCol" type="xsd:integer" />
+						<xsd:attribute name="endCol" type="xsd:integer" />
+						<xsd:attribute name="titleRow" type="xsd:integer" />
+						<xsd:attribute name="split" type="xsd:string" />
+						<xsd:attribute name="dist" type="xsd:string" />
+						<xsd:attribute name="files" type="xsd:string" />
+						<xsd:attribute name="sqlFile" type="xsd:string" />
+						<xsd:attribute name="loop" type="xsd:string" />
+						<xsd:attribute name="loopType">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:string">
+									<xsd:enumeration value="integer" />
+									<xsd:enumeration value="date" />
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+						<xsd:attribute name="loopAlias" type="xsd:string" />
+						<xsd:attribute name="loopDateType">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:string">
+									<xsd:enumeration value="day" />
+									<xsd:enumeration value="month" />
+									<xsd:enumeration value="year" />
+									<xsd:enumeration value="second" />
+									<xsd:enumeration value="hour" />
+									<xsd:enumeration value="millsecond" />
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+						<xsd:attribute name="loopDateFormat"
+							type="xsd:string" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="outputTables" minOccurs="0" maxOccurs="unbounded">
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="include" minOccurs="0" maxOccurs="unbounded">
+								<xsd:complexType>
+									<xsd:attribute name="value" use="required" />
+								</xsd:complexType>
+							</xsd:element>
+							<xsd:element name="exclude" minOccurs="0" maxOccurs="unbounded">
+								<xsd:complexType>
+									<xsd:attribute name="value" use="required" />
+								</xsd:complexType>
+							</xsd:element>
+							<xsd:element name="unmatch-tables" minOccurs="0"
+								maxOccurs="unbounded">
+								<xsd:complexType>
+									<xsd:attribute name="value" use="required" />
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+						<xsd:attributeGroup ref="excelToyCommonAttrs" />
+						<xsd:attribute name="order" default="asc">
+							<xsd:simpleType>
+								<xsd:restriction base="xsd:string">
+									<xsd:enumeration value="asc" />
+									<xsd:enumeration value="desc" />
+								</xsd:restriction>
+							</xsd:simpleType>
+						</xsd:attribute>
+						<xsd:attribute name="file" type="xsd:string"
+							use="required" />
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="elastic-index" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:choice>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:attributeGroup name="excelToyCommonAttrs">
+		<xsd:attribute name="id" type="xsd:string"
+			use="required" />
+		<xsd:attribute name="datasource" type="xsd:string"
+			use="required" />
+		<xsd:attribute name="active" type="xsd:boolean"
+			default="true" />
+	</xsd:attributeGroup>
+</xsd:schema>

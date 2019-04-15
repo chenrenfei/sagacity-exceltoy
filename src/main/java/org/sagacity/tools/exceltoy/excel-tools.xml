@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exceltoy xmlns="http://www.sagframe.com/schema/exceltoy"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.sagframe.com/schema/exceltoy http://www.sagframe.com/schema/sagacity-exceltoy.xsd">
+	<property file="D:/a.properties" />
+	<property name=""></property>
+	<include file="" />
+	<!-- 数据库定义，可以定义多个数据库 -->
+	<datasource id="apsdb" url="oracle.jdbc.driver.OracleDriver"
+		driver="com.ibm.db2.jcc.DB2Driver" username="ctsv" password="123456"
+		catalog="sagacity" schema="sagacity" />
+	<!-- 数据转换器定义,转换器可扩展,自己可以通过实现接口来自定义转换器 -->
+	<!-- 转换器可以继承 -->
+	<convert id="dataFormat" extend="">
+		<param name="format" value="yyyy-MM-dd" />
+	</convert>
+	<convert id="keyWord"
+		class="org.sagacity.tools.excel.convert.impl.DBDictConvert">
+		<param name="sql"><![CDATA[select t.DES,t.DDCOD 
+							from DD t where t.SSYCOD='03'
+							and t.DDTYP='KEYWRD']]></param>
+	</convert>
+
+	<eqlwrap id="" datasource="" table="" file="" titleRow="1"
+		active="true" />
+	<!-- 将数据库表按照依赖关系的顺序排序存放于一个文件中 -->
+	<outputTables id="" datasource="" file="" active="false">
+		<include value="" />
+		<exclude value="" />
+	</outputTables>
+
+	<!-- 导入数据 -->
+	<!-- batch-size:设置多少笔作为一个批次导入，可以不填，clear：默认为false -->
+	<import id="" datasource="" mapping-tables="" active="true"
+		isolationlevel="TRANSACTION_NONE" autoCommit="false" startRow="1" endRow="200"
+		titleRow="1" dist="" files="*.xls" sheet="" depends="">
+		<!-- 前置事务,可选操作 -->
+		<pre-do />
+		<!-- 导入执行语句:Excel Query Language,简写为eql,${}表示具体的excel列，@xxx()宏转换，如实现机构名称查询转换为机构编号 -->
+		<do>
+			<filter message=""><![CDATA[(${id}>10)]]></filter>
+			<mainTable pk="" clear="true">
+				<![CDATA[(${姓名},@keyWord(${})) into tableName(,)]]>
+			</mainTable>
+			<subTables>
+				<subTable clear="true" loop-column="${'条线'}" split=","
+					as="id">
+					<![CDATA[(#{id},${},@keyWord(${})) into tableName(,,)]]>
+				</subTable>
+			</subTables>
+		</do>
+		<!--后置事务 -->
+		<end-do />
+	</import>
+
+	<!-- 导出数据 -->
+	<!--file:导出文件名 -->
+	<export id="" datasource="" active="true" dist=""
+		mapping-tables="abc,dd" blobAsFile="file|string" sheet="">
+		<![CDATA[select * from table]]>
+	</export>
+	<!-- 数据工厂，用于构造测试数据 -->
+	<!-- <dataFactory id="" datasource="" active="true"
+		batchSize="100">
+		<loop-chain>
+			<loop id="" type="number" from="" to="" var="" />
+		</loop-chain>
+		<scripts>
+			<script loops="" sqlFile="" dataFile="" splitSign="">
+			<![CDATA[select * from table]]>
+			</script>
+		</scripts>
+	</dataFactory> -->
+</exceltoy>
