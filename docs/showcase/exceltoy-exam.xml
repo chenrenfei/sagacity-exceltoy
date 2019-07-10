@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exceltoy xmlns="http://www.sagframe.com/schema/exceltoy"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.sagframe.com/schema/exceltoy http://www.sagframe.com/schema/sagacity-exceltoy.xsd">
+	<property name="task.auto.disabled" value="false" />
+	<property file="config/database_local.properties" />
+	<convert id="chooseEnum" extend="enum">
+		<param name="enumKeys">0,1,2,3,4,5,6,7,8</param>
+		<param name="enumValues">A,B,C,D,E,F,G,H,I</param>
+		<param name="other">1</param>
+	</convert>
+	<convert id="enabledEnum" extend="enum">
+		<param name="enumKeys">是,否</param>
+		<param name="enumValues">1,0</param>
+	</convert>
+	<convert id="myTableSequence" extend="tableSequence"/>
+	<convert name="replaceAllSemi" extend="replace">
+		<param name="regex" value="；"/> 
+		<param name="replacement" value=";"/> 
+	</convert>
+	<convert name="replaceAllComma" extend="replace">
+		<param name="regex" value="，"/> 
+		<param name="replacement" value=","/> 
+	</convert>
+	<convert id="appSequence" extend="sequence">
+		<param name="appSeq" value="true"/>
+	</convert>
+	<convert name="difficultyDict" extend="dict">
+		<param name="sql"> <![CDATA[select DICT_NAME,DICT_KEY from SAG_DICT_DETAIL where DICT_TYPE_CODE='EXAM_QUESTION_DIFFICULTY']]>
+		</param>
+		<param name="throwException" value="true"/>
+		<param name="message" value="请正确设置题目的难度等级!"/>
+	</convert>
+	
+	<convert name="questionTarget" extend="dict">
+		<param name="sql"> <![CDATA[select DICT_NAME,DICT_KEY from SAG_DICT_DETAIL where DICT_TYPE_CODE='EXAM_QUESTION_OBEJCT']]>
+		</param>
+		<param name="throwException" value="true"/>
+		<param name="message" value="请正确设置题目的考核对象分类!"/>
+	</convert>
+	
+	<convert name="businessDict" extend="dict">
+		<param name="sql"> <![CDATA[select t.CLASS_NAME,t.CLASS_ID from exam_biz_type t where t.IS_LEAF='1']]>
+		</param>
+		<param name="throwException" value="true"/>
+		<param name="message" value="试题业务类别:[{0}]不存在!"/>
+	</convert>
+	
+	<datasource id="distinctDB" url="${test.jdbc.connection.url}"
+		driver="${jdbc.connection.driver_class}" username="${test.jdbc.connection.username}"
+		password="${test.jdbc.connection.password}" />
+	<datasource id="productDB" url="${product.jdbc.connection.url}"
+		driver="${jdbc.connection.driver_class}" username="${product.jdbc.connection.username}"
+		password="${product.jdbc.connection.password}" />
+		
+	<import id="exam_singleChoose" datasource="distinctDB" clear="false" active="true" titleRow="4" dist="config/initData" files="单选题.xls$">
+		<do>
+			<filter message="参考答案和业务类别不能为空,对应答案选项不能为空!" break="true">
+				<![CDATA[
+					"${参考答案}".trim().equals("")||"${业务类别}".trim().equals("")||("${参考答案}".equals("A")&&"${选项A}".equals(""))||("${参考答案}".equals("B")&&"${选项B}".equals(""))||("${参考答案}".equals("C")&&"${选项C}".equals(""))||("${参考答案}".equals("D")&&"${选项D}".equals(""))||("${参考答案}".equals("E")&&"${选项E}".equals(""))||("${参考答案}".equals("F")&&"${选项F}".equals(""))
+				]]>
+			</filter>
+			<mainTable>
+		      <![CDATA[
+			      	 (@appSequence(),1,@difficultyDict(${难度等级}),${题目},@equal(${建议分值},,4,${建议分值}),#{importDate},#{storageType},#{operator},#{importDate},@enabledEnum(${登陆测试}),#{impLot})
+			         into EXAM_QUESTION_STORAGE (QUESTION_ID,CATEGORY_ID,DIFFICULTY_LEVEL,CONTENT,SCORE_VALUE,CREATE_DATE,QUESTION_TYPE,OPERATOR,OPERATE_DATE,IS_FIT_LOGIN_TEST,IMP_LOT)
+		       ]]>
+			</mainTable>
+			<subTables>
+				<subTable loop-column="${选项A}||${选项B}||${选项C}||${选项D}||${选项E}||${选项F}" split="||" as="choseItem" clear="false" skipNull="true" minSize="2" break="true" message="单选题必须要有2个或以上选项"> 
+					<![CDATA[
+			       		(@appSequence(),#{QUESTION_ID},#{choseItem},@equal(${参考答案},@chooseEnum(#{choseItem.index}),1,0),1)
+			       		into EXAM_QUESTION_ITEM (QUESTION_ITEM,QUESTION_ID,ITEM_NAME,IS_RIGHT,ENABLED)
+			       	]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${业务类别})" split="," as="bizType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的业务类别"> 
+			        <![CDATA[
+			       	    (#{QUESTION_ID},@businessDict(#{bizType}))
+			       		into EXAM_QUESTION_BIZ (QUESTION_ID,BIZ_ID)
+			       	]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${角色})" split="," as="targetType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的考核对象分类"> 
+			        <![CDATA[
+			       	    (#{QUESTION_ID},@questionTarget(#{targetType}))
+			       		into EXAM_QUESTION_TARGET (QUESTION_ID,TARGET_TYPE)
+			       	]]>
+				</subTable>
+			</subTables>
+		</do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_BIZ where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_ITEM where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+        <end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_TARGET where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_STORAGE where IMP_LOT='#{impLot}'
+        ]]></end-do>
+	</import>
+	<import id="exam_multChoose" datasource="distinctDB" clear="false" active="true" titleRow="4" dist="config/initData" files="多选题.xls$" >
+		<do>
+			<filter message="参考答案和业务类别不能为空,参考答案必须2个或以上,答案对应选项不能为空!" break="true">
+				<![CDATA[
+				"${参考答案}".trim().equals("")||"${参考答案}".length()<2||"${业务类别}".trim().equals("")||
+				(
+				    ((("${参考答案}".toUpperCase().indexOf("A")!=-1&&!"${选项A}".trim().equals(""))?1:0)+
+					(("${参考答案}".toUpperCase().indexOf("B")!=-1&&!"${选项B}".trim().equals(""))?1:0)+
+					(("${参考答案}".toUpperCase().indexOf("C")!=-1&&!"${选项C}".trim().equals(""))?1:0)+
+					(("${参考答案}".toUpperCase().indexOf("D")!=-1&&!"${选项D}".trim().equals(""))?1:0)+
+					(("${参考答案}".toUpperCase().indexOf("E")!=-1&&!"${选项E}".trim().equals(""))?1:0)+
+					(("${参考答案}".toUpperCase().indexOf("F")!=-1&&!"${选项F}".trim().equals(""))?1:0)+
+					(("${参考答案}".toUpperCase().indexOf("G")!=-1&&!"${选项G}".trim().equals(""))?1:0))<2
+				)
+				]]>
+			</filter>
+			<mainTable> 
+				<![CDATA[
+	      	 		 (@appSequence(),2,@difficultyDict(${难度等级}),${题目},@equal(${建议分值},,4,${建议分值}),#{importDate},#{storageType},#{operator},#{importDate},@enabledEnum(${登陆测试}),#{impLot})
+			         into EXAM_QUESTION_STORAGE (QUESTION_ID,CATEGORY_ID,DIFFICULTY_LEVEL,CONTENT,SCORE_VALUE,CREATE_DATE,QUESTION_TYPE,OPERATOR,OPERATE_DATE,IS_FIT_LOGIN_TEST,IMP_LOT)
+	       		]]>
+			</mainTable>
+			<subTables>
+				<subTable loop-column="${选项A}||${选项B}||${选项C}||${选项D}||${选项E}||${选项F}||${选项G}" split="||" as="choseItem" clear="false" skipNull="true" minSize="3" break="true" message="多选题必须要有3个或以上选项"> 
+					<![CDATA[
+			       		(@appSequence(),#{QUESTION_ID},#{choseItem},@equal(@indexOf(@upper(${参考答案}),{regex:@chooseEnum(#{choseItem.index})}),-1,0,1),1)
+			       		into EXAM_QUESTION_ITEM (QUESTION_ITEM,QUESTION_ID,ITEM_NAME,IS_RIGHT,ENABLED)
+		       		]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${业务类别})" split="," as="bizType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的业务类别">
+					<![CDATA[
+			       		(#{QUESTION_ID},@businessDict(#{bizType}))
+			       		into EXAM_QUESTION_BIZ (QUESTION_ID,BIZ_ID)
+       				]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${角色})" split="," as="targetType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的考核对象分类"> 
+			        <![CDATA[
+			       	    (#{QUESTION_ID},@questionTarget(#{targetType}))
+			       		into EXAM_QUESTION_TARGET (QUESTION_ID,TARGET_TYPE)
+			       	]]>
+				</subTable>
+			</subTables>
+		</do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_BIZ where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_ITEM where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+         <end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_TARGET where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_STORAGE where IMP_LOT='#{impLot}'
+        ]]></end-do>
+	</import>
+	<import id="exam_judge" datasource="distinctDB" clear="false" active="true" titleRow="4" dist="config/initData" files="是非题.xls$">
+		<do>
+			<filter message="参考答案和业务类别不能为空!" break="true">
+				<![CDATA[
+				"${参考答案}".trim().equals("")||"${业务类别}".trim().equals("")
+				]]>
+			</filter>	
+			<mainTable>
+		      <![CDATA[
+		      	 (@appSequence(),3,@difficultyDict(${难度等级}),${题目},@equal(${建议分值},,4,${建议分值}),#{importDate},#{storageType},#{operator},#{importDate},@enabledEnum(${登陆测试}),#{impLot})
+			     into EXAM_QUESTION_STORAGE (QUESTION_ID,CATEGORY_ID,DIFFICULTY_LEVEL,CONTENT,SCORE_VALUE,CREATE_DATE,QUESTION_TYPE,OPERATOR,OPERATE_DATE,IS_FIT_LOGIN_TEST,IMP_LOT)
+		       ]]>
+			</mainTable>
+			<subTables>
+				<subTable loop-column="对||错" split="||" as="choseItem" clear="false" skipNull="true" break="true">
+			        <![CDATA[
+			       		(@appSequence(),#{QUESTION_ID},#{choseItem},@equal(${参考答案},#{choseItem},1,0),1)
+			       		into EXAM_QUESTION_ITEM (QUESTION_ITEM,QUESTION_ID,ITEM_NAME,IS_RIGHT,ENABLED)
+			       	]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${业务类别})" split="," as="bizType" clear="false" skipNull="true" skipRepeat="true" message="没有对应的业务类别" break="true">
+			        <![CDATA[
+			       		(#{QUESTION_ID},@businessDict(#{bizType}))
+			       		into EXAM_QUESTION_BIZ (QUESTION_ID,BIZ_ID)
+			       	]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${角色})" split="," as="targetType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的考核对象分类"> 
+			        <![CDATA[
+			       	    (#{QUESTION_ID},@questionTarget(#{targetType}))
+			       		into EXAM_QUESTION_TARGET (QUESTION_ID,TARGET_TYPE)
+			       	]]>
+				</subTable>
+			</subTables>
+		</do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_BIZ where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_ITEM where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+         <end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_TARGET where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_STORAGE where IMP_LOT='#{impLot}'
+        ]]></end-do>
+	</import>
+	<import id="exam_writeBlank" datasource="distinctDB" clear="false" active="true" titleRow="4" dist="config/initData" files="填空题.xls$">
+		<do>
+			<filter message="参考答案和业务类别不能为空!" break="true">
+			<![CDATA[
+				"${参考答案}".trim().equals("")||"${业务类别}".trim().equals("")
+			]]>
+			</filter>
+			<mainTable> 
+			 <![CDATA[
+		      	 (@appSequence(),4,@difficultyDict(${难度等级}),${题目},@equal(${建议分值},,4,${建议分值}),#{importDate},#{storageType},#{operator},#{importDate},0,#{impLot})
+			     into EXAM_QUESTION_STORAGE (QUESTION_ID,CATEGORY_ID,DIFFICULTY_LEVEL,CONTENT,SCORE_VALUE,CREATE_DATE,QUESTION_TYPE,OPERATOR,OPERATE_DATE,IS_FIT_LOGIN_TEST,IMP_LOT)
+		      ]]>
+			</mainTable>
+			<subTables>
+				<subTable loop-column="@replaceAllSemi(${参考答案})" split=";" as="choseItem" clear="false" skipNull="true" break="true"> 
+					<![CDATA[
+			       		(@appSequence(),#{QUESTION_ID},#{choseItem},1,1)
+			       		 into EXAM_QUESTION_ITEM (QUESTION_ITEM,QUESTION_ID,RIGHT_RESULT,IS_RIGHT,ENABLED)
+		       		]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${业务类别})" split="," as="bizType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的业务类别">
+					<![CDATA[
+			       		(#{QUESTION_ID},@businessDict(#{bizType}))
+			       		into EXAM_QUESTION_BIZ (QUESTION_ID,BIZ_ID)
+		       		]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${角色})" split="," as="targetType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的考核对象分类"> 
+			        <![CDATA[
+			       	    (#{QUESTION_ID},@questionTarget(#{targetType}))
+			       		into EXAM_QUESTION_TARGET (QUESTION_ID,TARGET_TYPE)
+			       	]]>
+				</subTable>
+			</subTables>
+		</do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_BIZ where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_ITEM where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+         <end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_TARGET where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_STORAGE where IMP_LOT='#{impLot}'
+        ]]></end-do>
+	</import>
+	<import id="exam_answer" datasource="distinctDB" clear="false" active="true" titleRow="4" dist="config/initData" files="简答题.xls$">
+		<do>
+			<filter message="参考答案和业务类别不能为空!" break="true">
+			<![CDATA[
+				"${参考答案}".trim().equals("")||"${业务类别}".trim().equals("")
+			]]>
+			</filter>
+			<mainTable> 
+			 <![CDATA[
+		      	 (@appSequence(),5,@difficultyDict(${难度等级}),${题目},@equal(${建议分值},,4,${建议分值}),#{importDate},#{storageType},#{operator},#{importDate},0,#{impLot})
+			     into EXAM_QUESTION_STORAGE (QUESTION_ID,CATEGORY_ID,DIFFICULTY_LEVEL,CONTENT,SCORE_VALUE,CREATE_DATE,QUESTION_TYPE,OPERATOR,OPERATE_DATE,IS_FIT_LOGIN_TEST,IMP_LOT)
+		      ]]>
+			</mainTable>
+			<subTables>
+				<subTable loop-column="${参考答案}" as="choseItem" clear="false" skipNull="true" break="true">
+					<![CDATA[
+			       		(@appSequence(),#{QUESTION_ID},#{choseItem},1,1)
+			       		into EXAM_QUESTION_ITEM (QUESTION_ITEM,QUESTION_ID,RIGHT_RESULT,IS_RIGHT,ENABLED)
+			       	]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${业务类别})" split="," as="bizType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的业务类别"> 
+					<![CDATA[
+			       		(#{QUESTION_ID},@businessDict(#{bizType}))
+			       		into EXAM_QUESTION_BIZ (QUESTION_ID,BIZ_ID)
+		       		]]>
+				</subTable>
+				<subTable loop-column="@replaceAllComma(${角色})" split="," as="targetType" clear="false" skipNull="true" skipRepeat="true" break="true" message="没有对应的考核对象分类"> 
+			        <![CDATA[
+			       	    (#{QUESTION_ID},@questionTarget(#{targetType}))
+			       		into EXAM_QUESTION_TARGET (QUESTION_ID,TARGET_TYPE)
+			       	]]>
+				</subTable>
+			</subTables>
+		</do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_BIZ where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_ITEM where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+         <end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			delete from EXAM_QUESTION_TARGET where exists(select 1 from EXAM_QUESTION_STORAGE t where QUESTION_ID=t.QUESTION_ID and t.IMP_LOT='#{impLot}')
+        ]]></end-do>
+		<end-do errorRun="true" onlyError="true">
+        <![CDATA[
+			 delete from EXAM_QUESTION_STORAGE where IMP_LOT='#{impLot}'
+        ]]></end-do>
+	</import>
+</exceltoy>
