@@ -43,9 +43,11 @@
 		<fastjson.version>1.2.58</fastjson.version>
 		<junit.version>4.12</junit.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<log4j.version>2.11.2</log4j.version>
+		<log4j.version>2.12.0</log4j.version>
 		<bsh.version>2.0b5</bsh.version>
+		<jaxen.version>1.2.0</jaxen.version>
 		<poi.version>4.1.0</poi.version>
+		<xmlbeans.version>3.1.0</xmlbeans.version>
 		<freemarker.version>2.3.28</freemarker.version>
 		<commons-collections4.version>4.3</commons-collections4.version>
 		<commons-logging.version>1.2</commons-logging.version>
@@ -160,7 +162,7 @@
 		<dependency>
 			<groupId>org.apache.xmlbeans</groupId>
 			<artifactId>xmlbeans</artifactId>
-			<version>3.1.0</version>
+			<version>${xmlbeans.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>*</groupId>
@@ -189,7 +191,7 @@
 		<dependency>
 			<groupId>jaxen</groupId>
 			<artifactId>jaxen</artifactId>
-			<version>1.2.0</version>
+			<version>${jaxen.version}</version>
 		</dependency>
 
 		<dependency>
