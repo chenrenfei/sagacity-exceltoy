@@ -256,7 +256,8 @@ public class ConvertUtil {
 				}
 				if (str.indexOf("${") != -1)
 					str = EQLUtil.replaceHolder(str, EQLUtil.parseExcelFields(str));
-				return str;
+				// 常量替换
+				return ExcelToyConstants.replaceConstants(str);
 			} else
 				return result;
 		} catch (Exception e) {

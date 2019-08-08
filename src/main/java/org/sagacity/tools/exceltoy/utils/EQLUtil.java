@@ -82,10 +82,10 @@ public class EQLUtil {
 		insertSql.append("?)");
 
 		List<String> excelFileds = new ArrayList();
-		String excelFiled;
+		String excelField;
 		for (int i = 0; i < insertParams.length; i++) {
-			excelFiled = insertParams[i];
-			String[] tempFields = parseExcelFields(excelFiled);
+			excelField = insertParams[i];
+			String[] tempFields = parseExcelFields(excelField);
 			for (int j = 0; j < tempFields.length; j++) {
 				if (!excelFileds.contains(tempFields[j]))
 					excelFileds.add(tempFields[j].trim());
@@ -97,6 +97,9 @@ public class EQLUtil {
 		}
 		result.setExcelCols((String[]) excelFileds.toArray(new String[excelFileds.size()]));
 		result.setFields(tableFields);
+		// //将eql里面常量值替换掉
+		// for (int i = 0; i < insertParams.length - 1; i++)
+		// insertParams[i] = ExcelToyConstants.replaceConstants(insertParams[i]);
 		result.setParams(insertParams);
 		result.setTableName(table);
 		result.setInsertSql(insertSql.toString());
