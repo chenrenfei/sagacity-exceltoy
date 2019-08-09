@@ -133,8 +133,8 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			DataSourceUtils.releaseConnection(conn, dataSource);
-			// conn = null;
+			//DataSourceUtils.releaseConnection(conn, dataSource);
+			conn = null;
 		}
 		HashMap message = getTaskMessage(null);
 		clearMessage();
@@ -165,8 +165,8 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			DataSourceUtils.releaseConnection(conn, dataSource);
-			// conn = null;
+			//DataSourceUtils.releaseConnection(conn, dataSource);
+			conn = null;
 		}
 		HashMap message = getTaskMessage(null);
 		clearMessage();
@@ -196,8 +196,8 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			DataSourceUtils.releaseConnection(conn, dataSource);
-			// conn = null;
+			//DataSourceUtils.releaseConnection(conn, dataSource);
+			conn = null;
 		}
 		HashMap message = getTaskMessage(task);
 		clearMessage();

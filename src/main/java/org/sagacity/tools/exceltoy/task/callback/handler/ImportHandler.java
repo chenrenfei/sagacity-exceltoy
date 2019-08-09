@@ -80,7 +80,7 @@ public class ImportHandler extends TaskExcuteHandler {
 	 * 
 	 * @see org.sagacity.tools.excel.task.ITask#process(java.lang.Object)
 	 */
-	public void doTask(TaskModel taskModel, List fileList) throws Exception {
+	public synchronized void doTask(TaskModel taskModel, List fileList) throws Exception {
 		// 重置初始化参数
 		realRecordCnt = 0;
 		batchCount = 0;
@@ -277,7 +277,7 @@ public class ImportHandler extends TaskExcuteHandler {
 		if (importModel.getMainEql() != null && mainEqlParseResult == null) {
 			logger.info("任务:{}没有配置<do></do>事务!", importModel.getId());
 		}
-
+		final int dbType = DBHelper.getDbType();
 		// do pre-do 前置事务
 		preTransation(false);
 		int beginRow = 0;
@@ -414,8 +414,8 @@ public class ImportHandler extends TaskExcuteHandler {
 
 							if (hasMainEql && isInsertMain && !isSkip) {
 								// 执行主表插入并返回主表插入的数据
-								ConvertDataSource.setMainTableRowData(doMainTableInsert(fkMaps, filterFk, fkNoExistMap,
-										mainEqlParseResult.getInsertSql(), mainEqlParseResult.getParams(),
+								ConvertDataSource.setMainTableRowData(doMainTableInsert(dbType, fkMaps, filterFk,
+										fkNoExistMap, mainEqlParseResult.getInsertSql(), mainEqlParseResult.getParams(),
 										mainEqlParseResult.getFields(), mainEqlParseResult.getTableMeta(),
 										importModel.getBlobFile(), beginRow, j, excelRowCount,
 										importModel.getSubEqls() != null ? true : false, hasFilter,
@@ -447,7 +447,7 @@ public class ImportHandler extends TaskExcuteHandler {
 											subEqlParseResult = (EqlParseResult) subTableEqlParseResult
 													.get(Integer.toString(k));
 											// 执行子表插入
-											doSubTableInsert(subEqlParseResult.getInsertSql(),
+											doSubTableInsert(dbType, subEqlParseResult.getInsertSql(),
 													subEqlParseResult.getParams(), subEqlParseResult.getFields(),
 													subEqlParseResult.getTableMeta(), importModel.getBlobFile(),
 													beginRow, eqlModel,
@@ -463,6 +463,7 @@ public class ImportHandler extends TaskExcuteHandler {
 							if (!importModel.isIgnoreMainInsert() && hasMainEql) {
 								if (j == excelRowCount - 1 && batchCount > 0 && mainPst != null) {
 									mainPst.executeBatch();
+									mainPst.clearBatch();
 								}
 							}
 						}
@@ -503,9 +504,9 @@ public class ImportHandler extends TaskExcuteHandler {
 	 * @return
 	 * @throws Exception
 	 */
-	private Object[][] doMainTableInsert(HashMap fkFields, boolean isFkFilter, HashMap fkNoExistMap, String insertSql,
-			String[] params, String[] fileds, HashMap tableMetaMap, String blobFile, int beginRow, int rowIndex,
-			int rowCounts, boolean hasSubTables, boolean hasFilter, boolean ignoreInsert, String charset)
+	private Object[][] doMainTableInsert(int dbType, HashMap fkFields, boolean isFkFilter, HashMap fkNoExistMap,
+			String insertSql, String[] params, String[] fileds, HashMap tableMetaMap, String blobFile, int beginRow,
+			int rowIndex, int rowCounts, boolean hasSubTables, boolean hasFilter, boolean ignoreInsert, String charset)
 			throws Exception {
 		realRecordCnt++;
 		Object[][] result = new Object[params.length][2];
@@ -563,7 +564,7 @@ public class ImportHandler extends TaskExcuteHandler {
 			if (colMeta == null)
 				logger.error("字段:" + fieldName + "在表中不存在!");
 			if (!ignoreInsert)
-				DBHelper.setParam(objs[i], colMeta, mainPst, i + 1, blobFile, charset);
+				DBHelper.setParam(objs[i], colMeta, mainPst, dbType, i + 1, blobFile, charset);
 		}
 		// 存在子表数据插入需要及时提交主表的数据
 		if (!ignoreInsert) {
@@ -576,6 +577,7 @@ public class ImportHandler extends TaskExcuteHandler {
 				batchCount++;
 				if (((rowIndex + 1) % ExcelToyConstants.getBatchSize()) == 0 || (rowIndex + 1) == rowCounts) {
 					mainPst.executeBatch();
+					mainPst.clearBatch();
 					batchCount = 0;
 					logger.info("已经完成:第:{}行，共计:{}条数据导入!", (rowIndex + beginRow - 1), realRecordCnt);
 				}
@@ -596,7 +598,7 @@ public class ImportHandler extends TaskExcuteHandler {
 	 * @param loopValues
 	 * @throws Exception
 	 */
-	private void doSubTableInsert(String insertSql, String[] params, String[] fileds, HashMap tableMetaMap,
+	private void doSubTableInsert(int dbType, String insertSql, String[] params, String[] fileds, HashMap tableMetaMap,
 			String blobFile, int beginRow, EqlModel eqlModel, String[] loopValues, String charset) throws Exception {
 		try {
 			// 子表采用分割循环，分割后的结果为空则跳出处理
@@ -677,12 +679,14 @@ public class ImportHandler extends TaskExcuteHandler {
 					colMeta = (TableColumnMeta) tableMetaMap.get(fieldName);
 					if (colMeta == null)
 						logger.error("字段:{}在表中不存在!", fieldName);
-					DBHelper.setParam(obj, colMeta, pst, i + 1, blobFile, charset);
+					DBHelper.setParam(obj, colMeta, pst, dbType, i + 1, blobFile, charset);
 				}
 				pst.addBatch();
 			}
-			if (loopValuesList.size() > 0)
+			if (loopValuesList.size() > 0) {
 				pst.executeBatch();
+				pst.clearBatch();
+			}
 		} catch (Exception e) {
 			ExcelToySpringContext.putMessage("插入子表错误:" + e.getMessage());
 			logger.error("插入子表错误!");
@@ -720,12 +724,15 @@ public class ImportHandler extends TaskExcuteHandler {
 			while (iter.hasNext()) {
 				try {
 					PreparedStatement pst = (PreparedStatement) ((Map.Entry) iter.next()).getValue();
-					if (pst != null)
+					if (pst != null) {
 						pst.close();
+						pst = null;
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
+			pstMap = null;
 		}
 	}
 

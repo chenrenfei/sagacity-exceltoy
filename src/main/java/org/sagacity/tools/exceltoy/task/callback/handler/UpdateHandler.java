@@ -48,7 +48,7 @@ public class UpdateHandler extends TaskExcuteHandler {
 	 * @see org.sagacity.tools.exceltoy.task.callback.TaskExcuteHandler#doTask (org
 	 * .sagacity.tools.exceltoy.model.TaskModel)
 	 */
-	public void doTask(TaskModel taskModel, List fileList) throws Exception {
+	public synchronized void doTask(TaskModel taskModel, List fileList) throws Exception {
 		logger.info("开始执行修改任务:{}", taskModel.getId());
 		updateModel = (UpdateModel) this.getTask(taskModel.getId());
 

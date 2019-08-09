@@ -41,7 +41,7 @@ public class ExportHandler extends TaskExcuteHandler {
 	 * 
 	 * @see org.sagacity.tools.excel.task.ITask#process(java.lang.Object)
 	 */
-	public void doTask(TaskModel taskModel, List fileList) throws Exception {
+	public synchronized void doTask(TaskModel taskModel, List fileList) throws Exception {
 		logger.info("开始执行导出任务:{}!", taskModel.getId());
 		// excel文件最大数据行数
 		long maxcnt = Long.parseLong(ExcelToyConstants.getKeyValue(ExcelToyConstants.EXPORT_SHEET_MAXCOUNT));

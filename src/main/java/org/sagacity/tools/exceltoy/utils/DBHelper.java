@@ -47,12 +47,7 @@ public class DBHelper {
 	 */
 	private static HashMap<String, DataSourceModel> datasourceMap = new HashMap<String, DataSourceModel>();
 
-	/**
-	 * 数据库连接
-	 */
-	private static Connection conn;
-
-	private static int dbType;
+	private static ThreadLocal<Connection> connLocal = new ThreadLocal<Connection>();
 
 	/**
 	 * 数据库模型
@@ -75,8 +70,7 @@ public class DBHelper {
 	 * @return
 	 */
 	public static Connection getConnection() throws Exception {
-		dbType = DataSourceUtils.getDbType(conn);
-		return conn;
+		return connLocal.get();
 	}
 
 	/**
@@ -88,7 +82,8 @@ public class DBHelper {
 	 */
 	public static void registConnection(String datasource, String isolationlevel, String autoCommit) throws Exception {
 		datasourceName = datasource;
-		conn = null;
+		connLocal.remove();
+		Connection conn;
 		dbModel = null;
 		if (datasource != null)
 			dbModel = (DataSourceModel) datasourceMap.get(datasource);
@@ -101,10 +96,11 @@ public class DBHelper {
 		if (dbModel == null)
 			throw new Exception("任务设置的对应datasource='" + datasource + "',未能正确匹配，请检查配置!");
 		try {
-			logger.info("数据库地址信息:{}",dbModel.getUrl());
+			logger.info("数据库地址信息:{}", dbModel.getUrl());
 			Class.forName(dbModel.getDriver());
 			conn = DriverManager.getConnection(dbModel.getUrl(), dbModel.getUsername(), dbModel.getPassword());
-			dbType = DataSourceUtils.getDbType(conn);
+			// dbType = DataSourceUtils.getDbType(conn);
+			connLocal.set(conn);
 		} catch (ClassNotFoundException cnfe) {
 			cnfe.printStackTrace();
 			logger.error("数据库驱动未能加载，请在/drivers 目录下放入正确的数据库驱动jar包!", cnfe);
@@ -136,9 +132,19 @@ public class DBHelper {
 		}
 	}
 
-	public static void registConnection(Connection connection) throws Exception {
-		conn = connection;
-		dbType = DataSourceUtils.getDbType(conn);
+	public static void registConnection(Connection conn) throws Exception {
+		connLocal.set(conn);
+	}
+
+	public static int getDbType() throws Exception {
+		return DataSourceUtils.getDbType(connLocal.get());
+	}
+
+	/**
+	 * @todo 关闭数据库并销毁
+	 */
+	public static void destory() {
+		connLocal.remove();
 	}
 
 	/**
@@ -146,6 +152,7 @@ public class DBHelper {
 	 */
 	public static void close() {
 		try {
+			Connection conn = connLocal.get();
 			if (conn != null) {
 				if (!conn.getAutoCommit())
 					conn.commit();
@@ -162,6 +169,7 @@ public class DBHelper {
 	 */
 	public static void rollback() {
 		try {
+			Connection conn = connLocal.get();
 			if (conn != null)
 				conn.rollback();
 		} catch (SQLException e) {
@@ -210,6 +218,7 @@ public class DBHelper {
 	 * @throws Exception
 	 */
 	public static List getTablesByOrderLink(String[] includes, String[] excludes) throws Exception {
+		Connection conn = connLocal.get();
 		List orderTables = getConnectionTableAndViews(conn, (dbModel == null) ? null : dbModel.getCatalog(),
 				(dbModel == null) ? null : dbModel.getSchema(), new String[] { "TABLE" }, includes, excludes);
 		if (orderTables == null || orderTables.isEmpty())
@@ -272,6 +281,7 @@ public class DBHelper {
 	public static List findByJdbcQuery(final String queryStr, final Object[] params) {
 		List result = null;
 		try {
+			final Connection conn = connLocal.get();
 			ResultSet rs = null;
 			PreparedStatement pst = conn.prepareStatement(queryStr);
 			result = (List) SqlUtils.preparedStatementProcess(null, pst, rs, new PreparedStatementResultHandler() {
@@ -342,6 +352,7 @@ public class DBHelper {
 			return;
 		}
 		try {
+			Connection conn = connLocal.get();
 			boolean hasSetAutoCommit = false;
 			if (!autoCommit == conn.getAutoCommit()) {
 				conn.setAutoCommit(autoCommit);
@@ -368,6 +379,7 @@ public class DBHelper {
 	 * @return
 	 */
 	public static HashMap<String, TableColumnMeta> getTableColumnMeta(String tableName) throws Exception {
+		Connection conn = connLocal.get();
 		List<TableColumnMeta> tableColumnsMeta = getTableColumnMeta(conn,
 				(dbModel == null) ? null : dbModel.getCatalog(), (dbModel == null) ? null : dbModel.getSchema(),
 				tableName);
@@ -385,6 +397,7 @@ public class DBHelper {
 	 * @return
 	 */
 	public static List<TableColumnMeta> getTableColumnMetaList(String tableName) throws Exception {
+		Connection conn = connLocal.get();
 		return getTableColumnMeta(conn, (dbModel == null) ? null : dbModel.getCatalog(),
 				(dbModel == null) ? null : dbModel.getSchema(), tableName);
 	}
@@ -454,7 +467,7 @@ public class DBHelper {
 	}
 
 	public static int getDBDialect() throws Exception {
-		return DataSourceUtils.getDbType(conn);
+		return DataSourceUtils.getDbType(connLocal.get());
 	}
 
 	// ==================== 取当前会话数据库的类型以及版本,example:oracle10 ================/
@@ -468,7 +481,7 @@ public class DBHelper {
 	public static HashMap getTableImpForeignKeys(String tableName) throws Exception {
 		String realTableName = (tableName.indexOf(".") > 0) ? tableName.substring(tableName.indexOf(".") + 1)
 				: tableName;
-		ResultSet rs = conn.getMetaData().getImportedKeys((dbModel == null) ? null : dbModel.getCatalog(),
+		ResultSet rs = connLocal.get().getMetaData().getImportedKeys((dbModel == null) ? null : dbModel.getCatalog(),
 				(dbModel == null) ? null : dbModel.getSchema(), realTableName);
 		HashMap fkMaps = (HashMap) SqlUtils.preparedStatementProcess(null, null, rs,
 				new PreparedStatementResultHandler() {
@@ -498,6 +511,7 @@ public class DBHelper {
 	 * @throws SQLException
 	 */
 	public static Long getJdbcRecordCount(final String queryStr) throws Exception {
+		Connection conn = connLocal.get();
 		return SqlUtils.getJdbcRecordCount(queryStr, null, conn, DataSourceUtils.getDbType(conn));
 	}
 
@@ -512,7 +526,7 @@ public class DBHelper {
 	public static PaginationModel findPageByJdbc(final String queryStr, final PaginationModel paginationModel)
 			throws Exception {
 		logger.debug("findPageByJdbc:分页查询sql为:" + queryStr);
-		return SqlUtils.findPageByJdbc(queryStr, null, paginationModel, conn);
+		return SqlUtils.findPageByJdbc(queryStr, null, paginationModel, connLocal.get());
 	}
 
 	/**
@@ -537,7 +551,8 @@ public class DBHelper {
 		PreparedStatement pst = null;
 		int rowMeter = 0;
 		try {
-			pst = conn.prepareStatement(insertSql);
+			pst = connLocal.get().prepareStatement(insertSql);
+			int dbType = DataSourceUtils.getDbType(connLocal.get());
 			List rowData;
 			String fieldName;
 			String excelTitle;
@@ -595,7 +610,7 @@ public class DBHelper {
 						setParam(
 								excelTitleMap.get(excelTitle) == null ? null
 										: rowData.get(((Integer) excelTitleMap.get(excelTitle)).intValue()),
-								colMeta, pst, j + 1, blobFile, charset);
+								colMeta, pst, dbType, j + 1, blobFile, charset);
 						j++;
 					}
 					if (1 == dataSize)
@@ -653,7 +668,7 @@ public class DBHelper {
 	 * @param blobFile
 	 * @throws SQLException
 	 */
-	public static void setParam(Object colData, TableColumnMeta colModel, PreparedStatement pst, int index,
+	public static void setParam(Object colData, TableColumnMeta colModel, PreparedStatement pst, int dbType, int index,
 			String blobFile, String charset) throws SQLException {
 		String dataType = colModel.getTypeName().toLowerCase();
 		String defaultValue = colModel.getColDefault();
@@ -929,7 +944,7 @@ public class DBHelper {
 			logger.info("datasource:" + datasourceName + " 禁止" + forbid + "操作!");
 			return false;
 		}
-		return SqlUtils.wrapTreeTableRoute(treeTableModel, conn);
+		return SqlUtils.wrapTreeTableRoute(treeTableModel, connLocal.get());
 	}
 
 	/**
@@ -945,8 +960,9 @@ public class DBHelper {
 		ResultSet rs = null;
 		int result = 0;
 		try {
-			pst = conn.prepareStatement(sql);
-			setParam(data, colModel, pst, 1, null, null);
+			pst = connLocal.get().prepareStatement(sql);
+			int dbType = DataSourceUtils.getDbType(connLocal.get());
+			setParam(data, colModel, pst, dbType, 1, null, null);
 			rs = pst.executeQuery();
 			while (rs.next()) {
 				result = rs.getInt(1);
@@ -972,7 +988,7 @@ public class DBHelper {
 	public static List getTablePrimaryKeys(String tableName) throws Exception {
 		String realTableName = (tableName.indexOf(".") > 0) ? tableName.substring(tableName.indexOf(".") + 1)
 				: tableName;
-		ResultSet rs = conn.getMetaData().getPrimaryKeys((dbModel == null) ? null : dbModel.getCatalog(),
+		ResultSet rs = connLocal.get().getMetaData().getPrimaryKeys((dbModel == null) ? null : dbModel.getCatalog(),
 				(dbModel == null) ? null : dbModel.getSchema(), realTableName);
 		return (List) SqlUtils.preparedStatementProcess(null, null, rs, new PreparedStatementResultHandler() {
 			public void execute(Object obj, PreparedStatement pst, ResultSet rs) throws SQLException {
@@ -993,7 +1009,7 @@ public class DBHelper {
 	public static void callStore(String store) {
 		CallableStatement callStat = null;
 		try {
-			callStat = conn.prepareCall(store);
+			callStat = connLocal.get().prepareCall(store);
 			callStat.execute();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -1089,6 +1105,7 @@ public class DBHelper {
 
 	public static void commit(Boolean commit) {
 		try {
+			Connection conn = connLocal.get();
 			if (commit != null && commit && !conn.getAutoCommit()) {
 				conn.commit();
 			}
@@ -1107,6 +1124,7 @@ public class DBHelper {
 	 * @throws Exception
 	 */
 	public static void batchSqlText(String sqlContent, String splitSign, boolean isAutoCommit) throws Exception {
+		Connection conn = connLocal.get();
 		SqlUtils.executeBatchSql(conn, sqlContent,
 				splitSign == null ? DataSourceUtils.getDatabaseSqlSplitSign(conn) : splitSign, isAutoCommit);
 	}

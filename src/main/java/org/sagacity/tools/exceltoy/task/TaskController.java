@@ -115,7 +115,7 @@ public class TaskController {
 				threadLocal.set(taskModel.getId());
 				try {
 					File[] files = taskFiles == null ? null : taskFiles.get(taskModel.getId());
-					logger.info("使用数据库:{}",taskModel.getDatasource());
+					logger.info("使用数据库:{}", taskModel.getDatasource());
 					// 为每个任务登记数据库连接
 					if (isInnerTask)
 						DBHelper.registConnection(taskModel.getDatasource(), taskModel.getIsolationlevel(),
@@ -157,9 +157,8 @@ public class TaskController {
 						// spring集成conn的销毁交给spring
 						if (StringUtil.isNotBlank(taskModel.getAutoCommit()))
 							DBHelper.commit(Boolean.parseBoolean(taskModel.getAutoCommit()));
-						else
-							DBHelper.commit(false);
 					}
+					DBHelper.destory();
 				}
 			}
 		}
