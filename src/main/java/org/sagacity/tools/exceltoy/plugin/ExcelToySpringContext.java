@@ -43,6 +43,11 @@ public class ExcelToySpringContext {
 	private DataSource dataSource;
 
 	/**
+	 * 是否需要释放连接(增加一个开关控制是否调用释放连接的操作,因不同连接池模式下进行释放导致报错)
+	 */
+	private boolean releaseConnection = false;
+
+	/**
 	 * 任务配置
 	 */
 	private String taskConfig;
@@ -133,7 +138,8 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			//DataSourceUtils.releaseConnection(conn, dataSource);
+			if (releaseConnection)
+				DataSourceUtils.releaseConnection(conn, dataSource);
 			conn = null;
 		}
 		HashMap message = getTaskMessage(null);
@@ -165,7 +171,8 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			//DataSourceUtils.releaseConnection(conn, dataSource);
+			if (releaseConnection)
+				DataSourceUtils.releaseConnection(conn, dataSource);
 			conn = null;
 		}
 		HashMap message = getTaskMessage(null);
@@ -196,7 +203,8 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			//DataSourceUtils.releaseConnection(conn, dataSource);
+			if (releaseConnection)
+				DataSourceUtils.releaseConnection(conn, dataSource);
 			conn = null;
 		}
 		HashMap message = getTaskMessage(task);
@@ -269,4 +277,13 @@ public class ExcelToySpringContext {
 		// 转换器加载
 		ConvertUtil.resetConvert();
 	}
+
+	/**
+	 * @param releaseConnection the releaseConnection to set
+	 */
+	public void setReleaseConnection(boolean releaseConnection) {
+		this.releaseConnection = releaseConnection;
+	}
+	
+	
 }
