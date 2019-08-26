@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.sagacity</groupId>
 	<artifactId>sagacity-exceltoy</artifactId>
-	<version>4.1.7</version>
+	<version>4.1.8</version>
 	<repositories>
 		<repository>
 			<id>sagframe-release</id>
@@ -18,7 +18,7 @@
 		</repository>
 	</repositories>
 	<distributionManagement>
-		<!--  <repository> <id>sagframe-release</id> <url>http://www.sagframe.com:8081/repository/maven-releases</url> 
+		 <!-- <repository> <id>sagframe-release</id> <url>http://www.sagframe.com:8081/repository/maven-releases</url> 
 			</repository>  -->
 		<repository>
 			<id>nexus-release</id>
@@ -36,14 +36,14 @@
 		<!-- environment setting -->
 		<jdk.version>1.8</jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<spring.version>5.1.8.RELEASE</spring.version>
+		<spring.version>5.1.9.RELEASE</spring.version>
 		<!-- commons - 公用jar begin -->
 		<commons-beanutils.version>1.9.3</commons-beanutils.version>
 		<dom4j.version>2.1.1</dom4j.version>
-		<fastjson.version>1.2.58</fastjson.version>
+		<fastjson.version>1.2.59</fastjson.version>
 		<junit.version>4.12</junit.version>
 		<slf4j.version>1.7.26</slf4j.version>
-		<log4j.version>2.12.0</log4j.version>
+		<log4j.version>2.12.1</log4j.version>
 		<bsh.version>2.0b5</bsh.version>
 		<jaxen.version>1.2.0</jaxen.version>
 		<poi.version>4.1.0</poi.version>
