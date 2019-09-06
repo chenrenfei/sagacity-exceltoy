@@ -42,35 +42,9 @@ public class DateUtil {
 			"7", "8", "9", "10", "-", "-", " ", ":", ":", " " };
 
 	/**
-	 * 天干
-	 */
-	private static String[] Gan = { "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸" };
-
-	/**
-	 * 地支
-	 */
-	private static String[] Zhi = { "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥" };
-
-	/**
-	 * 生肖
-	 */
-	private final String[] Animals = { "鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪" };
-	/**
-	 * 英文月份名称
-	 */
-	private static final String[] MONTH_ENGLISH_NAME = { "January", "February", "March", "April", "May", "June", "July",
-			"August", "September", "October", "November", "December" };
-
-	/**
 	 * 中文星期的名称
 	 */
 	private static final String[] WEEK_CHINA_NAME = { "星期一", "星期二", "星期三", "星期四", "星期五", "星期六", "星期日" };
-
-	/**
-	 * 英文星期的名称
-	 */
-	private static final String[] WEEK_ENGLISH_NAME = { "Monday", "Tuesday", "Wensday", "Tursday", "Friday", "Saturday",
-			"Sunday" };
 
 	/**
 	 * 英文日期的几种格式
@@ -494,15 +468,6 @@ public class DateUtil {
 		return getMonth(null);
 	}
 
-	/**
-	 * @todo 获取月份的英文名称
-	 * @param dateValue
-	 * @return
-	 */
-	public static String getMonthName(Object dateValue) {
-		return MONTH_ENGLISH_NAME[getMonth(dateValue) - 1];
-	}
-
 	public static int getMonth(Object dateValue) {
 		GregorianCalendar currentDate = new GregorianCalendar();
 		if (dateValue != null)
@@ -588,15 +553,6 @@ public class DateUtil {
 	 */
 	public static String getDayOfWeekChinaName(Object dateValue) {
 		return WEEK_CHINA_NAME[getDayOfWeek(dateValue) - 1];
-	}
-
-	/**
-	 * @todo 获取日期的中文名称
-	 * @param dateValue
-	 * @return
-	 */
-	public static String getDayOfWeekEnglishName(Object dateValue) {
-		return WEEK_ENGLISH_NAME[getDayOfWeek(dateValue) - 1];
 	}
 
 	public static int getWeekOfMonth() {
@@ -867,30 +823,4 @@ public class DateUtil {
 		}
 	}
 
-	/**
-	 * @todo 获取指定日期属于当年中第几个季度
-	 * @param objDate
-	 * @return
-	 */
-	public static int getQuarter(Object objDate) {
-		Date date = convertDateObject(objDate);
-		if (null == date)
-			date = DateUtil.getNowTime();
-		int month = getMonth(date);
-		return (month + 2) / 3;
-	}
-
-	/**
-	 * @todo <b>获取农历年的生肖</b>
-	 * @param year
-	 * @return
-	 */
-	public String getAnimalByLunarYear(int year) {
-		return Animals[(year - 4) % 12];
-	}
-
-	public static void main(String[] args) {
-		String tmp = "2015/12/13";
-		System.err.println(StringUtil.matchCnt(tmp, "\\/"));
-	}
 }

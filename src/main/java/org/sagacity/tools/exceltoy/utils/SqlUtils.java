@@ -6,7 +6,6 @@ package org.sagacity.tools.exceltoy.utils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -35,7 +34,6 @@ import org.sagacity.tools.exceltoy.model.TreeTableModel;
 import org.sagacity.tools.exceltoy.utils.DataSourceUtils.DBType;
 import org.sagacity.tools.exceltoy.utils.callback.InsertRowCallbackHandler;
 import org.sagacity.tools.exceltoy.utils.callback.PreparedStatementResultHandler;
-import org.sagacity.tools.exceltoy.utils.callback.RowCallbackHandler;
 
 /**
  * @project sagacity-tools
@@ -73,16 +71,6 @@ public class SqlUtils {
 	 * sql中的单行注释
 	 */
 	private final static Pattern maskPattern = Pattern.compile("\\/\\*[^(+|!)]");
-
-	/**
-	 * alibaba druid clob
-	 */
-	private static final String ALIBABA_DRUID_JDBC_CLOBPROXY = "com.alibaba.druid.proxy.jdbc.ClobProxyImpl";
-
-	/**
-	 * alibaba druid nclob
-	 */
-	private static final String ALIBABA_DRUID_JDBC_NCLOBPROXY = "com.alibaba.druid.proxy.jdbc.NClobProxyImpl";
 
 	// sql 注释过滤器
 	private static HashMap sqlCommentfilters = new HashMap();
@@ -731,12 +719,6 @@ public class SqlUtils {
 				if (jdbcType == java.sql.Types.CLOB) {
 					try {
 						Clob clob = conn.createClob();
-						// 针对druid clob类型进行兼容，通过反射模式解决对druid库的强依赖问题
-						String className = clob.getClass().getName();
-						if (ALIBABA_DRUID_JDBC_CLOBPROXY.equals(className)) {
-							Method method = clob.getClass().getMethod("getRawClob", null);
-							clob = (Clob) method.invoke(clob, null);
-						}
 						clob.setString(1, tmpStr);
 						pst.setClob(paramIndex, clob);
 					} catch (Exception e) {
@@ -745,11 +727,6 @@ public class SqlUtils {
 				} else if (jdbcType == java.sql.Types.NCLOB) {
 					try {
 						NClob nclob = conn.createNClob();
-						String className = nclob.getClass().getName();
-						if (ALIBABA_DRUID_JDBC_NCLOBPROXY.equals(className)) {
-							Method method = nclob.getClass().getMethod("getRawNClob", null);
-							nclob = (NClob) method.invoke(nclob, null);
-						}
 						nclob.setString(1, tmpStr);
 						pst.setNClob(paramIndex, nclob);
 					} catch (Exception e) {
@@ -818,8 +795,7 @@ public class SqlUtils {
 	/**
 	 * @todo 获取查询sql语句中参数的个数
 	 * @param queryStr
-	 * @param skipField
-	 *            是否跳过from前的字段中的参数，如:select ? from
+	 * @param skipField 是否跳过from前的字段中的参数，如:select ? from
 	 * @return
 	 */
 	private static int getParamsCount(String queryStr, boolean skipField) {
@@ -847,8 +823,7 @@ public class SqlUtils {
 	/**
 	 * 
 	 * @todo 处理sql查询时的结果集,当没有反调或voClass反射处理时以数组方式返回resultSet的数据
-	 * @param rs
-	 *            ResultSet
+	 * @param rs                 ResultSet
 	 * @param voClass
 	 * @param rowCallbackHandler
 	 * @param startColIndex
@@ -910,7 +885,7 @@ public class SqlUtils {
 				idInfoSql = idInfoSql.concat(" and ").concat(treeTableModel.getConditions());
 			}
 			// 获取层次等级
-			List idInfo = findByJdbcQuery(idInfoSql, null, null, null, conn);
+			List idInfo = findByJdbcQuery(idInfoSql, null, null, conn);
 			// 设置第一层level
 			int nodeLevel = 0;
 			String nodeRoute = "";
@@ -941,10 +916,10 @@ public class SqlUtils {
 					firstNextNodeQuery.append(" and ").append(treeTableModel.getConditions());
 				}
 				ids = findByJdbcQuery(firstNextNodeQuery.toString(), new Object[] { treeTableModel.getIdValue() }, null,
-						null, conn);
+						conn);
 			} else
 				ids = findByJdbcQuery(nextNodeQueryStr.toString().replaceFirst("\\$\\{inStr\\}",
-						flag + treeTableModel.getRootId() + flag), null, null, null, conn);
+						flag + treeTableModel.getRootId() + flag), null, null, conn);
 			if (ids != null && !ids.isEmpty()) {
 				processNextLevel(updateLevelAndRoute.toString(), nextNodeQueryStr.toString(), treeTableModel, pidsMap,
 						ids, nodeLevel + 1, conn);
@@ -1090,7 +1065,7 @@ public class SqlUtils {
 			inStrs = combineQueryInStr(subIds, 0, null, treeTableModel.isChar());
 
 			// 获取下一层节点
-			nextIds = findByJdbcQuery(nextNodeQueryStr.replaceFirst("\\$\\{inStr\\}", inStrs), null, null, null, conn);
+			nextIds = findByJdbcQuery(nextNodeQueryStr.replaceFirst("\\$\\{inStr\\}", inStrs), null, null, conn);
 			// 递归处理下一层
 			if (nextIds != null && !nextIds.isEmpty()) {
 				processNextLevel(updateLevelAndRoute, nextNodeQueryStr, treeTableModel,
@@ -1112,7 +1087,7 @@ public class SqlUtils {
 	 * @throws Exception
 	 */
 	private static List findByJdbcQuery(final String queryStr, final Object[] params, final Class voClass,
-			final RowCallbackHandler rowCallbackHandler, final Connection conn) throws Exception {
+			final Connection conn) throws Exception {
 		ResultSet rs = null;
 		PreparedStatement pst = conn.prepareStatement(queryStr, ResultSet.TYPE_SCROLL_INSENSITIVE,
 				ResultSet.CONCUR_READ_ONLY);
@@ -1265,14 +1240,10 @@ public class SqlUtils {
 
 	/**
 	 * @todo 合成数据库in 查询的条件(不建议使用)
-	 * @param conditions
-	 *            :数据库in条件的数据集合，可以是POJO List或Object[]
-	 * @param colIndex
-	 *            :二维数组对应列编号
-	 * @param property
-	 *            :POJO property
-	 * @param isChar
-	 *            :in 是否要加单引号
+	 * @param conditions :数据库in条件的数据集合，可以是POJO List或Object[]
+	 * @param colIndex   :二维数组对应列编号
+	 * @param property   :POJO property
+	 * @param isChar     :in 是否要加单引号
 	 * @return:example:1,2,3或'1','2','3'
 	 * @throws Exception
 	 */

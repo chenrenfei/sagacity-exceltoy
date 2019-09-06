@@ -6,21 +6,13 @@ package org.sagacity.tools.exceltoy.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
@@ -32,7 +24,6 @@ import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
 import org.sagacity.tools.exceltoy.utils.callback.XMLCallbackHandler;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * @project sagacity-core
@@ -48,95 +39,6 @@ public class XMLUtil {
 
 	// xml 忽视验证的特性
 	private final static String NO_VALIDATOR_FEATURE = "http://apache.org/xml/features/nonvalidating/load-external-dtd";
-
-	private final static String XML_SCHEMA = "http://www.w3.org/2001/XMLSchema";
-
-	/**
-	 * @todo xml文件合法性验证
-	 * @param xsdStream
-	 * @param xmlStream
-	 * @return
-	 */
-	public static boolean validate(InputStream xsdStream, InputStream xmlStream) {
-		SchemaFactory factory = SchemaFactory.newInstance(XML_SCHEMA);
-		try {
-			Source xsdSource = new StreamSource(xsdStream);
-			Schema schema = factory.newSchema(xsdSource);
-			// Get a validator from the schema.
-			Validator validator = schema.newValidator();
-
-			// Parse the document you want to check.
-			Source xmlSource = new StreamSource(xmlStream);
-			// Check the document
-			validator.validate(xmlSource);
-			return true;
-		} catch (IOException ioe) {
-			logger.error("文件IO读取失败!" + ioe.getMessage());
-			ioe.printStackTrace();
-		} catch (SAXException ex) {
-			logger.error("xml验证不合法:" + ex.getMessage());
-			ex.printStackTrace();
-		}
-		return false;
-	}
-
-	/**
-	 * @todo xml文件合法性验证
-	 * @param xsdUrl
-	 * @param xmlUrl
-	 * @return
-	 */
-	public static boolean validate(URL xsdUrl, URL xmlUrl) {
-		SchemaFactory factory = SchemaFactory.newInstance(XML_SCHEMA);
-		try {
-			Schema schema = factory.newSchema(xsdUrl);
-			// Get a validator from the schema.
-			Validator validator = schema.newValidator();
-
-			// Parse the document you want to check.
-			Source xmlSource = new StreamSource(new FileInputStream(xmlUrl.getFile()));
-			// Check the document
-			validator.validate(xmlSource);
-			return true;
-		} catch (IOException ioe) {
-			logger.error("文件IO读取失败!" + ioe.getMessage());
-			ioe.printStackTrace();
-		} catch (SAXException ex) {
-			logger.error("xml验证不合法:" + ex.getMessage());
-			ex.printStackTrace();
-		}
-		return false;
-	}
-
-	/**
-	 * 
-	 * @todo 验证xml文件对应的schema文件是否匹配
-	 * @param xsdFile
-	 * @param xmlFile
-	 * @return
-	 */
-	public static boolean validate(String xsdFile, String xmlFile) {
-		SchemaFactory factory = SchemaFactory.newInstance(XML_SCHEMA);
-		File schemaLocation = new File(xsdFile);
-		try {
-			Schema schema = factory.newSchema(schemaLocation);
-			// Get a validator from the schema.
-			Validator validator = schema.newValidator();
-
-			// Parse the document you want to check.
-			Source source = new StreamSource(xmlFile);
-			// Check the document
-			validator.validate(source);
-			return true;
-		} catch (IOException ioe) {
-			logger.error("文件IO读取失败!" + ioe.getMessage());
-			ioe.printStackTrace();
-		} catch (SAXException ex) {
-			logger.error(xmlFile + " is not valid " + ex.getMessage());
-			ex.printStackTrace();
-		}
-		return false;
-	}
 
 	/**
 	 * @todo 获取qName对应的内容
@@ -273,15 +175,5 @@ public class XMLUtil {
 				fileIS.close();
 		}
 		return null;
-	}
-
-	private static HashMap<String, String> asMap(String... keyValues) {
-		HashMap<String, String> result = new HashMap<String, String>();
-		if (keyValues == null)
-			return result;
-		for (int i = 0; i < keyValues.length - 1; i = i + 2) {
-			result.put(keyValues[i], keyValues[i + 1]);
-		}
-		return result;
 	}
 }

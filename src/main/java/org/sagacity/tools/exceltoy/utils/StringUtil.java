@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,14 +34,6 @@ public class StringUtil {
 	private StringUtil() {
 	}
 
-	public static boolean isNotEmpty(Object str) {
-		return !isBlank(str);
-	}
-
-	public static boolean isEmpty(Object str) {
-		return isBlank(str);
-	}
-
 	public static boolean isNotBlank(Object str) {
 		return !isBlank(str);
 	}
@@ -57,16 +48,6 @@ public class StringUtil {
 		if (str == null)
 			return null;
 		return str.trim();
-	}
-
-	/**
-	 * @todo 判断是否为空，如果为null则转为""
-	 * @param obj
-	 * @return
-	 */
-	@Deprecated
-	public static String ifNullToBlank(Object obj) {
-		return toString(obj);
 	}
 
 	/**
@@ -153,10 +134,8 @@ public class StringUtil {
 
 	/**
 	 * @todo 不区分大小写指定字符出现最后位置
-	 * @param source
-	 *            String
-	 * @param target
-	 *            String
+	 * @param source String
+	 * @param target String
 	 * @return int
 	 */
 	public static int lastIndexOfIgnoreCase(String source, String target) {
@@ -180,10 +159,8 @@ public class StringUtil {
 
 	/**
 	 * @todo 字符串去掉空比较是否相等
-	 * @param str1
-	 *            String
-	 * @param str2
-	 *            String
+	 * @param str1 String
+	 * @param str2 String
 	 * @return boolean
 	 */
 	public static boolean strTrimedEqual(String str1, String str2) {
@@ -733,26 +710,6 @@ public class StringUtil {
 	}
 
 	/**
-	 * @todo 根据Index方式提取匹配数量
-	 * @param source
-	 * @param regex
-	 * @param startIndex
-	 * @return
-	 */
-	@Deprecated
-	public static int matchIndexCount(String source, String regex, int startIndex) {
-		int paramCnt = 0;
-		int regexLength = regex.length();
-		int index;
-		int realIndex = startIndex;
-		while ((index = source.indexOf(regex, realIndex)) != -1) {
-			paramCnt++;
-			realIndex = index + regexLength;
-		}
-		return paramCnt;
-	}
-
-	/**
 	 * @todo 字符串转ASCII
 	 * @param str
 	 * @return
@@ -764,55 +721,6 @@ public class StringUtil {
 			result[i] = (int) chars[i];
 		}
 		return result;
-	}
-
-	/**
-	 * @todo ascii转字符串
-	 * @param ascii
-	 * @return
-	 */
-	public static String ascii2Str(int[] ascii) {// ASCII转换为字符串
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < ascii.length; i++) {
-			result.append((char) ascii[i]);
-		}
-		return result.toString();
-	}
-
-	/**
-	 * @todo 半角转全角
-	 * @param input
-	 *            String.
-	 * @return 全角字符串.
-	 */
-	public static String toSBC(String input) {
-		char c[] = input.toCharArray();
-		for (int i = 0; i < c.length; i++) {
-			if (c[i] == ' ') {
-				c[i] = '\u3000';
-			} else if (c[i] < '\177') {
-				c[i] = (char) (c[i] + 65248);
-			}
-		}
-		return new String(c);
-	}
-
-	/**
-	 * @todo 全角转半角
-	 * @param input
-	 *            String.
-	 * @return 半角字符串
-	 */
-	public static String toDBC(String input) {
-		char c[] = input.toCharArray();
-		for (int i = 0; i < c.length; i++) {
-			if (c[i] == '\u3000') {
-				c[i] = ' ';
-			} else if (c[i] > '\uFF00' && c[i] < '\uFF5F') {
-				c[i] = (char) (c[i] - 65248);
-			}
-		}
-		return new String(c);
 	}
 
 	/**
@@ -1037,72 +945,6 @@ public class StringUtil {
 	}
 
 	/**
-	 * @todo 提取字符串的Digest码
-	 * @param StringContent
-	 * @param digestType
-	 * @return
-	 */
-	public static String getMessageDigest(String StringContent, String digestType) {
-		String result = "";
-		try {
-			MessageDigest md = MessageDigest.getInstance(digestType == null ? "MD5" : digestType);
-			md.update(StringContent.getBytes());
-			byte[] re = md.digest();// 获得消息摘要
-			for (int i = 0; i < re.length; i++) {
-				result += Integer.toHexString((0x000000ff & re[i]) | 0xffffff00).substring(6);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return result;
-	}
-
-	/**
-	 * @todo 通过特殊符号对字符进行安全模糊化处理
-	 * @param value
-	 * @param preSize
-	 * @param tailSize
-	 * @param maskStr
-	 * @return
-	 */
-	public static String secureMask(Object value, int preLength, int tailLength, String maskStr) {
-		if (value == null)
-			return null;
-		String tmp = value.toString();
-		if (tmp.length() <= preLength + tailLength)
-			return tmp;
-		else
-			return tmp.substring(0, preLength).concat(maskStr).concat(tmp.substring(tmp.length() - tailLength));
-	}
-
-	/**
-	 * @todo 进行链接多分组字符进行加密模糊化
-	 * @param value
-	 * @param splitSign
-	 * @param preLength
-	 * @param tailLength
-	 * @param maskStr
-	 * @return
-	 */
-	public static String secureMask(Object value, String splitSign, int preLength, int tailLength, String maskStr) {
-		if (value == null)
-			return null;
-		String tmp = value.toString();
-		if (splitSign == null || tmp.indexOf(splitSign) == -1)
-			return secureMask(tmp, preLength, tailLength, maskStr);
-		String[] groups = tmp.split(splitSign);
-		StringBuilder result = new StringBuilder();
-		int index = 0;
-		for (String cell : groups) {
-			if (index > 0)
-				result.append(splitSign);
-			result.append(secureMask(cell, preLength, tailLength, maskStr));
-			index++;
-		}
-		return result.toString();
-	}
-
-	/**
 	 * @todo 判断字符串中是否包含中文
 	 * @param str
 	 * @return
@@ -1114,12 +956,4 @@ public class StringUtil {
 		return false;
 	}
 
-	// public static void main(String[] args) {
-	// String[] arys = { "TRANS_AMT_X", "TRANS_CNT_X", "TRANS_AMT_U", "TRANS_CNT_U",
-	// "TRANS_AMT_F", "TRANS_CNT_F" };
-	// for (String tmp : arys)
-	// System.err.println(firstToUpperCase(toHumpStr(tmp, true)));
-	// for (String tmp : arys)
-	// System.err.println(firstToUpperCase(toHumpStr(tmp, true)));
-	// }
 }

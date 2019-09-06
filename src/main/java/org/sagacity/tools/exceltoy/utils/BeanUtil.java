@@ -24,27 +24,54 @@ public class BeanUtil {
 	 * @param properties
 	 * @return
 	 */
-	public static Method[] matchGetMethods(Class voClass, String[] properties) {
-		int indexSize = properties.length;
+	public static Method[] matchGetMethods(Class voClass, String[] props) {
 		Method[] methods = voClass.getMethods();
+		List<Method> realMeth = new ArrayList<Method>();
+		String name;
+		// 过滤get 和is 开头的方法
+		for (Method mt : methods) {
+			if (!void.class.equals(mt.getReturnType()) && mt.getParameterTypes().length == 0) {
+				name = mt.getName().toLowerCase();
+				if (name.startsWith("get") || name.startsWith("is")) {
+					realMeth.add(mt);
+				}
+			}
+		}
+		int indexSize = props.length;
 		Method[] result = new Method[indexSize];
-		String methodName;
-		int methodCnt = methods.length;
-		String property;
+		if (realMeth.isEmpty()) {
+			return result;
+		}
+		String prop;
 		Method method;
+		boolean matched = false;
+		Class type;
 		for (int i = 0; i < indexSize; i++) {
-			property = properties[i].toLowerCase();
-			for (int j = 0; j < methodCnt; j++) {
-				method = methods[j];
-				methodName = method.getName().toLowerCase();
-				// update 2012-10-25 from equals to ignoreCase
-				if (!void.class.equals(method.getReturnType()) && method.getParameterTypes().length == 0
-						&& (methodName.equals("get".concat(property)) || methodName.equals("is".concat(property))
-								|| (methodName.startsWith("is") && methodName.equals(property)))) {
+			prop = props[i].toLowerCase();
+			matched = false;
+			for (int j = 0; j < realMeth.size(); j++) {
+				method = realMeth.get(j);
+				name = method.getName().toLowerCase();
+				// get完全匹配
+				if (name.equals("get".concat(prop))) {
+					matched = true;
+				} else if (name.startsWith("is")) {
+					// boolean型 is开头的方法
+					type = method.getReturnType();
+					if ((type.equals(Boolean.class) || type.equals(boolean.class))
+							&& (name.equals(prop) || name.equals("is".concat(prop)))) {
+						matched = true;
+					}
+				}
+				if (matched) {
 					result[i] = method;
 					result[i].setAccessible(true);
+					realMeth.remove(j);
 					break;
 				}
+			}
+			if (realMeth.isEmpty()) {
+				break;
 			}
 		}
 		return result;

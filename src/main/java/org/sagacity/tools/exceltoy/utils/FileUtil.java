@@ -16,11 +16,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -28,12 +25,11 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 /**
  * @project sagacity-core
  * @description 文件处理工具类
  * @author zhongxuchen <a href="mailto:zhongxuchen@gmail.com">联系作者</a>
- * @version id:FileUtil.java,Revision:v1.0,Date:2008-11-7 下午01:53:21 
+ * @version id:FileUtil.java,Revision:v1.0,Date:2008-11-7 下午01:53:21
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class FileUtil {
@@ -301,8 +297,7 @@ public class FileUtil {
 
 	/**
 	 * @todo 新建目录
-	 * @param folderPath
-	 *            目录
+	 * @param folderPath 目录
 	 * @return 返回目录创建后的路径
 	 */
 	public static void createFolder(String folderPath) {
@@ -319,13 +314,10 @@ public class FileUtil {
 
 	/**
 	 * @todo 新建文件
-	 * @param filePathAndName
-	 *            文本文件完整绝对路径及文件名
-	 * @param fileContent
-	 *            文本文件内容
+	 * @param filePathAndName 文本文件完整绝对路径及文件名
+	 * @param fileContent     文本文件内容
 	 * @return
 	 */
-
 	public static void createFile(String filePathAndName, String fileContent) {
 		FileWriter resultFile = null;
 		PrintWriter myFile = null;
@@ -351,8 +343,7 @@ public class FileUtil {
 
 	/**
 	 * @todo 删除文件
-	 * @param filePathAndName
-	 *            文本文件完整绝对路径及文件名
+	 * @param filePathAndName 文本文件完整绝对路径及文件名
 	 * @return Boolean 成功删除返回true遭遇异常返回false
 	 */
 	public static boolean delFile(String filePathAndName) {
@@ -369,62 +360,6 @@ public class FileUtil {
 			System.err.println("删除文件操作失败!");
 		}
 		return bea;
-	}
-
-	/**
-	 * @todo 删除文件夹
-	 * @param folderPath
-	 *            文件夹完整绝对路??
-	 * @return
-	 */
-	public static void delFolder(String folderPath) {
-		try {
-			delAllFile(folderPath); // 删除完里面所有内??
-			new File(folderPath).delete();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * @todo 删除指定文件夹下??有文??
-	 * @param path
-	 *            文件夹完整绝对路??
-	 * @return
-	 * @return
-	 */
-	public static boolean delAllFile(String path) {
-		boolean result = false;
-		File file = new File(path);
-		if (!file.exists()) {
-			return result;
-		}
-		if (!file.isDirectory()) {
-			return result;
-		}
-		String[] tempList = file.list();
-		File temp = null;
-		for (int i = 0; i < tempList.length; i++) {
-			if (path.endsWith(File.separator)) {
-				temp = new File(path + tempList[i]);
-			} else {
-				temp = new File(path + File.separator + tempList[i]);
-			}
-			if (temp.isFile()) {
-				temp.delete();
-			}
-			if (temp.isDirectory()) {
-				if (path.endsWith(File.separator)) {
-					delAllFile(path + tempList[i]);// 先删除文件夹里面的文??
-					delFolder(path + tempList[i]);// 再删除空文件??
-				} else {
-					delAllFile(path + File.separator + tempList[i]);// 先删除文件夹里面的文??
-					delFolder(path + File.separator + tempList[i]);// 再删除空文件??
-				}
-				result = true;
-			}
-		}
-		return result;
 	}
 
 	/**
@@ -447,10 +382,8 @@ public class FileUtil {
 
 	/**
 	 * @todo 复制单个文件
-	 * @param oldPathFile
-	 *            准备复制的文件源
-	 * @param newPathFile
-	 *            拷贝到新绝对路径带文件名
+	 * @param oldPathFile 准备复制的文件源
+	 * @param newPathFile 拷贝到新绝对路径带文件名
 	 * @return
 	 */
 	public static boolean copyFile(String oldPathFile, String newPathFile) {
@@ -460,10 +393,8 @@ public class FileUtil {
 
 	/**
 	 * @todo 复制单个文件
-	 * @param oldPathFile
-	 *            准备复制的文件源
-	 * @param newPathFile
-	 *            拷贝到新绝对路径带文件名
+	 * @param oldPathFile 准备复制的文件源
+	 * @param newPathFile 拷贝到新绝对路径带文件名
 	 * @return
 	 */
 	public static boolean copyFile(File oldPathFile, String newPathFile) {
@@ -496,134 +427,6 @@ public class FileUtil {
 			IOUtil.closeQuietly(fs, inStream);
 		}
 		return false;
-	}
-
-	/**
-	 * @todo 复制整个文件夹的内容
-	 * @param oldPath
-	 *            准备拷贝的目录
-	 * @param newPath
-	 *            指定绝对路径的新目录
-	 * @return
-	 */
-	public static void copyFolder(String oldPath, String newPath) {
-		FileInputStream input = null;
-		FileOutputStream output = null;
-		try {
-			createFolder(newPath);
-			File a = new File(oldPath);
-			String[] file = a.list();
-			File temp = null;
-			for (int i = 0; i < file.length; i++) {
-				if (oldPath.endsWith(File.separator)) {
-					temp = new File(oldPath + file[i]);
-				} else {
-					temp = new File(oldPath + File.separator + file[i]);
-				}
-				if (temp.isFile()) {
-					input = new FileInputStream(temp);
-					output = new FileOutputStream(newPath + File.separator + (temp.getName()).toString());
-					byte[] b = new byte[1024 * 5];
-					int len;
-					while ((len = input.read(b)) != -1) {
-						output.write(b, 0, len);
-						// 避免死循环(空文件)
-						if (len == 0)
-							break;
-					}
-					output.flush();
-				}
-				if (temp.isDirectory()) {// 如果是子文件??
-					copyFolder(oldPath + File.separator + file[i], newPath + File.separator + file[i]);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.err.println("复制整个文件夹内容操作出??");
-		} finally {
-			IOUtil.closeQuietly(output, input);
-		}
-	}
-
-	/**
-	 * @todo 移动文件
-	 * @param oldPath
-	 * @param newPath
-	 * @return
-	 */
-	public static void moveFile(String oldPath, String newPath, boolean deleteOldFile) {
-		copyFile(oldPath, newPath);
-		if (deleteOldFile)
-			delFile(oldPath);
-	}
-
-	/**
-	 * @todo 移动目录
-	 * @param oldPath
-	 * @param newPath
-	 * @return
-	 */
-	public static void moveFolder(String oldPath, String newPath) {
-		copyFolder(oldPath, newPath);
-		delFolder(oldPath);
-	}
-
-	/**
-	 * @todo 文件改名
-	 * @param fileName
-	 * @param distFile
-	 * @return:1 修改成功,0:修改失败,-1:文件不存??
-	 */
-	public static int rename(Object fileName, String distFile) {
-		synchronized (fileName) {
-			File oldFile;
-			if (fileName instanceof String)
-				oldFile = new File((String) fileName);
-			else
-				oldFile = (File) fileName;
-			if (oldFile.exists()) {
-				try {
-					oldFile.renameTo(new File(distFile));
-					return 1;
-				} catch (Exception e) {
-					e.printStackTrace();
-					return 0;
-				}
-			} else
-				return -1;
-		}
-	}
-
-	/**
-	 * @todo 获取文件的摘要，一般应用于检查文件是否被修改过（如在网络传输过程中，下载后取其摘要进行对比）
-	 * @param fileName
-	 * @param digestType
-	 *            :like MD5
-	 * @return
-	 */
-	public static String getFileMessageDigest(String fileName, String digestType) {
-		String result = "";
-		FileInputStream fin = null;
-		DigestInputStream din = null;
-		try {
-			MessageDigest md = MessageDigest.getInstance(digestType);
-			fin = new FileInputStream(fileName);
-			if (fin.available() == 0)
-				return "";
-			din = new DigestInputStream(fin, md);// 构造输入流
-			while ((din.read()) != -1)
-				;
-
-			byte[] re = md.digest();// 获得消息摘要
-			for (int i = 0; i < re.length; i++) {
-				result += Integer.toHexString((0x000000ff & re[i]) | 0xffffff00).substring(6);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			IOUtil.closeQuietly(din, fin);
-		}
-		return result;
 	}
 
 	/**
@@ -713,8 +516,7 @@ public class FileUtil {
 
 	/**
 	 * @todo 获得指定路径的文件
-	 * @param file
-	 *            文件路径like:classpath:xxx.xml或xxx.xml
+	 * @param file 文件路径like:classpath:xxx.xml或xxx.xml
 	 * @return
 	 */
 	public static InputStream getFileInputStream(Object file) {
@@ -742,87 +544,6 @@ public class FileUtil {
 			fn.printStackTrace();
 		}
 		return null;
-	}
-
-	/**
-	 * @todo 追加文件：使用FileOutputStream，在构造FileOutputStream时，把第二个参数设为true
-	 * @param fileName
-	 * @param content
-	 */
-	public static void appendFileByStream(Object fileName, String conent) {
-		BufferedWriter out = null;
-		try {
-			File appendFile = null;
-			if (fileName instanceof String)
-				appendFile = new File((String) fileName);
-			else
-				appendFile = (File) fileName;
-			if (!appendFile.exists())
-				appendFile.createNewFile();
-
-			out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(appendFile, true)));
-			out.write(conent);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			IOUtil.closeQuietly(out);
-		}
-	}
-
-	/**
-	 * @todo 追加文件：使用FileWriter
-	 * @param fileName
-	 * @param content
-	 */
-	public static void appendFileByWriter(Object fileName, String content) {
-		FileWriter writer = null;
-		try {
-			// 打开一个写文件器，构造函数中的第二个参数true表示以追加形式写文件
-			File appendFile = null;
-			if (fileName instanceof String)
-				appendFile = new File((String) fileName);
-			else
-				appendFile = (File) fileName;
-			if (!appendFile.exists())
-				appendFile.createNewFile();
-			writer = new FileWriter(appendFile, true);
-			writer.write(content);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			IOUtil.closeQuietly(writer);
-		}
-	}
-
-	/**
-	 * @todo 追加文件：使用RandomAccessFile
-	 * @param fileName
-	 *            文件名
-	 * @param content
-	 *            追加的内容
-	 */
-	public static void appendFileByRandomAccess(Object fileName, String content) {
-		RandomAccessFile randomFile = null;
-		try {
-			// 打开一个随机访问文件流，按读写方式
-			File appendFile = null;
-			if (fileName instanceof String)
-				appendFile = new File((String) fileName);
-			else
-				appendFile = (File) fileName;
-			if (!appendFile.exists())
-				appendFile.createNewFile();
-			randomFile = new RandomAccessFile(appendFile, "rw");
-			// 文件长度，字节数
-			long fileLength = randomFile.length();
-			// 将写文件指针移到文件尾。
-			randomFile.seek(fileLength);
-			randomFile.writeBytes(content);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			IOUtil.closeQuietly(randomFile);
-		}
 	}
 
 	/**
