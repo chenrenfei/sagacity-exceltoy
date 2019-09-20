@@ -1089,7 +1089,7 @@ public class SqlUtils {
 	private static List findByJdbcQuery(final String queryStr, final Object[] params, final Class voClass,
 			final Connection conn) throws Exception {
 		ResultSet rs = null;
-		PreparedStatement pst = conn.prepareStatement(queryStr, ResultSet.TYPE_SCROLL_INSENSITIVE,
+		PreparedStatement pst = conn.prepareStatement(queryStr, ResultSet.TYPE_FORWARD_ONLY,
 				ResultSet.CONCUR_READ_ONLY);
 		List result = (List) preparedStatementProcess(null, pst, rs, new PreparedStatementResultHandler() {
 			public void execute(Object obj, PreparedStatement pst, ResultSet rs) throws Exception {
