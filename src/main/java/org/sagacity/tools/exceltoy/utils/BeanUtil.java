@@ -231,13 +231,20 @@ public class BeanUtil {
 	 * @param typeName
 	 * @return
 	 */
-	public static Object convertType(Object paramValue, String typeName) throws Exception {
+	public static Object convertType(Object value, String typeName) throws Exception {
+		Object paramValue = value;
+		// 非数组类型,但传递的参数值是数组类型,提取第一个参数
+		if (!typeName.contains("[]") && paramValue != null && paramValue.getClass().isArray()) {
+			paramValue = CollectionUtil.convertArray(paramValue)[0];
+		}
 		if (paramValue == null) {
 			if (typeName.equals("int") || typeName.equals("long") || typeName.equals("double")
-					|| typeName.equals("float") || typeName.equals("short"))
+					|| typeName.equals("float") || typeName.equals("short")) {
 				return 0;
-			if (typeName.equals("boolean") || typeName.equals("java.lang.boolean"))
+			}
+			if (typeName.equals("boolean") || typeName.equals("java.lang.boolean")) {
 				return false;
+			}
 			return null;
 		}
 		// 转换为小写
@@ -255,32 +262,32 @@ public class BeanUtil {
 			return valueStr;
 		}
 		// 第二优先
-		if (typeName.equals("java.math.bigdecimal") || typeName.equals("decimal")) {
+		if (typeName.equals("java.math.bigdecimal") || typeName.equals("decimal") || typeName.equals("bigdecimal")) {
 			return new BigDecimal(convertBoolean(valueStr));
 		}
 		// 第三优先
 		if (typeName.equals("java.time.localdatetime")) {
-			if (paramValue instanceof LocalDateTime)
+			if (paramValue instanceof LocalDateTime) {
 				return (LocalDateTime) paramValue;
-			return DateUtil.asLocalDateTime(DateUtil.parseString(valueStr));
+			}
+			return DateUtil.asLocalDateTime(DateUtil.convertDateObject(paramValue));
 		}
 		// 第四
 		if (typeName.equals("java.time.localdate")) {
-			if (paramValue instanceof LocalDate)
+			if (paramValue instanceof LocalDate) {
 				return (LocalDate) paramValue;
-			return DateUtil.asLocalDate(DateUtil.parseString(valueStr));
+			}
+			return DateUtil.asLocalDate(DateUtil.convertDateObject(paramValue));
 		}
+		// 为什么先转Double?因为部分场景下valueStr是0.00这种形态(数据库默认值),导致转换失败
 		// 第五
 		if (typeName.equals("java.lang.integer") || typeName.equals("integer")) {
-			return Integer.valueOf(convertBoolean(valueStr));
+			return Integer.valueOf(Double.valueOf(convertBoolean(valueStr)).intValue());
 		}
 		// 第六
 		if (typeName.equals("java.sql.timestamp") || typeName.equals("timestamp")) {
 			if (paramValue instanceof java.sql.Timestamp) {
 				return (java.sql.Timestamp) paramValue;
-			}
-			if (paramValue instanceof java.sql.Date) {
-				return new Timestamp(((java.sql.Date) paramValue).getTime());
 			}
 			if (paramValue instanceof java.util.Date) {
 				return new Timestamp(((java.util.Date) paramValue).getTime());
@@ -291,14 +298,8 @@ public class BeanUtil {
 			return Double.valueOf(valueStr);
 		}
 		if (typeName.equals("java.util.date") || typeName.equals("date")) {
-			if (paramValue instanceof java.sql.Date) {
-				return new java.util.Date(((java.sql.Date) paramValue).getTime());
-			}
 			if (paramValue instanceof java.util.Date) {
 				return (java.util.Date) paramValue;
-			}
-			if (paramValue instanceof java.sql.Timestamp) {
-				return new java.util.Date(((java.sql.Timestamp) paramValue).getTime());
 			}
 			if (paramValue instanceof Number) {
 				return new java.util.Date(((Number) paramValue).longValue());
@@ -306,10 +307,10 @@ public class BeanUtil {
 			return DateUtil.parseString(valueStr);
 		}
 		if (typeName.equals("java.lang.long")) {
-			return Long.valueOf(convertBoolean(valueStr));
+			return Long.valueOf(Double.valueOf(convertBoolean(valueStr)).longValue());
 		}
 		if (typeName.equals("int")) {
-			return Integer.valueOf(convertBoolean(valueStr)).intValue();
+			return Double.valueOf(convertBoolean(valueStr)).intValue();
 		}
 		if (typeName.equals("java.sql.clob") || typeName.equals("clob")) {
 			java.sql.Clob clob = (java.sql.Clob) paramValue;
@@ -324,14 +325,14 @@ public class BeanUtil {
 		if (typeName.equals("java.time.localtime")) {
 			if (paramValue instanceof LocalTime)
 				return (LocalTime) paramValue;
-			return DateUtil.asLocalTime(DateUtil.parseString(valueStr));
+			return DateUtil.asLocalTime(DateUtil.convertDateObject(paramValue));
 		}
 		// add 2020-4-9
 		if (typeName.equals("java.math.biginteger") || typeName.equals("biginteger")) {
-			return new BigInteger(convertBoolean(valueStr));
+			return new BigInteger(convertBoolean(valueStr).split("\\.")[0]);
 		}
 		if (typeName.equals("long")) {
-			return Long.valueOf(convertBoolean(valueStr)).longValue();
+			return Double.valueOf(convertBoolean(valueStr)).longValue();
 		}
 		if (typeName.equals("double")) {
 			return Double.valueOf(valueStr).doubleValue();
@@ -344,7 +345,7 @@ public class BeanUtil {
 			return Byte.valueOf(valueStr).byteValue();
 		}
 		// byte数组
-		if (typeName.equals("[b")) {
+		if (typeName.equals("byte[]") || typeName.equals("[b")) {
 			if (paramValue instanceof byte[]) {
 				return (byte[]) paramValue;
 			}
@@ -357,15 +358,16 @@ public class BeanUtil {
 		}
 
 		if (typeName.equals("java.lang.boolean") || typeName.equals("boolean")) {
-			if (valueStr.equalsIgnoreCase("true") || valueStr.equals("1"))
+			if (valueStr.equalsIgnoreCase("true") || valueStr.equals("1")) {
 				return Boolean.TRUE;
+			}
 			return Boolean.FALSE;
 		}
 		if (typeName.equals("java.lang.short")) {
-			return Short.valueOf(convertBoolean(valueStr));
+			return Short.valueOf(Double.valueOf(convertBoolean(valueStr)).shortValue());
 		}
 		if (typeName.equals("short")) {
-			return Short.valueOf(convertBoolean(valueStr)).shortValue();
+			return Double.valueOf(convertBoolean(valueStr)).shortValue();
 		}
 		if (typeName.equals("java.lang.float")) {
 			return Float.valueOf(valueStr);
@@ -380,10 +382,6 @@ public class BeanUtil {
 			if (paramValue instanceof java.util.Date) {
 				return new java.sql.Date(((java.util.Date) paramValue).getTime());
 			}
-			if (paramValue instanceof java.sql.Timestamp) {
-				return new java.sql.Date(((java.sql.Timestamp) paramValue).getTime());
-			}
-
 			return new java.sql.Date(DateUtil.parseString(valueStr).getTime());
 		}
 		if (typeName.equals("char")) {
@@ -396,16 +394,13 @@ public class BeanUtil {
 			if (paramValue instanceof java.util.Date) {
 				return new java.sql.Time(((java.util.Date) paramValue).getTime());
 			}
-			if (paramValue instanceof java.sql.Timestamp) {
-				return new java.sql.Time(((java.sql.Timestamp) paramValue).getTime());
-			}
-
 			return DateUtil.parseString(valueStr);
 		}
 		// 字符数组
-		if (typeName.equals("[c")) {
-			if (paramValue instanceof char[])
+		if (typeName.equals("char[]") || typeName.equals("[c")) {
+			if (paramValue instanceof char[]) {
 				return (char[]) paramValue;
+			}
 			if (paramValue instanceof java.sql.Clob) {
 				java.sql.Clob clob = (java.sql.Clob) paramValue;
 				BufferedReader in = new BufferedReader(clob.getCharacterStream());

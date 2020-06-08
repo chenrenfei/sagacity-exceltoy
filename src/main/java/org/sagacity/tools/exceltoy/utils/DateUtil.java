@@ -289,18 +289,24 @@ public class DateUtil {
 			System.err.println("日期不能为空,请正确输入!");
 			return null;
 		}
-		if (!(dt instanceof String) && !(dt instanceof java.sql.Date) && !(dt instanceof java.util.Date)
-				&& !(dt instanceof java.lang.Number))
-			throw new IllegalArgumentException(dt + "日期数据必须是String、Date、Long、Integer类型,请正确输入!");
 		Date result = null;
-		String dtStr = dt.toString();
+		String dtStr = dt.toString().trim();
 		if (dt instanceof String) {
-			result = parseString(dtStr, format, local);
-		} else if (dt instanceof java.util.Date)
+			if (dtStr.length() == 13 && NumberUtil.isInteger(dtStr)) {
+				result = new java.util.Date(Long.valueOf(dtStr));
+			} else {
+				result = parseString(dtStr, format, local);
+			}
+		} // 为什么要new 一个，目的是避免前面日期发生变化，所以这里是新建
+		else if (dt instanceof java.util.Date) {
 			result = new java.util.Date(((java.util.Date) dt).getTime());
-		else if (dt instanceof java.sql.Date)
-			result = new java.util.Date(((java.sql.Date) dt).getTime());
-		else if (dt instanceof java.lang.Number) {
+		} else if (dt instanceof java.time.LocalDate) {
+			result = asDate((LocalDate) dt);
+		} else if (dt instanceof java.time.LocalTime) {
+			result = asDate((LocalTime) dt);
+		} else if (dt instanceof java.time.LocalDateTime) {
+			result = asDate((LocalDateTime) dt);
+		} else if (dt instanceof java.lang.Number) {
 			// 13位表示毫秒数
 			if (dtStr.length() != 13) {
 				result = parseString(dtStr, format, local);
@@ -308,7 +314,7 @@ public class DateUtil {
 				result = new java.util.Date(((Number) dt).longValue());
 			}
 		} else {
-			result = parseString(dtStr, format, local);
+			throw new IllegalArgumentException(dt + "日期数据必须是String、Date、Long、Integer类型,请正确输入!");
 		}
 		return result;
 	}
