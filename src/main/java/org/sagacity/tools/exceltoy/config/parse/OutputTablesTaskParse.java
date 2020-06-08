@@ -41,18 +41,22 @@ public class OutputTablesTaskParse {
 			if (elt.attribute("active") == null || elt.attributeValue("active").equalsIgnoreCase("true")) {
 				OrderTableModel model = new OrderTableModel();
 				model.setId(ExcelToyConstants.replaceConstants(elt.attributeValue("id")));
-				if (elt.attribute("datasource") != null)
+				if (elt.attribute("datasource") != null) {
 					model.setDatasource(ExcelToyConstants.replaceConstants(elt.attributeValue("datasource")));
+				}
 				// 排列顺序
-				if (elt.attribute("order") != null)
+				if (elt.attribute("order") != null) {
 					model.setOrder(ExcelToyConstants.replaceConstants(elt.attributeValue("order")));
+				}
 				String file = ExcelToyConstants.replaceConstants(elt.attributeValue("file"));
-				if (file == null)
+				if (file == null) {
 					file = model.getId() + ".xml";
-				if (FileUtil.isRootPath(file))
+				}
+				if (FileUtil.isRootPath(file)) {
 					model.setOutFile(file);
-				else
+				} else {
 					model.setOutFile(FileUtil.linkPath(ExcelToyConstants.getBaseDir(), file));
+				}
 				String matchReg;
 				List includeElts = elt.elements("include");
 				if (includeElts != null && !includeElts.isEmpty()) {

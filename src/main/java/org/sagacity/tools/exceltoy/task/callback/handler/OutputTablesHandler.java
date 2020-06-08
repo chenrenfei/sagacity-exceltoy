@@ -33,8 +33,9 @@ public class OutputTablesHandler extends TaskExcuteHandler {
 	private static TaskExcuteHandler me;
 
 	public static TaskExcuteHandler getInstance() {
-		if (me == null)
+		if (me == null) {
 			me = new OutputTablesHandler();
+		}
 		return me;
 	}
 
@@ -47,13 +48,15 @@ public class OutputTablesHandler extends TaskExcuteHandler {
 		OrderTableModel orderTable = (OrderTableModel) this.getTask(taskModel.getId());
 		String distFile = orderTable.getOutFile();
 		boolean outExcel = false;
-		if (distFile.toLowerCase().indexOf(".xml") == -1)
+		if (distFile.toLowerCase().indexOf(".xml") == -1) {
 			outExcel = true;
+		}
 		List<TableMeta> orderTables = DBHelper.getTablesByOrderLink(orderTable.getIncludes(), orderTable.getExcludes());
 		logger.info("总计查询出表数量:{}", orderTables.size());
 		// 判断是否逆序
-		if (orderTable.getOrder().equalsIgnoreCase("desc"))
+		if (orderTable.getOrder().equalsIgnoreCase("desc")) {
 			Collections.reverse(orderTables);
+		}
 		// 输出excel
 		if (outExcel) {
 			List titleList = new ArrayList() {

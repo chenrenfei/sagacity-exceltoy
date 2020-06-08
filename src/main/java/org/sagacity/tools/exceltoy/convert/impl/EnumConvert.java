@@ -64,10 +64,9 @@ public class EnumConvert extends AbstractConvert {
 			if (enumMap.get(key) == null) {
 				if (other == null)
 					return key;
-				else
-					return other;
-			} else
-				return enumMap.get(key);
+				return other;
+			}
+			return enumMap.get(key);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("枚举匹配错误!key=" + key, e.fillInStackTrace());
@@ -76,32 +75,28 @@ public class EnumConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param splitSign
-	 *            the splitSign to set
+	 * @param splitSign the splitSign to set
 	 */
 	public void setSplitSign(String splitSign) {
 		this.splitSign = splitSign;
 	}
 
 	/**
-	 * @param enumKeys
-	 *            the enumKeys to set
+	 * @param enumKeys the enumKeys to set
 	 */
 	public void setEnumKeys(String enumKeys) {
 		this.enumKeys = enumKeys;
 	}
 
 	/**
-	 * @param enumValues
-	 *            the enumValues to set
+	 * @param enumValues the enumValues to set
 	 */
 	public void setEnumValues(String enumValues) {
 		this.enumValues = enumValues;
 	}
 
 	/**
-	 * @param other
-	 *            the other to set
+	 * @param other the other to set
 	 */
 	public void setOther(String other) {
 		this.other = other;
@@ -114,8 +109,6 @@ public class EnumConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
-		// enumMap=null;
 	}
 
 	/*
@@ -125,7 +118,6 @@ public class EnumConvert extends AbstractConvert {
 	 */
 	public EnumConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (EnumConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

@@ -5,13 +5,9 @@
 package org.sagacity.tools.exceltoy;
 
 import java.io.File;
-import java.io.InputStream;
-import java.net.URL;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.ConfigurationSource;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.sagacity.tools.exceltoy.config.XMLConfigLoader;
 import org.sagacity.tools.exceltoy.task.TaskController;
 import org.sagacity.tools.exceltoy.utils.ClassLoaderUtil;
@@ -22,18 +18,13 @@ import org.sagacity.tools.exceltoy.utils.StringUtil;
  * @project sagacity-tools
  * @description 数据库excel导入导出以及数据库表之间数据互copy工具
  * @author chenrenfei <a href="mailto:zhongxuchen@hotmail.com">联系作者</a>
- * @version id:ExcelToolStart.java,Revision:v1.0,Date:2009-6-8 下午10:26:30
+ * @version id:ExcelToyStart.java,Revision:v1.0,Date:2009-6-8 下午10:26:30
  */
 public class ExcelToyStart {
 	/**
-	 * 日志参数定义文件
-	 */
-	private final static String logFile = "org/sagacity/tools/exceltoy/log4j2.xml";
-
-	/**
 	 * 定义日志
 	 */
-	private Logger logger = null;
+	private Logger logger = LogManager.getLogger(ExcelToyStart.class);
 
 	/**
 	 * 是否执行的标志
@@ -105,33 +96,29 @@ public class ExcelToyStart {
 	 */
 	private final void init() {
 		try {
-			String realLogFile = logFile;
-			if (realLogFile.charAt(0) == '/')
-				realLogFile = realLogFile.substring(1);
-			URL url = Thread.currentThread().getContextClassLoader().getResource(realLogFile);
-			InputStream stream = Thread.currentThread().getContextClassLoader().getResourceAsStream(realLogFile);
-			ConfigurationSource source = new ConfigurationSource(stream, url);
-			Configurator.initialize(null, source);
-
-			ClassLoaderUtil.loadJarFiles(FileUtil.getPathFiles(new File(ExcelToyConstants.getBaseDir(), DB_DRIVER_FILE),
-					new String[] { "[\\w|\\-|\\.]+\\.jar$" }));
-			System.out.println("..............success load jdbc drivers.................!");
-			// 加载位于ext目录下的扩展功能类库
-			System.out.println("Begin load extend jar path from ./ext!");
-			File extPathFile = new File(ExcelToyConstants.getBaseDir(), extPath);
-			if (extPathFile.exists()) {
+			int javaVersion = Integer.parseInt(System.getProperty("java.version").split("\\.")[0]);
+			// jdk9 之后加载类的方式不一样
+			if (javaVersion >= 9) {
+				logger.info("请使用java -cp jarPath mainClass args 模式启动!");
+			} else {
 				ClassLoaderUtil
-						.loadJarFiles(FileUtil.getPathFiles(extPathFile, new String[] { "[\\w|\\-\\.]+\\.jar$" }));
-				System.out.println("extend jar load success....................!");
+						.loadJarFiles(FileUtil.getPathFiles(new File(ExcelToyConstants.getBaseDir(), DB_DRIVER_FILE),
+								new String[] { "[\\w|\\-|\\.]+\\.jar$" }));
+				System.out.println("..............success load jdbc drivers.................!");
+				// 加载位于ext目录下的扩展功能类库
+				System.out.println("Begin load extend jar path from ./ext!");
+				File extPathFile = new File(ExcelToyConstants.getBaseDir(), extPath);
+				if (extPathFile.exists()) {
+					ClassLoaderUtil
+							.loadJarFiles(FileUtil.getPathFiles(extPathFile, new String[] { "[\\w|\\-\\.]+\\.jar$" }));
+					System.out.println("extend jar load success....................!");
+				}
 			}
-
-			logger = LogManager.getLogger(getClass());
-			logger.info("=======================       系统提示           ==================================");
-			logger.info("         Copyright @2008 SAGACITY.ORG, All Rights Reserved   chenrenfei    ");
-			logger.info("                   (任何修改作者名称的行为都被视为侵权)                      ");
-			logger.info("======================= SAGACITY 睿智开发团队(陈仁飞倾情提供) ===============");
-			logger.info("---------------------------------------------------------------------------");
-			logger.info("log4j properties is loaded");
+			logger.info("=======================       系统提示           =============================");
+			logger.info("         Copyright @2008 SAGACITY.ORG, All Rights Reserved           ");
+			logger.info("                   (任何修改作者名称的行为都被视为侵权)                         ");
+			logger.info("======================= SAGACITY 睿智开发团队(陈仁飞倾情提供) =============== ");
+			logger.info("----------------------------------------------------------------------");
 		} catch (Exception io) {
 			io.printStackTrace();
 			logger.error(io.getMessage(), io);
@@ -153,12 +140,14 @@ public class ExcelToyStart {
 		// 获得任务定义文件
 		// 实例化dbExcel
 		ExcelToyStart excelToy = new ExcelToyStart();
-		if (args != null && args.length > 0)
+		if (args != null && args.length > 0) {
 			ExcelToyConstants.DEFAULT_TASK_FILE = args[0];
-		if (args != null && args.length > 1)
+		}
+		if (args != null && args.length > 1) {
 			ExcelToyConstants.BASE_DIR = args[1];
-		else
+		} else {
 			ExcelToyConstants.BASE_DIR = System.getProperty("user.dir");
+		}
 		// test
 		if (args == null || args.length == 0) {
 			ExcelToyConstants.BASE_DIR = "D:/workspace/personal/sagacity2.0/sqltoy-orm/tools/exceltoy";

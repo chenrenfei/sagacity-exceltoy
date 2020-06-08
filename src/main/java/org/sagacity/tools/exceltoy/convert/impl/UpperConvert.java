@@ -47,7 +47,6 @@ public class UpperConvert extends AbstractConvert {
 	 */
 	public UpperConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (UpperConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

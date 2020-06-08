@@ -74,9 +74,9 @@ public class SequenceConvert extends AbstractConvert {
 			return IdUtil.getUUID();
 		if (type.equalsIgnoreCase("nanotime"))
 			return IdUtil.getNanoTimeId(null).toString();
-		else if (type.equalsIgnoreCase("shortnanotime"))
+		if (type.equalsIgnoreCase("shortnanotime"))
 			return IdUtil.getShortNanoTimeId(null).toString();
-		else if (type.equalsIgnoreCase("uuid"))
+		if (type.equalsIgnoreCase("uuid"))
 			return IdUtil.getUUID();
 
 		String mapKey = (key == null) ? defaultKey : key.toString();
@@ -109,8 +109,9 @@ public class SequenceConvert extends AbstractConvert {
 				}
 			}
 			sequenceNo++;
-		} else
+		} else {
 			sequenceNo = ((Long) seqMap.get(mapKey)).longValue() + 1;
+		}
 		// 放进hashMap中
 		seqMap.put(mapKey, new Long(sequenceNo));
 		// logger.info("返回sequenceNo:" + sequenceNo);
@@ -125,8 +126,7 @@ public class SequenceConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param sql
-	 *            the sql to set
+	 * @param sql the sql to set
 	 */
 	public void setSql(String sql) {
 		this.sql = sql;
@@ -140,8 +140,7 @@ public class SequenceConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param initValue
-	 *            the initValue to set
+	 * @param initValue the initValue to set
 	 */
 	public void setInitValue(Long initValue) {
 		this.initValue = initValue;
@@ -155,8 +154,7 @@ public class SequenceConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param reduceSize
-	 *            the reduceSize to set
+	 * @param reduceSize the reduceSize to set
 	 */
 	public void setReduceSize(boolean reduceSize) {
 		this.reduceSize = reduceSize;
@@ -170,8 +168,7 @@ public class SequenceConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param appSeq
-	 *            the appSeq to set
+	 * @param appSeq the appSeq to set
 	 */
 	public void setAppSeq(boolean appSeq) {
 		this.appSeq = appSeq;
@@ -196,16 +193,14 @@ public class SequenceConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param uuid
-	 *            the uuid to set
+	 * @param uuid the uuid to set
 	 */
 	public void setUuid(boolean uuid) {
 		this.uuid = uuid;
 	}
 
 	/**
-	 * @param type
-	 *            the type to set
+	 * @param type the type to set
 	 */
 	public void setType(String type) {
 		this.type = type;
@@ -218,7 +213,6 @@ public class SequenceConvert extends AbstractConvert {
 	 */
 	public SequenceConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (SequenceConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

@@ -115,8 +115,9 @@ public class XMLUtil {
 				if (null != doc) {
 					handler.process(doc, doc.getRootElement());
 					OutputFormat format = OutputFormat.createPrettyPrint();
-					if (charset != null)
+					if (charset != null) {
 						format.setEncoding(charset);
+					}
 					fos = new FileOutputStream(xmlFile);
 					XMLWriter output = new XMLWriter(fos, format);
 					output.write(doc);
@@ -156,10 +157,11 @@ public class XMLUtil {
 				saxReader.setFeature(NO_VALIDATOR_FEATURE, false);
 			if (StringUtil.isNotBlank(charset))
 				saxReader.setEncoding(charset);
-			if (charset != null)
+			if (charset != null) {
 				ir = new InputStreamReader(FileUtil.getFileInputStream(xmlFile), charset);
-			else
+			} else {
 				ir = new InputStreamReader(FileUtil.getFileInputStream(xmlFile));
+			}
 			if (ir != null) {
 				org.dom4j.Document doc = saxReader.read(ir);
 				if (null != doc)

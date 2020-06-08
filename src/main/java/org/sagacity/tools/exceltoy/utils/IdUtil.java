@@ -131,10 +131,11 @@ public class IdUtil {
 				ipLastNumStr = ipLastNumStr.substring(ipLastNumStr.length() - size);
 
 			// ipv6 16进制
-			if (ipv6)
+			if (ipv6) {
 				serverIdentity = Integer.toString(Integer.parseInt(ipLastNumStr, 16));
-			else
+			} else {
 				serverIdentity = ipLastNumStr;
+			}
 			// 最终保留指定的位数
 			if (serverIdentity.length() > size)
 				serverIdentity = serverIdentity.substring(serverIdentity.length() - size);

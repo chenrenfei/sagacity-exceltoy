@@ -51,10 +51,11 @@ public class ReplaceConvert extends AbstractConvert {
 		param = super.replaceParams(param);
 		String result = ConvertUtil.jsonParamSet(this, param);
 		if (splitSign == null) {
-			if (all)
+			if (all) {
 				result = StringUtil.replaceAllStr(result, regex, replacement);
-			else
+			} else {
 				result = StringUtil.replaceStr(result, regex, replacement);
+			}
 		} else {
 			String[] replaceSource = regex.split(splitSign);
 			String[] replaceAry = replacement.concat(" ").split(splitSign);
@@ -63,12 +64,13 @@ public class ReplaceConvert extends AbstractConvert {
 			if (replaceSource != null && replaceSource.length > 0) {
 				boolean singleRep = (replaceAry.length == replaceSource.length);
 				for (int i = 0; i < replaceSource.length; i++) {
-					if (all)
+					if (all) {
 						result = StringUtil.replaceAllStr(result, replaceSource[i],
 								singleRep ? replaceAry[i] : replacement);
-					else
+					} else {
 						result = StringUtil.replaceStr(result, replaceSource[i],
 								singleRep ? replaceAry[i] : replacement);
+					}
 				}
 			}
 		}
@@ -76,32 +78,28 @@ public class ReplaceConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param regex
-	 *            the regex to set
+	 * @param regex the regex to set
 	 */
 	public void setRegex(String regex) {
 		this.regex = regex;
 	}
 
 	/**
-	 * @param replacement
-	 *            the replacement to set
+	 * @param replacement the replacement to set
 	 */
 	public void setReplacement(String replacement) {
 		this.replacement = replacement;
 	}
 
 	/**
-	 * @param all
-	 *            the all to set
+	 * @param all the all to set
 	 */
 	public void setAll(boolean all) {
 		this.all = all;
 	}
 
 	/**
-	 * @param splitSign
-	 *            the splitSign to set
+	 * @param splitSign the splitSign to set
 	 */
 	public void setSplitSign(String splitSign) {
 		this.splitSign = splitSign;
@@ -118,7 +116,6 @@ public class ReplaceConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -129,7 +126,6 @@ public class ReplaceConvert extends AbstractConvert {
 	 */
 	public ReplaceConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (ReplaceConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

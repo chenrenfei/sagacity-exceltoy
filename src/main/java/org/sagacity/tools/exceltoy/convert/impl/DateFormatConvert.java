@@ -55,23 +55,22 @@ public class DateFormatConvert extends AbstractConvert {
 			// 不使用当前日期
 			if (!currentDate)
 				return null;
-			else
-				parseDate = DateUtil.getNowTime();
+			parseDate = DateUtil.getNowTime();
 		} else {
-			if (key instanceof Date)
+			if (key instanceof Date) {
 				parseDate = (Date) key;
-			else {
+			} else {
 				String date = ConvertUtil.jsonParamSet(this, key.toString());
-				if (isChinaDate)
+				if (isChinaDate) {
 					date = DateUtil.parseChinaDate(date);
+				}
 				parseDate = DateUtil.parseString(date);
 			}
 		}
 		// 字符串类型
 		if (dataType.equalsIgnoreCase("string") || dataType.equalsIgnoreCase("str"))
 			return DateUtil.formatDate(parseDate, format);
-		else
-			return parseDate;
+		return parseDate;
 	}
 
 	/**
@@ -82,8 +81,7 @@ public class DateFormatConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param format
-	 *            the format to set
+	 * @param format the format to set
 	 */
 	public void setFormat(String format) {
 		this.format = format;
@@ -97,8 +95,7 @@ public class DateFormatConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param dataType
-	 *            the dataType to set
+	 * @param dataType the dataType to set
 	 */
 	public void setDataType(String dataType) {
 		this.dataType = dataType;
@@ -109,8 +106,7 @@ public class DateFormatConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param currentDate
-	 *            the currentDate to set
+	 * @param currentDate the currentDate to set
 	 */
 	public void setCurrentDate(boolean currentDate) {
 		this.currentDate = currentDate;
@@ -123,7 +119,6 @@ public class DateFormatConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -134,7 +129,6 @@ public class DateFormatConvert extends AbstractConvert {
 	 */
 	public DateFormatConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (DateFormatConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

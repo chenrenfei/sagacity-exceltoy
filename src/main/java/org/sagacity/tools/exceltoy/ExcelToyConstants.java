@@ -136,14 +136,12 @@ public class ExcelToyConstants {
 		// 常量格式#{xxx}模式
 		if (StringUtil.matches(key.trim(), "^\\#\\{[\\w|\\.]+\\}$"))
 			return (String) getKeyValue(key.substring(key.indexOf("#{") + 2, key.lastIndexOf("}")));
-		else if (StringUtil.matches(key.trim(), "^\\$\\{[\\w|\\.]+\\}$"))
+		if (StringUtil.matches(key.trim(), "^\\$\\{[\\w|\\.]+\\}$"))
 			return (String) getKeyValue(key.substring(key.indexOf("${") + 2, key.lastIndexOf("}")));
-		else {
-			String value = getKeyValue(key);
-			if (null != value)
-				return value;
-			return key;
-		}
+		String value = getKeyValue(key);
+		if (null != value)
+			return value;
+		return key;
 	}
 
 	/**
@@ -155,8 +153,9 @@ public class ExcelToyConstants {
 		if (StringUtil.isBlank(key))
 			return key;
 		String value = (String) constantMap.get(key);
-		if (null == value)
+		if (null == value) {
 			value = System.getProperty(key);
+		}
 		return value;
 	}
 
@@ -164,8 +163,7 @@ public class ExcelToyConstants {
 		String value = getKeyValue(INSERT_IGNORE);
 		if (value == null)
 			return false;
-		else
-			return Boolean.parseBoolean(value);
+		return Boolean.parseBoolean(value);
 	}
 
 	/**
@@ -177,18 +175,16 @@ public class ExcelToyConstants {
 			String suffix = getKeyValue(DEFAULT_EXCEL_SUFFIX_PARAM);
 			if (suffix.indexOf(".") == -1)
 				return suffix;
-			else
-				return suffix.substring(suffix.lastIndexOf(".") + 1);
-		} else
-			return DEFAULT_EXCEL_SUFFIX_VALUE;
+			return suffix.substring(suffix.lastIndexOf(".") + 1);
+		}
+		return DEFAULT_EXCEL_SUFFIX_VALUE;
 	}
 
 	public static String getBaseDir() {
 		String dir = System.getProperty("BASE_DIR");
 		if (dir != null)
 			return dir;
-		else
-			return BASE_DIR;
+		return BASE_DIR;
 	}
 
 	/**
@@ -198,8 +194,9 @@ public class ExcelToyConstants {
 	 */
 	public static void loadProperties(List paramElts) throws Exception {
 		String guid = getKeyValue(GLOBA_IDENTITY_NAME);
-		if (guid == null)
+		if (guid == null) {
 			guid = "";
+		}
 		/*
 		 * 加载任务配置文件中的参数，property格式<property name="" value=""> 或<property
 		 * file="xxx.properties"/>
@@ -209,12 +206,13 @@ public class ExcelToyConstants {
 			for (int i = 0; i < paramElts.size(); i++) {
 				elt = (Element) paramElts.get(i);
 				if (elt.attribute("name") != null) {
-					if (elt.attribute("value") != null)
+					if (elt.attribute("value") != null) {
 						constantMap.put(elt.attributeValue("name"), replaceConstants(
 								StringUtil.replaceAllStr(elt.attributeValue("value"), GLOBA_IDENTITY, guid)));
-					else
+					} else {
 						constantMap.put(elt.attributeValue("name"),
 								replaceConstants(StringUtil.replaceAllStr(elt.getText(), GLOBA_IDENTITY, guid)));
+					}
 				} else if (elt.attribute("file") != null) {
 					loadPropertyFile(replaceConstants(
 							StringUtil.replaceAllStr(elt.attributeValue("file"), GLOBA_IDENTITY, guid)), false);
@@ -237,8 +235,9 @@ public class ExcelToyConstants {
 			Map.Entry entry;
 			while (iter.hasNext()) {
 				entry = (Map.Entry) iter.next();
-				if (entry.getValue() != null)
+				if (entry.getValue() != null) {
 					result = StringUtil.replaceAllStr(result, "#{" + entry.getKey() + "}", (String) entry.getValue());
+				}
 			}
 		}
 		return result;
@@ -257,10 +256,11 @@ public class ExcelToyConstants {
 			} else {
 				File propFile;
 				// 根路径
-				if (FileUtil.isRootPath(propertyFile))
+				if (FileUtil.isRootPath(propertyFile)) {
 					propFile = new File(propertyFile);
-				else
+				} else {
 					propFile = new File(ExcelToyConstants.BASE_DIR, propertyFile);
+				}
 				if (!propFile.exists()) {
 					throw new Exception("参数文件:" + propertyFile + "不存在请确认");
 				}
@@ -278,8 +278,7 @@ public class ExcelToyConstants {
 		String charset = getKeyValue(XML_CHARSET);
 		if (charset == null)
 			return "UTF-8";
-		else
-			return charset;
+		return charset;
 	}
 
 	/**
@@ -290,8 +289,7 @@ public class ExcelToyConstants {
 		String batchSize = getKeyValue(BATCH_SIZE);
 		if (batchSize == null)
 			return 200;
-		else
-			return Integer.parseInt(batchSize);
+		return Integer.parseInt(batchSize);
 	}
 
 	/**
@@ -306,14 +304,14 @@ public class ExcelToyConstants {
 		if (StringUtil.isNotBlank(tasks)) {
 			System.err.println("-Dtasks=task1,task2方式传入任务为:" + tasks);
 			String[] taskAry = tasks.replaceAll("\'", "").split(",");
-			for (int i = 0; i < taskAry.length; i++)
+			for (int i = 0; i < taskAry.length; i++) {
 				tasksMap.put(taskAry[i], "1");
-		} else
-			return true;
-		if (tasksMap.size() == 0 || tasksMap.containsKey(taskId))
-			return true;
-		else
+			}
+			if (tasksMap.size() == 0 || tasksMap.containsKey(taskId))
+				return true;
 			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -328,8 +326,8 @@ public class ExcelToyConstants {
 			System.err.println("-Dtasks=task1,task2方式传入任务为:" + tasks);
 			String[] taskAry = tasks.replaceAll("\'", "").split(",");
 			return taskAry;
-		} else
-			return null;
+		}
+		return null;
 	}
 
 	/**

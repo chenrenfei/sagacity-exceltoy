@@ -5,7 +5,6 @@ package org.sagacity.tools.exceltoy.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -46,50 +45,65 @@ public class CollectionUtil {
 		if (obj instanceof int[]) {
 			int[] tmp = (int[]) obj;
 			Integer[] result = new Integer[tmp.length];
-			for (int i = 0; i < tmp.length; i++)
+			for (int i = 0; i < tmp.length; i++) {
 				result[i] = tmp[i];
+			}
 			return result;
-		} else if (obj instanceof short[]) {
+		}
+		if (obj instanceof short[]) {
 			short[] tmp = (short[]) obj;
 			Short[] result = new Short[tmp.length];
-			for (int i = 0; i < tmp.length; i++)
+			for (int i = 0; i < tmp.length; i++) {
 				result[i] = tmp[i];
+			}
 			return result;
-		} else if (obj instanceof long[]) {
+		}
+		if (obj instanceof long[]) {
 			long[] tmp = (long[]) obj;
 			Long[] result = new Long[tmp.length];
-			for (int i = 0; i < tmp.length; i++)
+			for (int i = 0; i < tmp.length; i++) {
 				result[i] = tmp[i];
+			}
 			return result;
-		} else if (obj instanceof float[]) {
+		}
+		if (obj instanceof float[]) {
 			float[] tmp = (float[]) obj;
 			Float[] result = new Float[tmp.length];
-			for (int i = 0; i < tmp.length; i++)
+			for (int i = 0; i < tmp.length; i++) {
 				result[i] = tmp[i];
+			}
 			return result;
-		} else if (obj instanceof double[]) {
+		}
+		if (obj instanceof double[]) {
 			double[] tmp = (double[]) obj;
 			Double[] result = new Double[tmp.length];
-			for (int i = 0; i < tmp.length; i++)
+			for (int i = 0; i < tmp.length; i++) {
 				result[i] = tmp[i];
+			}
 			return result;
-		} else if (obj instanceof boolean[]) {
+		}
+		if (obj instanceof boolean[]) {
 			boolean[] tmp = (boolean[]) obj;
 			Boolean[] result = new Boolean[tmp.length];
-			for (int i = 0; i < tmp.length; i++)
+			for (int i = 0; i < tmp.length; i++) {
 				result[i] = tmp[i];
+			}
 			return result;
-		} else if (obj instanceof char[]) {
+		}
+		if (obj instanceof char[]) {
 			char[] tmp = (char[]) obj;
 			String[] result = new String[tmp.length];
-			for (int i = 0; i < tmp.length; i++)
+			for (int i = 0; i < tmp.length; i++) {
 				result[i] = String.valueOf(tmp[i]);
+			}
 			return result;
-		} else if (obj instanceof byte[]) {
+		}
+		if (obj instanceof byte[]) {
 			byte[] tmp = (byte[]) obj;
 			Byte[] result = new Byte[tmp.length];
-			for (int i = 0; i < tmp.length; i++)
+			for (int i = 0; i < tmp.length; i++) {
 				result[i] = tmp[i];
+			}
 			return result;
 		}
 		return new Object[] { obj };
@@ -123,8 +137,9 @@ public class CollectionUtil {
 			if (arySource.getClass().isArray()) {
 				Object[] aryObject = convertArray(arySource);
 				if (null != aryObject && 0 < aryObject.length) {
-					for (int i = 0, n = aryObject.length; i < n; i++)
+					for (int i = 0, n = aryObject.length; i < n; i++) {
 						resultList.add(aryObject[i]);
+					}
 				}
 			} else {
 				logger.error("error define the Array! please sure the array is one or two dimension!");
@@ -151,8 +166,9 @@ public class CollectionUtil {
 			Object[] aryObject = convertArray(arySource);
 			// return Arrays.asList(aryObject);
 			if (null != aryObject && 0 < aryObject.length) {
-				for (int i = 0, n = aryObject.length; i < n; i++)
+				for (int i = 0, n = aryObject.length; i < n; i++) {
 					resultList.add(aryObject[i]);
+				}
 			}
 		} else {
 			logger.warn("arySource is not Array! it type is :" + arySource.getClass());
@@ -174,15 +190,14 @@ public class CollectionUtil {
 		if (begin + length > sourceAry.length || length == 0)
 			return sourceAry;
 		Object[] distinctAry = new Object[sourceAry.length - length];
-		if (begin == 0)
+		if (begin == 0) {
 			System.arraycopy(sourceAry, length, distinctAry, 0, sourceAry.length - length);
-		else {
+		} else {
 			System.arraycopy(sourceAry, 0, distinctAry, 0, begin);
 			System.arraycopy(sourceAry, begin + length, distinctAry, begin, sourceAry.length - length - begin);
 		}
 		return distinctAry;
 	}
-
 
 	/**
 	 * @todo 二维list转换为数组对象
@@ -197,12 +212,13 @@ public class CollectionUtil {
 		Object obj;
 		for (Iterator iter = source.iterator(); iter.hasNext();) {
 			obj = iter.next();
-			if (obj instanceof Collection)
+			if (obj instanceof Collection) {
 				result[index] = ((Collection) obj).toArray();
-			else if (obj.getClass().isArray())
+			} else if (obj.getClass().isArray()) {
 				result[index] = convertArray(obj);
-			else if (obj instanceof Map)
+			} else if (obj instanceof Map) {
 				result[index] = ((Map) obj).values().toArray();
+			}
 			index++;
 		}
 		return result;
@@ -224,21 +240,24 @@ public class CollectionUtil {
 				Collection tmp = (Collection) obj;
 				if (tmp.isEmpty())
 					return result;
-				if (((List) obj).get(0) != null && ((List) obj).get(0) instanceof List)
+				if (((List) obj).get(0) != null && ((List) obj).get(0) instanceof List) {
 					result = 2;
+				}
 			} else if (obj.getClass().isArray()) {
 				Object[] tmp = convertArray(obj);
 				if (tmp.length == 0)
 					return result;
-				if (tmp[0] != null && tmp[0].getClass().isArray())
+				if (tmp[0] != null && tmp[0].getClass().isArray()) {
 					result = 2;
+				}
 			} else if (obj instanceof Map) {
 				Map tmp = (Map) obj;
 				if (tmp.isEmpty())
 					return result;
 				Object setItem = tmp.values().iterator().next();
-				if (setItem.getClass().isArray() || setItem instanceof Collection || setItem instanceof Map)
+				if (setItem.getClass().isArray() || setItem instanceof Collection || setItem instanceof Map) {
 					result = 2;
+				}
 			}
 		}
 		return result;
@@ -266,10 +285,12 @@ public class CollectionUtil {
 			return defaultValue;
 		for (int i = 0; i < keyMaps.length; i++) {
 			if (keyMaps[i][0] instanceof String) {
-				if (obj.toString().equals(keyMaps[i][0].toString()))
+				if (obj.toString().equals(keyMaps[i][0].toString())) {
 					return keyMaps[i][1];
-			} else if (obj.equals(keyMaps[i][0]))
+				}
+			} else if (obj.equals(keyMaps[i][0])) {
 				return keyMaps[i][1];
+			}
 		}
 		return null;
 	}
@@ -286,15 +307,17 @@ public class CollectionUtil {
 			Collection tmp = (Collection) obj;
 			Iterator iter = tmp.iterator();
 			while (iter.hasNext()) {
-				if (iter.next() == null)
+				if (iter.next() == null) {
 					iter.remove();
+				}
 			}
 		} else if (obj.getClass().isArray()) {
 			Object[] tmp = convertArray(obj);
 			List tmpList = new ArrayList();
 			for (int i = 0, n = tmp.length; i < n; i++) {
-				if (tmp[i] != null)
+				if (tmp[i] != null) {
 					tmpList.add(tmp[i]);
+				}
 			}
 			return tmpList.toArray();
 		} else if (obj instanceof Map) {
@@ -303,8 +326,9 @@ public class CollectionUtil {
 			Map.Entry entry;
 			while (iter.hasNext()) {
 				entry = (Map.Entry) iter.next();
-				if (entry.getValue() == null)
+				if (entry.getValue() == null) {
 					tmp.remove(entry.getKey());
+				}
 			}
 		}
 		return obj;
@@ -405,8 +429,9 @@ public class CollectionUtil {
 			for (int i = 0, n = source.size(); i < n; i++) {
 				List rowList = new ArrayList();
 				rowAry = convertArray(source.get(i));
-				for (int j = 0, k = rowAry.length; j < k; j++)
+				for (int j = 0, k = rowAry.length; j < k; j++) {
 					rowList.add(rowAry[j]);
+				}
 				source.remove(i);
 				source.add(i, rowList);
 			}
@@ -504,10 +529,11 @@ public class CollectionUtil {
 			index = EQLUtil.getExcelFieldMapIndex(pkCols[i]);
 			// 换用StringUtil替换解决result.replaceAll("\\$\\{\\}","$"),替换内容中存在"$"符合报错问题
 			if (index != -1) {
-				if (rowData.size() < index + 1 || rowData.get(index) == null)
+				if (rowData.size() < index + 1 || rowData.get(index) == null) {
 					replace = "";
-				else
+				} else {
 					replace = rowData.get(index).toString();
+				}
 				result = StringUtil.replaceAllStr(result, ExcelToyConstants.EXCEL_TITLE_BEGIN_MARK.concat(pkCols[i])
 						.concat(ExcelToyConstants.EXCEL_TITLE_END_MARK), replace);
 			}

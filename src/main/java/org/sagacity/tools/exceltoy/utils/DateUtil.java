@@ -4,10 +4,16 @@
 package org.sagacity.tools.exceltoy.utils;
 
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -121,10 +127,9 @@ public class DateUtil {
 				return null;
 			}
 			return parseString(dateString, format, local);
-		} else {
-			String result = formatDate(data, format, local);
-			return parseString(result, format, local);
 		}
+		String result = formatDate(data, format, local);
+		return parseString(result, format, local);
 	}
 
 	public static Date parseString(String dateStr) {
@@ -169,8 +174,9 @@ public class DateUtil {
 			return result;
 		} else {
 			// 中文日期格式
-			if (StringUtil.matches(dateStr, "[年月日时分秒]"))
+			if (StringUtil.matches(dateStr, "[年月日时分秒]")) {
 				dateStr = parseChinaDate(dateStr);
+			}
 			// 含中文，但非标准的时间性中文
 			else if (StringUtil.isContainChinese(dateStr)) {
 				return null;
@@ -203,10 +209,11 @@ public class DateUtil {
 						realDF = "yyyyMMdd HH";
 					else
 						realDF = "yyMMdd HHmm";
-				} else if (size == 9)
+				} else if (size == 9) {
 					realDF = "yyMMdd HH";
-				else
+				} else {
 					realDF = "yyyyMMdd HHmmss";
+				}
 			} else {
 				// 去除数字中带的,例如:201,512
 				dateStr = dateStr.replace(",", "");
@@ -295,12 +302,14 @@ public class DateUtil {
 			result = new java.util.Date(((java.sql.Date) dt).getTime());
 		else if (dt instanceof java.lang.Number) {
 			// 13位表示毫秒数
-			if (dtStr.length() != 13)
+			if (dtStr.length() != 13) {
 				result = parseString(dtStr, format, local);
-			else
+			} else {
 				result = new java.util.Date(((Number) dt).longValue());
-		} else
+			}
+		} else {
 			result = parseString(dtStr, format, local);
+		}
 		return result;
 	}
 
@@ -319,7 +328,7 @@ public class DateUtil {
 			return null;
 		if (fmt.equalsIgnoreCase("MM"))
 			return Integer.toString(getMonth(dt));
-		else if (fmt.equalsIgnoreCase("dd"))
+		if (fmt.equalsIgnoreCase("dd"))
 			return Integer.toString(getDay(dt));
 		DateFormat df = StringUtil.isBlank(locale) ? new SimpleDateFormat(fmt)
 				: new SimpleDateFormat(fmt, new Locale(locale));
@@ -364,8 +373,9 @@ public class DateUtil {
 	// Add millisecond
 	public static Date addMilliSecond(Object dt, long millisecond) {
 		Date result = convertDateObject(dt);
-		if (millisecond != 0)
+		if (millisecond != 0) {
 			result.setTime(result.getTime() + millisecond);
+		}
 		return result;
 	}
 
@@ -454,8 +464,9 @@ public class DateUtil {
 
 	public static int getYear(Object dateValue) {
 		GregorianCalendar currentDate = new GregorianCalendar();
-		if (dateValue != null)
+		if (dateValue != null) {
 			currentDate.setTime(convertDateObject(dateValue));
+		}
 		return currentDate.get(Calendar.YEAR);
 	}
 
@@ -470,8 +481,9 @@ public class DateUtil {
 
 	public static int getMonth(Object dateValue) {
 		GregorianCalendar currentDate = new GregorianCalendar();
-		if (dateValue != null)
+		if (dateValue != null) {
 			currentDate.setTime(convertDateObject(dateValue));
+		}
 		return currentDate.get(Calendar.MONTH) + 1;
 	}
 
@@ -481,8 +493,9 @@ public class DateUtil {
 
 	public static int getDay(Object dateValue) {
 		GregorianCalendar currentDate = new GregorianCalendar();
-		if (null != dateValue)
+		if (null != dateValue) {
 			currentDate.setTime(convertDateObject(dateValue));
+		}
 		return currentDate.get(Calendar.DAY_OF_MONTH);
 	}
 
@@ -492,8 +505,9 @@ public class DateUtil {
 
 	public static int getHour(Object dateValue) {
 		GregorianCalendar currentDate = new GregorianCalendar();
-		if (null != dateValue)
+		if (null != dateValue) {
 			currentDate.setTime(convertDateObject(dateValue));
+		}
 		return currentDate.get(Calendar.HOUR_OF_DAY);
 	}
 
@@ -503,8 +517,9 @@ public class DateUtil {
 
 	public static int getMinute(Object dateValue) {
 		GregorianCalendar currentDate = new GregorianCalendar();
-		if (null != dateValue)
+		if (null != dateValue) {
 			currentDate.setTime(convertDateObject(dateValue));
+		}
 		return currentDate.get(Calendar.MINUTE);
 	}
 
@@ -514,8 +529,9 @@ public class DateUtil {
 
 	public static int getSecond(Object dateValue) {
 		GregorianCalendar currentDate = new GregorianCalendar();
-		if (dateValue != null)
+		if (dateValue != null) {
 			currentDate.setTime(convertDateObject(dateValue));
+		}
 		return currentDate.get(Calendar.SECOND);
 	}
 
@@ -777,8 +793,7 @@ public class DateUtil {
 			tmp = tmp.substring(0, tmp.length() - 1);
 		if (StringUtil.isBlank(fmt))
 			return tmp.toString();
-		else
-			return formatDate(tmp, fmt);
+		return formatDate(tmp, fmt);
 	}
 
 	/**
@@ -799,10 +814,8 @@ public class DateUtil {
 		Date date = convertDateObject(objectDate);
 		if (null == date)
 			return null;
-		else {
-			String tmp = formatDate(date, FORMAT.DATE_HORIZONTAL);
-			return parse(tmp, FORMAT.YEAR_MONTH);
-		}
+		String tmp = formatDate(date, FORMAT.DATE_HORIZONTAL);
+		return parse(tmp, FORMAT.YEAR_MONTH);
 	}
 
 	/**
@@ -814,13 +827,59 @@ public class DateUtil {
 		Date date = convertDateObject(objectDate);
 		if (null == date)
 			return null;
-		else {
-			String tmp = formatDate(date, FORMAT.DATE_HORIZONTAL);
-			Date result = parse(tmp, FORMAT.YEAR_MONTH);
-			result = addMonth(result, 1);
-			result = addDay(result, -1);
-			return result;
-		}
+		String tmp = formatDate(date, FORMAT.DATE_HORIZONTAL);
+		Date result = parse(tmp, FORMAT.YEAR_MONTH);
+		result = addMonth(result, 1);
+		result = addDay(result, -1);
+		return result;
+	}
+
+	public static Date asDate(LocalDate localDate) {
+		if (localDate == null)
+			return null;
+		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	public static Date asSqlDate(LocalDate localDate) {
+		if (localDate == null)
+			return null;
+		return Date.from(localDate.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	public static Date asDate(LocalTime localTime) {
+		if (localTime == null)
+			return null;
+		return DateUtil.parseString(localTime.toString());
+	}
+
+	public static Time asTime(LocalTime localTime) {
+		if (localTime == null)
+			return null;
+		return java.sql.Time.valueOf(localTime);
+	}
+
+	public static Date asDate(LocalDateTime localDateTime) {
+		if (localDateTime == null)
+			return null;
+		return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+	}
+
+	public static LocalDate asLocalDate(Date date) {
+		if (date == null)
+			return null;
+		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+	}
+
+	public static LocalTime asLocalTime(Date date) {
+		if (date == null)
+			return null;
+		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalTime();
+	}
+
+	public static LocalDateTime asLocalDateTime(Date date) {
+		if (date == null)
+			return null;
+		return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
 	}
 
 }

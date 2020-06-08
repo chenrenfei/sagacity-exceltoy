@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +28,16 @@ public class StringUtil {
 	 * 字符串中包含中文的表达式
 	 */
 	private static Pattern chinaPattern = Pattern.compile("[\u4e00-\u9fa5]");
+
+	/**
+	 * 单引号匹配正则表达式
+	 */
+	private static Pattern quotaPattern = Pattern.compile("(^')|([^\\\\]')");
+
+	/**
+	 * 双引号匹配正则表达式
+	 */
+	private static Pattern twoQuotaPattern = Pattern.compile("(^\")|([^\\\\]\")");
 
 	/**
 	 * private constructor,cann't be instantiated by other class 私有构造函数方法防止被实例化
@@ -58,8 +69,7 @@ public class StringUtil {
 	public static String toString(Object obj) {
 		if (null == obj)
 			return "";
-		else
-			return obj.toString();
+		return obj.toString();
 	}
 
 	/**
@@ -166,8 +176,7 @@ public class StringUtil {
 	public static boolean strTrimedEqual(String str1, String str2) {
 		if (str1 != null && str2 != null)
 			return str1.trim().equals(str2.trim());
-		else
-			return str1.equals(str2);
+		return str1.equals(str2);
 	}
 
 	/**
@@ -437,27 +446,71 @@ public class StringUtil {
 	 * @return
 	 */
 	public static int getSymMarkIndex(String beginMarkSign, String endMarkSign, String source, int startIndex) {
+		Pattern pattern = null;
+		// 单引号和双引号，排除\' 和 \"
+		if (beginMarkSign.equals("'")) {
+			pattern = quotaPattern;
+		} else if (beginMarkSign.equals("\"")) {
+			pattern = twoQuotaPattern;
+		}
 		// 判断对称符号是否相等
 		boolean symMarkIsEqual = beginMarkSign.equals(endMarkSign) ? true : false;
-		int beginSignIndex = source.indexOf(beginMarkSign, startIndex);
-		int endIndex = -1;
-		if (beginSignIndex == -1)
+		int beginSignIndex = -1;
+		if (pattern == null) {
+			beginSignIndex = source.indexOf(beginMarkSign, startIndex);
+		} else {
+			beginSignIndex = matchIndex(source, pattern, startIndex)[0];
+			// 转义符号占一位,开始位后移一位
+			if (beginSignIndex > startIndex) {
+				beginSignIndex = beginSignIndex + 1;
+			}
+		}
+		if (beginSignIndex == -1) {
 			return source.indexOf(endMarkSign, startIndex);
-		else
+		}
+		int endIndex = -1;
+		if (pattern == null) {
 			endIndex = source.indexOf(endMarkSign, beginSignIndex + 1);
-		int tmpIndex = 0;
+		} else {
+			endIndex = matchIndex(source, pattern, beginSignIndex + 1)[0];
+			// 转义符号占一位,开始位后移一位
+			if (endIndex > beginSignIndex + 1) {
+				endIndex = endIndex + 1;
+			}
+		}
+		int preEndIndex = 0;
 		while (endIndex > beginSignIndex) {
 			// 寻找下一个开始符号
-			beginSignIndex = source.indexOf(beginMarkSign, (symMarkIsEqual ? endIndex : beginSignIndex) + 1);
+			if (pattern == null) {
+				beginSignIndex = source.indexOf(beginMarkSign, (symMarkIsEqual ? endIndex : beginSignIndex) + 1);
+			} else {
+				beginSignIndex = matchIndex(source, pattern, endIndex + 1)[0];
+				// 转义符号占一位,开始位后移一位
+				if (beginSignIndex > endIndex + 1) {
+					beginSignIndex = beginSignIndex + 1;
+				}
+			}
+
 			// 找不到或则下一个开始符号位置大于截止符号则返回
-			if (beginSignIndex == -1 || beginSignIndex > endIndex)
+			if (beginSignIndex == -1 || beginSignIndex > endIndex) {
 				return endIndex;
-			tmpIndex = endIndex;
+			}
+			// 记录上一个截止位置
+			preEndIndex = endIndex;
 			// 开始符号在截止符号前则寻找下一个截止符号
-			endIndex = source.indexOf(endMarkSign, (symMarkIsEqual ? beginSignIndex : endIndex) + 1);
-			// 找不到则返回
-			if (endIndex == -1)
-				return tmpIndex;
+			if (pattern == null) {
+				endIndex = source.indexOf(endMarkSign, (symMarkIsEqual ? beginSignIndex : endIndex) + 1);
+			} else {
+				endIndex = matchIndex(source, pattern, beginSignIndex + 1)[0];
+				// 转义符号占一位,开始位后移一位
+				if (endIndex > beginSignIndex + 1) {
+					endIndex = endIndex + 1;
+				}
+			}
+			// 找不到则返回上一个截止位置
+			if (endIndex == -1) {
+				return preEndIndex;
+			}
 		}
 		return endIndex;
 	}
@@ -470,31 +523,31 @@ public class StringUtil {
 	 * @param startIndex
 	 * @return
 	 */
-	public static int getSymMarkMatchIndex(String startRegex, String endRegex, String source, int startIndex) {
+	public static int getSymMarkMatchIndex(String beginMarkSign, String endMarkSign, String source, int startIndex) {
 		// 判断对称符号是否相等
-		boolean symMarkIsEqual = startRegex.equals(endRegex) ? true : false;
-		Pattern startP = Pattern.compile(startRegex);
-		Pattern endP = Pattern.compile(endRegex);
-		int[] beginRegexIndex = StringUtil.matchIndex(source, startP, startIndex);
-		int[] endIndex = { -1, -1 };
-		if (beginRegexIndex[0] == -1)
-			return StringUtil.matchIndex(source, endP, startIndex)[0];
-		else
-			endIndex = StringUtil.matchIndex(source, endP, beginRegexIndex[1] + 1);
+		boolean symMarkIsEqual = beginMarkSign.equals(endMarkSign) ? true : false;
+		Pattern startP = Pattern.compile(beginMarkSign);
+		Pattern endP = Pattern.compile(endMarkSign);
+		int[] beginSignIndex = matchIndex(source, startP, startIndex);
+		if (beginSignIndex[0] == -1) {
+			return matchIndex(source, endP, startIndex)[0];
+		}
+		int[] endIndex = matchIndex(source, endP, beginSignIndex[1] + 1);
 		int[] tmpIndex = { 0, 0 };
-		while (endIndex[0] > beginRegexIndex[0]) {
+		while (endIndex[0] > beginSignIndex[0]) {
 			// 寻找下一个开始符号
-			beginRegexIndex = StringUtil.matchIndex(source, startP,
-					(symMarkIsEqual ? endIndex[1] : beginRegexIndex[1]) + 1);
+			beginSignIndex = matchIndex(source, startP, (symMarkIsEqual ? endIndex[1] : beginSignIndex[1]) + 1);
 			// 找不到或则下一个开始符号位置大于截止符号则返回
-			if (beginRegexIndex[0] == -1 || beginRegexIndex[0] > endIndex[0])
+			if (beginSignIndex[0] == -1 || beginSignIndex[0] > endIndex[0]) {
 				return endIndex[0];
+			}
 			tmpIndex = endIndex;
 			// 开始符号在截止符号前则寻找下一个截止符号
-			endIndex = StringUtil.matchIndex(source, endP, (symMarkIsEqual ? beginRegexIndex[1] : endIndex[1]) + 1);
+			endIndex = matchIndex(source, endP, (symMarkIsEqual ? beginSignIndex[1] : endIndex[1]) + 1);
 			// 找不到则返回
-			if (endIndex[0] == -1)
+			if (endIndex[0] == -1) {
 				return tmpIndex[0];
+			}
 		}
 		return endIndex[0];
 	}
@@ -562,18 +615,17 @@ public class StringUtil {
 		Matcher m = p.matcher(source);
 		if (m.find())
 			return m.start();
-		else
-			return -1;
+		return -1;
 	}
 
 	public static int[] matchIndex(String source, Pattern p, int start) {
 		if (source.length() <= start)
 			return new int[] { -1, -1 };
 		Matcher m = p.matcher(source.substring(start));
-		if (m.find())
+		if (m.find()) {
 			return new int[] { m.start() + start, m.end() + start };
-		else
-			return new int[] { -1, -1 };
+		}
+		return new int[] { -1, -1 };
 	}
 
 	public static int matchLastIndex(String source, String regex) {
@@ -664,9 +716,10 @@ public class StringUtil {
 	 */
 	public static String encode(String source, String fromChartSet, String toChartSet) {
 		try {
-			if (StringUtil.isNotBlank(toChartSet)) {
-				if (StringUtil.isNotBlank(fromChartSet))
+			if (isNotBlank(toChartSet)) {
+				if (isNotBlank(fromChartSet)) {
 					return new String(source.getBytes(fromChartSet), toChartSet);
+				}
 				return new String(source.getBytes(), toChartSet);
 			}
 		} catch (UnsupportedEncodingException e) {
@@ -689,10 +742,8 @@ public class StringUtil {
 		while (index != -1) {
 			if (count == order)
 				return index;
-			else {
-				begin = index + 1;
-				index = source.indexOf(regex, begin);
-			}
+			begin = index + 1;
+			index = source.indexOf(regex, begin);
 			count++;
 		}
 		return -1;
@@ -726,94 +777,179 @@ public class StringUtil {
 	/**
 	 * @todo 切割字符串，排除特殊字符对，如a,b,c,dd(a,c),dd(a,c)不能切割
 	 * @param source
-	 * @param splitSign
-	 * @param filter
+	 * @param splitSign 如逗号、分号、冒号或具体字符串,非正则表达式
+	 * @param filterMap
 	 * @return
 	 */
-	public static String[] splitExcludeSymMark(String source, String regex, HashMap filter) {
-		if (source == null)
+	public static String[] splitExcludeSymMark(String source, String splitSign, HashMap filterMap) {
+		if (source == null) {
 			return null;
-		int regsIndex = source.indexOf(regex);
-		if (regsIndex == -1)
-			return new String[] { source };
-		if (filter == null || filter.isEmpty())
-			return source.split(regex);
-		else {
-			String[][] filters = new String[filter.size()][2];
-			Iterator iter = filter.entrySet().iterator();
-			int count = 0;
-			String beginSign;
-			String endSign;
-			int beginSignIndex;
-			Map.Entry entry;
-			while (iter.hasNext()) {
-				entry = (Map.Entry) iter.next();
-				beginSign = (String) entry.getKey();
-				endSign = (String) entry.getValue();
-				beginSignIndex = source.indexOf(beginSign);
-				if (beginSignIndex != -1 && source.indexOf(endSign, beginSignIndex + 1) != -1) {
-					filters[count][0] = beginSign;
-					filters[count][1] = endSign;
-					count++;
-				}
-			}
-			// 没有对称符合过滤则直接返回分割结果
-			if (count == 0)
-				return source.split(regex);
-
-			ArrayList splitResults = new ArrayList();
-			int preRegsIndex = 0;
-			int regexLength = regex.length();
-			int symBeginIndex = 0;
-			int symEndIndex = 0;
-			int skipIndex = 0;
-			int minBegin = -1;
-			int minEndIndex = -1;
-			int meter = 0;
-			while (regsIndex != -1) {
-				// 寻找最前的对称符号
-				minBegin = -1;
-				minEndIndex = -1;
-				meter = 0;
-				for (int i = 0; i < count; i++) {
-					symBeginIndex = source.indexOf(filters[i][0], skipIndex);
-					symEndIndex = getSymMarkIndex(filters[i][0], filters[i][1], source, skipIndex);
-					if (symBeginIndex != -1 && symEndIndex != -1 && (meter == 0 || (symBeginIndex < minBegin))) {
-						minBegin = symBeginIndex;
-						minEndIndex = symEndIndex;
-						meter++;
-					}
-
-				}
-				// 在中间
-				if (minBegin < regsIndex && minEndIndex > regsIndex) {
-					skipIndex = minEndIndex + 1;
-					regsIndex = source.indexOf(regex, minEndIndex + 1);
-				} else {
-					// 对称开始符号在分割符号后面或分割符前面没有对称符号或找不到对称符号
-					if (minBegin > regsIndex || minBegin == -1) {
-						splitResults
-								.add(source.substring(preRegsIndex + (preRegsIndex == 0 ? 0 : regexLength), regsIndex));
-						preRegsIndex = regsIndex;
-						skipIndex = preRegsIndex + 1;
-						regsIndex = source.indexOf(regex, preRegsIndex + 1);
-					} // 对称截止符号在分割符前面，向下继续寻找
-					else {
-						skipIndex = minEndIndex + 1;
-					}
-				}
-				// 找不到下一个分隔符号
-				if (regsIndex == -1) {
-					splitResults.add(source.substring(preRegsIndex + (preRegsIndex == 0 ? 0 : regexLength)));
-					break;
-				}
-			}
-			String[] resultStr = new String[splitResults.size()];
-			for (int j = 0; j < splitResults.size(); j++)
-				resultStr[j] = (String) splitResults.get(j);
-			return resultStr;
 		}
+		int splitIndex = source.indexOf(splitSign);
+		if (splitIndex == -1) {
+			return new String[] { source };
+		}
+		if (filterMap == null || filterMap.isEmpty()) {
+			return source.split(splitSign);
+		}
+		List<String[]> filters = matchFilters(source, filterMap);
+		if (filters.isEmpty()) {
+			return source.split(splitSign);
+		}
+		int start = 0;
+		int skipIndex = 0;
+		int preSplitIndex = splitIndex;
+		ArrayList splitResults = new ArrayList();
+		int max = -1;
+		int[] startEnd;
+		while (splitIndex != -1) {
+			max = -1;
+			for (String[] filter : filters) {
+				startEnd = getStartEndIndex(source, filter, skipIndex, splitIndex);
+				// 分隔符号整合在对称符号的首尾中间,表示分隔符号属于内部字符串,在对称符号的终止位置后面重新获取分隔符号的位置
+				if (startEnd[0] >= 0 && startEnd[0] <= splitIndex && startEnd[1] >= splitIndex) {
+					if (startEnd[1] > max) {
+						max = startEnd[1];
+					}
+				}
+			}
+			if (max > -1) {
+				skipIndex = max + 1;
+				splitIndex = source.indexOf(splitSign, skipIndex);
+			}
+			// 分隔符号位置没有变化，表示其不在对称符号中间
+			if (preSplitIndex == splitIndex) {
+				// 切割分隔符前部分
+				splitResults.add(source.substring(start, preSplitIndex));
+				// 重新记录下一次开始切割位置
+				start = preSplitIndex + 1;
+				skipIndex = start;
+				splitIndex = source.indexOf(splitSign, skipIndex);
+				preSplitIndex = splitIndex;
+			} else {
+				preSplitIndex = splitIndex;
+			}
+		}
+		splitResults.add(source.substring(start));
+		String[] resultStr = new String[splitResults.size()];
+		for (int j = 0; j < splitResults.size(); j++) {
+			resultStr[j] = (String) splitResults.get(j);
+		}
+		return resultStr;
+	}
 
+	/**
+	 * @TODO 获取对称符号的开始和结束位置
+	 * @param source
+	 * @param filter
+	 * @param skipIndex
+	 * @param splitIndex
+	 * @return
+	 */
+	private static int[] getStartEndIndex(String source, String[] filter, int skipIndex, int splitIndex) {
+		int[] result = { -1, -1 };
+		Pattern pattern = null;
+		if (filter[0].equals("'")) {
+			pattern = quotaPattern;
+		} else if (filter[0].equals("\"")) {
+			pattern = twoQuotaPattern;
+		}
+		String tmp;
+		if (pattern == null) {
+			result[0] = source.indexOf(filter[0], skipIndex);
+			if (result[0] >= 0) {
+				result[1] = getSymMarkIndex(filter[0], filter[1], source, skipIndex);
+			}
+		} else {
+			result[0] = matchIndex(source, pattern, skipIndex)[0];
+			if (result[0] >= 0) {
+				tmp = source.substring(result[0], result[0] + 1);
+				if (!tmp.equals("'") && !tmp.equals("\"")) {
+					result[0] = result[0] + 1;
+				}
+				result[1] = getSymMarkIndex(filter[0], filter[1], source, result[0]);
+			}
+		}
+		while (result[1] > 0 && result[1] < splitIndex) {
+			if (pattern == null) {
+				// 非正则表达式,往后移动一位
+				result[0] = source.indexOf(filter[0], result[1] + 1);
+				if (result[0] > 0) {
+					result[1] = getSymMarkIndex(filter[0], filter[1], source, result[0]);
+				} else {
+					result[1] = -1;
+				}
+			} else {
+				tmp = source.substring(result[1], result[1] + 1);
+				if (!tmp.equals("'") && !tmp.equals("\"")) {
+					result[0] = matchIndex(source, pattern, result[1] + 2)[0];
+				} else {
+					result[0] = matchIndex(source, pattern, result[1] + 1)[0];
+				}
+				// 正则表达式有一个转义符号占一位
+				if (result[0] > 0) {
+					tmp = source.substring(result[0], result[0] + 1);
+					if (!tmp.equals("'") && !tmp.equals("\"")) {
+						result[0] = result[0] + 1;
+					}
+					result[1] = getSymMarkIndex(filter[0], filter[1], source, result[0]);
+				} else {
+					result[1] = -1;
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @TODO 匹配有效的过滤器
+	 * @param source
+	 * @param filterMap
+	 * @return
+	 */
+	private static List<String[]> matchFilters(String source, HashMap filterMap) {
+		List<String[]> result = new ArrayList<String[]>();
+		Iterator iter = filterMap.entrySet().iterator();
+		String beginSign;
+		String endSign;
+		int beginSignIndex;
+		int endSignIndex;
+		Map.Entry entry;
+		Pattern pattern;
+		// 排除不存在的过滤对称符号
+		while (iter.hasNext()) {
+			entry = (Map.Entry) iter.next();
+			beginSign = (String) entry.getKey();
+			endSign = (String) entry.getValue();
+			pattern = null;
+			if (beginSign.equals("'")) {
+				pattern = quotaPattern;
+			} else if (beginSign.equals("\"")) {
+				pattern = twoQuotaPattern;
+			}
+			endSignIndex = -1;
+			if (pattern == null) {
+				beginSignIndex = source.indexOf(beginSign);
+				if (beginSignIndex > -1) {
+					endSignIndex = source.indexOf(endSign, beginSignIndex + 1);
+				}
+			} else {
+				beginSignIndex = matchIndex(source, pattern);
+				// 转义符号占一位,开始位后移一位
+				if (beginSignIndex > -1) {
+					beginSignIndex = beginSignIndex + 1;
+					endSignIndex = matchIndex(source, pattern, beginSignIndex + 1)[0];
+					// 转义符号占一位,开始位后移一位
+					if (endSignIndex >= beginSignIndex + 1) {
+						endSignIndex = endSignIndex + 1;
+					}
+				}
+			}
+			if (beginSignIndex != -1 && endSignIndex != -1) {
+				result.add(new String[] { beginSign, endSign });
+			}
+		}
+		return result;
 	}
 
 	/**
@@ -863,7 +999,7 @@ public class StringUtil {
 	 * @return
 	 */
 	public static String toHumpStr(String source, boolean firstIsUpperCase) {
-		if (StringUtil.isBlank(source))
+		if (isBlank(source))
 			return source;
 		String[] humpAry = source.trim().replace("-", "_").split("\\_");
 		String cell;
@@ -871,16 +1007,16 @@ public class StringUtil {
 		for (int i = 0; i < humpAry.length; i++) {
 			cell = humpAry[i];
 			// 全大写或全小写
-			if (cell.toUpperCase().equals(cell))
+			if (cell.toUpperCase().equals(cell)) {
 				result.append(firstToUpperOtherToLower(cell));
-			else
+			} else {
 				result.append(firstToUpperCase(cell));
+			}
 		}
 		// 首字母变大写
 		if (firstIsUpperCase)
 			return firstToUpperCase(result.toString());
-		else
-			return firstToLowerCase(result.toString());
+		return firstToLowerCase(result.toString());
 	}
 
 	/**
@@ -922,26 +1058,24 @@ public class StringUtil {
 			return null;
 		if (source.indexOf(splitSign) == -1)
 			return new String[] { source };
-		else {
-			int size = splitSign.length();
-			int index = source.indexOf(splitSign);
-			int beginIndex = 0;
-			ArrayList<String> result = new ArrayList<String>();
-			String tmpStr;
-			while (index != -1) {
-				result.add(source.substring(beginIndex, index));
-				beginIndex = index + size;
-				index = source.indexOf(splitSign, index + size);
-				if (index == -1) {
-					tmpStr = source.substring(beginIndex);
-					if (!tmpStr.equals(""))
-						result.add(tmpStr);
-				}
+		int size = splitSign.length();
+		int index = source.indexOf(splitSign);
+		int beginIndex = 0;
+		ArrayList<String> result = new ArrayList<String>();
+		String tmpStr;
+		while (index != -1) {
+			result.add(source.substring(beginIndex, index));
+			beginIndex = index + size;
+			index = source.indexOf(splitSign, index + size);
+			if (index == -1) {
+				tmpStr = source.substring(beginIndex);
+				if (!tmpStr.equals(""))
+					result.add(tmpStr);
 			}
-			String[] array = new String[result.size()];
-			result.toArray(array);
-			return array;
 		}
+		String[] array = new String[result.size()];
+		result.toArray(array);
+		return array;
 	}
 
 	/**

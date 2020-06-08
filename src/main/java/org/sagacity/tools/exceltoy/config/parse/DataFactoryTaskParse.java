@@ -33,26 +33,33 @@ public class DataFactoryTaskParse {
 			if (elt.attribute("active") == null || elt.attributeValue("active").equalsIgnoreCase("true")) {
 				EqlWrapModel model = new EqlWrapModel();
 				model.setId(ExcelToyConstants.replaceConstants(elt.attributeValue("id")));
-				if (elt.attribute("datasource") != null)
+				if (elt.attribute("datasource") != null) {
 					model.setDatasource(ExcelToyConstants.replaceConstants(elt.attributeValue("datasource")));
-				if (elt.attribute("table") != null)
+				}
+				if (elt.attribute("table") != null) {
 					model.setTable(ExcelToyConstants.replaceConstants(elt.attributeValue("table")));
-				if (elt.attribute("titleRow") != null)
+				}
+				if (elt.attribute("titleRow") != null) {
 					model.setTitleRow(
 							Integer.parseInt(ExcelToyConstants.replaceConstants(elt.attributeValue("titleRow"))));
-				if (elt.attribute("beginCol") != null)
+				}
+				if (elt.attribute("beginCol") != null) {
 					model.setBeginCol(
 							Integer.parseInt(ExcelToyConstants.replaceConstants(elt.attributeValue("beginCol"))));
-				if (elt.attribute("endCol") != null)
+				}
+				if (elt.attribute("endCol") != null) {
 					model.setEndCol(Integer.parseInt(ExcelToyConstants.replaceConstants(elt.attributeValue("endCol"))));
-				if (elt.attribute("sheet") != null)
+				}
+				if (elt.attribute("sheet") != null) {
 					model.setSheet(ExcelToyConstants.replaceConstants(elt.attributeValue("sheet")));
+				}
 				if (elt.attribute("file") != null) {
 					String file = ExcelToyConstants.replaceConstants(elt.attributeValue("file"));
-					if (FileUtil.isRootPath(file))
+					if (FileUtil.isRootPath(file)) {
 						model.setFile(file);
-					else
+					} else {
 						model.setFile(FileUtil.linkPath(ExcelToyConstants.getBaseDir(), file));
+					}
 				}
 				dataFactoryTask.put(model.getId(), model);
 			}

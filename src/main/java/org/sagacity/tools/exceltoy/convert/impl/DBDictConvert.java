@@ -69,13 +69,13 @@ public class DBDictConvert extends AbstractConvert {
 			if (result == null || result.isEmpty()) {
 				logger.debug("数据库取对照为空!key=" + key);
 				if (throwException) {
-					System.err.println("数据库取对照为空!key=[" + key+"]");
+					System.err.println("数据库取对照为空!key=[" + key + "]");
 					ExcelToySpringContext.putMessage(StringUtil.replaceAllStr(message, "{0}", key.toString()));
 					throw new Exception(StringUtil.replaceAllStr(message, "{0}", key.toString()));
 				}
 				return null;
-			} else
-				return ((List) result.get(0)).get(0);
+			}
+			return ((List) result.get(0)).get(0);
 		} else {
 			if (dictMap == null) {
 				dictMap = new HashMap();
@@ -87,17 +87,18 @@ public class DBDictConvert extends AbstractConvert {
 				if (!result.isEmpty()) {
 					for (int i = 0; i < result.size(); i++) {
 						row = (List) result.get(i);
-						if (row.get(0) instanceof String)
+						if (row.get(0) instanceof String) {
 							dictMap.put(row.get(0).toString().trim(), row.get(1));
-						else
+						} else {
 							dictMap.put(row.get(0), row.get(1));
+						}
 					}
 				}
 			}
 			if (dictMap.get(key.toString().trim()) == null) {
 				logger.debug("数据库取对照为空!key=" + key);
 				if (throwException) {
-					System.err.println("数据库取对照为空!key=[" + key+"]");
+					System.err.println("数据库取对照为空!key=[" + key + "]");
 					ExcelToySpringContext.putMessage(StringUtil.replaceAllStr(message, "{0}", key.toString()));
 					throw new Exception(StringUtil.replaceAllStr(message, "{0}", key.toString()));
 				}
@@ -107,8 +108,7 @@ public class DBDictConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param sql
-	 *            the sql to set
+	 * @param sql the sql to set
 	 */
 	public void setSql(String sql) {
 		this.sql = sql;
@@ -122,8 +122,7 @@ public class DBDictConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param throwException
-	 *            the throwException to set
+	 * @param throwException the throwException to set
 	 */
 	public void setThrowException(boolean throwException) {
 		this.throwException = throwException;
@@ -137,8 +136,7 @@ public class DBDictConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param message
-	 *            the message to set
+	 * @param message the message to set
 	 */
 	public void setMessage(String message) {
 		this.message = message;
@@ -151,7 +149,6 @@ public class DBDictConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 		dictMap = null;
 	}
 
@@ -162,7 +159,6 @@ public class DBDictConvert extends AbstractConvert {
 	 */
 	public DBDictConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (DBDictConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

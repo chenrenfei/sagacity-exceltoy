@@ -60,8 +60,7 @@ public class ExcelToySpringContext {
 	}
 
 	/**
-	 * @param property
-	 *            the property to set
+	 * @param property the property to set
 	 */
 	public void setProperty(String property) {
 		this.property = property;
@@ -75,8 +74,7 @@ public class ExcelToySpringContext {
 	}
 
 	/**
-	 * @param dataSource
-	 *            the dataSource to set
+	 * @param dataSource the dataSource to set
 	 */
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -90,8 +88,7 @@ public class ExcelToySpringContext {
 	}
 
 	/**
-	 * @param taskConfig
-	 *            the taskConfig to set
+	 * @param taskConfig the taskConfig to set
 	 */
 	public void setTaskConfig(String taskConfig) {
 		this.taskConfig = taskConfig;
@@ -109,8 +106,9 @@ public class ExcelToySpringContext {
 		// 设置任务文件
 		ExcelToyConstants.DEFAULT_TASK_FILE = this.taskConfig;
 		ExcelToyConstants.IMPORT_FILE_LOCAL = false;
-		if (!XMLConfigLoader.parseTasks(true))
+		if (!XMLConfigLoader.parseTasks(true)) {
 			throw new Exception("ExcelToy工具加载任务配置文件错误,请检查!");
+		}
 	}
 
 	/**
@@ -126,8 +124,9 @@ public class ExcelToySpringContext {
 		ExcelToyConstants.mockGlobaIdentity(globaIdentity);
 		StringBuilder taskBuffer = new StringBuilder();
 		for (int i = 0; i < tasks.length; i++) {
-			if (i > 0)
+			if (i > 0) {
 				taskBuffer.append(",");
+			}
 			taskBuffer.append(tasks[i]);
 		}
 		ExcelToyConstants.mockFilterTasks(taskBuffer.toString());
@@ -138,8 +137,9 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			if (releaseConnection)
+			if (releaseConnection) {
 				DataSourceUtils.releaseConnection(conn, dataSource);
+			}
 			conn = null;
 		}
 		HashMap message = getTaskMessage(null);
@@ -159,8 +159,9 @@ public class ExcelToySpringContext {
 		this.reloadConvert();
 		StringBuilder taskBuffer = new StringBuilder();
 		for (int i = 0; i < tasks.length; i++) {
-			if (i > 0)
+			if (i > 0) {
 				taskBuffer.append(",");
+			}
 			taskBuffer.append(tasks[i]);
 		}
 		ExcelToyConstants.mockFilterTasks(taskBuffer.toString());
@@ -171,8 +172,9 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			if (releaseConnection)
+			if (releaseConnection) {
 				DataSourceUtils.releaseConnection(conn, dataSource);
+			}
 			conn = null;
 		}
 		HashMap message = getTaskMessage(null);
@@ -189,8 +191,9 @@ public class ExcelToySpringContext {
 	 */
 	public HashMap doTask(DataSource dataSource, final String task, final File excelFile) throws Exception {
 		this.reloadConvert();
-		if (excelFile != null)
+		if (excelFile != null) {
 			logger.warn("执行导入任务:" + task + ";文件长度=" + excelFile.length());
+		}
 		ExcelToyConstants.mockFilterTasks(task);
 		Connection conn = DataSourceUtils.getConnection(dataSource == null ? this.dataSource : dataSource);
 		try {
@@ -203,8 +206,9 @@ public class ExcelToySpringContext {
 			e.printStackTrace();
 			throw e;
 		} finally {
-			if (releaseConnection)
+			if (releaseConnection) {
 				DataSourceUtils.releaseConnection(conn, dataSource);
+			}
 			conn = null;
 		}
 		HashMap message = getTaskMessage(task);
@@ -265,10 +269,10 @@ public class ExcelToySpringContext {
 	public HashMap getTaskMessage(String taskId) {
 		HashMap obj = threadLocal.get();
 		if (obj != null) {
-			if (taskId != null)
+			if (taskId != null) {
 				return (HashMap) obj.get(taskId);
-			else
-				return obj;
+			}
+			return obj;
 		}
 		return null;
 	}
@@ -284,6 +288,5 @@ public class ExcelToySpringContext {
 	public void setReleaseConnection(boolean releaseConnection) {
 		this.releaseConnection = releaseConnection;
 	}
-	
-	
+
 }

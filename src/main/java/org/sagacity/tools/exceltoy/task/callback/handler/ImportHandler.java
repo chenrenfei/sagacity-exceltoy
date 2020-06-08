@@ -70,8 +70,9 @@ public class ImportHandler extends TaskExcuteHandler {
 	private ImportModel importModel;
 
 	public static TaskExcuteHandler getInstance() {
-		if (me == null)
+		if (me == null) {
 			me = new ImportHandler();
+		}
 		return me;
 	}
 
@@ -188,8 +189,9 @@ public class ImportHandler extends TaskExcuteHandler {
 						StringBuilder values = new StringBuilder();
 						// 外键字段列
 						String[][] fkFieldsIndex = null;
-						if (fkMaps != null)
+						if (fkMaps != null) {
 							fkFieldsIndex = new String[fkMaps.size()][3];
+						}
 						int count = 0;
 						String fieldName;
 						// 构造insert 插入语句
@@ -207,10 +209,11 @@ public class ImportHandler extends TaskExcuteHandler {
 							}
 							entry = (Map.Entry) iter.next();
 							fieldName = (String) entry.getKey();
-							if (fieldExcelTitleMap.get(fieldName) != null)
+							if (fieldExcelTitleMap.get(fieldName) != null) {
 								excelTitle = fieldExcelTitleMap.get(fieldName).toString();
-							else
+							} else {
 								excelTitle = fieldName;
+							}
 							// 记录字段对应excel数据列
 							if (fkMaps != null && fkMaps.get(fieldName) != null) {
 								fkFieldsIndex[count][0] = fieldName;
@@ -222,10 +225,11 @@ public class ImportHandler extends TaskExcuteHandler {
 							values.append("?");
 							meter++;
 						}
-						if (ExcelToyConstants.insertIgnore())
+						if (ExcelToyConstants.insertIgnore()) {
 							insertSql.insert(0, " insert ignore into " + tableName + " (");
-						else
+						} else {
 							insertSql.insert(0, " insert into " + tableName + " (");
+						}
 						insertSql.append(") values (");
 						insertSql.append(values);
 						insertSql.append(")");
@@ -259,8 +263,9 @@ public class ImportHandler extends TaskExcuteHandler {
 			}
 		}
 		// 生成数据导入报告
-		if (isReport)
+		if (isReport) {
 			ExcelUtil.writer(importReport, importModel.getReportFile(), null);
+		}
 		// do end-do 后置事务
 		afterTransation(false, false);
 	}
@@ -290,8 +295,9 @@ public class ImportHandler extends TaskExcuteHandler {
 				String evalResult;
 				// 表外键信息
 				HashMap fkMaps = null;
-				if (importModel.isFkFilter())
+				if (importModel.isFkFilter()) {
 					fkMaps = DBHelper.getTableImpForeignKeys(mainEqlParseResult.getTableName());
+				}
 				mainEqlParseResult.setTableMeta(DBHelper.getTableColumnMeta(mainEqlParseResult.getTableName()));
 				logger.info("正在开始向表:{}导入数据!", mainEqlParseResult.getTableName());
 				// 清除记录
@@ -299,10 +305,11 @@ public class ImportHandler extends TaskExcuteHandler {
 				// do eql
 				List excelTitles = null;
 				String fileName = ((File) excelFiles.get(0)).getName();
-				if (importModel.getTitleRow() > 0)
+				if (importModel.getTitleRow() > 0) {
 					excelTitles = ExcelUtil.read(EQLUtil.getExcelFileSuffix(fileName), excelFiles.get(0),
 							importModel.getSheet(), importModel.getTitleRow(), importModel.getTitleRow(),
 							importModel.getBeginCol(), importModel.getEndCol());
+				}
 				/**
 				 * excel文件标题列对应数据列
 				 */
@@ -347,8 +354,9 @@ public class ImportHandler extends TaskExcuteHandler {
 					// 使用复合主键
 					boolean usePK = StringUtil.isNotBlank(importModel.getMainPK()) ? true : false;
 					String[] pkCols = usePK ? EQLUtil.parseExcelFields(importModel.getMainPK()) : null;
-					if (importModel.isPkDataMerge())
+					if (importModel.isPkDataMerge()) {
 						excelRowsData = CollectionUtil.merge(excelRowsData, importModel.getMainPK(), pkCols);
+					}
 					int excelRowCount = excelRowsData.size();
 					logger.info("文件共有:{}条记录!", excelRowCount);
 					if (excelRowCount > 0) {
@@ -387,9 +395,10 @@ public class ImportHandler extends TaskExcuteHandler {
 									pkMap.put(pkValue, "1");
 									isInsertMain = true;
 								}
-							} else
+							} else {
 								// 清空主表
 								ConvertDataSource.setMainTableRowData(null);
+							}
 							// 条件过滤
 							if (hasFilter) {
 								filter = ConvertUtil.executeConvert(importModel.getFilter(), null, null).toString();
@@ -468,8 +477,9 @@ public class ImportHandler extends TaskExcuteHandler {
 							}
 						}
 						afterTransation(true, false);
-					} else
+					} else {
 						ExcelToySpringContext.putMessage("导入文件数据为空,请检查!");
+					}
 				}
 				// 关闭插入数据过程中使用的preparedStatement
 				closePreparedStatement();
@@ -487,10 +497,8 @@ public class ImportHandler extends TaskExcuteHandler {
 
 	/**
 	 * @todo <b>执行主表数据插入过程</b>
-	 * @param fkFields
-	 *            外键字段
-	 * @param isFkFilter
-	 *            是否进行外键过滤
+	 * @param fkFields     外键字段
+	 * @param isFkFilter   是否进行外键过滤
 	 * @param fkNoExistMap
 	 * @param insertSql
 	 * @param params
@@ -561,17 +569,20 @@ public class ImportHandler extends TaskExcuteHandler {
 			result[i][0] = fieldName;
 			result[i][1] = (objs[i] == null) ? "" : objs[i];
 			colMeta = (TableColumnMeta) tableMetaMap.get(fieldName);
-			if (colMeta == null)
+			if (colMeta == null) {
 				logger.error("字段:" + fieldName + "在表中不存在!");
-			if (!ignoreInsert)
+			}
+			if (!ignoreInsert) {
 				DBHelper.setParam(objs[i], colMeta, mainPst, dbType, i + 1, blobFile, charset);
+			}
 		}
 		// 存在子表数据插入需要及时提交主表的数据
 		if (!ignoreInsert) {
 			if (1 == rowCounts || hasSubTables) {
 				mainPst.execute();
-				if (realRecordCnt % 100 == 0)
+				if (realRecordCnt % 100 == 0) {
 					logger.info("已经完成:" + realRecordCnt + "条数据导入!");
+				}
 			} else {
 				mainPst.addBatch();
 				batchCount++;
@@ -623,8 +634,9 @@ public class ImportHandler extends TaskExcuteHandler {
 				}
 				int nullCnt = 0;
 				for (int k = 0; k < loopSize; k++) {
-					if (StringUtil.isBlank(loopValues[k]))
+					if (StringUtil.isBlank(loopValues[k])) {
 						nullCnt++;
+					}
 				}
 				if (nullCnt == loopSize) {
 					if (eqlModel.isBreak()) {
@@ -640,8 +652,9 @@ public class ImportHandler extends TaskExcuteHandler {
 			if (eqlModel.isSkipNull()) {
 				loopValuesList.remove(null);
 				for (Iterator iter = loopValuesList.iterator(); iter.hasNext();) {
-					if (iter.next().toString().trim().equals(""))
+					if (iter.next().toString().trim().equals("")) {
 						iter.remove();
+					}
 				}
 
 			}
@@ -677,8 +690,9 @@ public class ImportHandler extends TaskExcuteHandler {
 							(String) loopValuesList.get(k));
 					fieldName = fileds[i];
 					colMeta = (TableColumnMeta) tableMetaMap.get(fieldName);
-					if (colMeta == null)
+					if (colMeta == null) {
 						logger.error("字段:{}在表中不存在!", fieldName);
+					}
 					DBHelper.setParam(obj, colMeta, pst, dbType, i + 1, blobFile, charset);
 				}
 				pst.addBatch();
@@ -710,8 +724,9 @@ public class ImportHandler extends TaskExcuteHandler {
 			}
 		}
 		// 主表
-		if (importModel.getMainClear())
+		if (importModel.getMainClear()) {
 			DBHelper.execute("delete from " + EQLUtil.getTableName(importModel.getMainEql()), true);
+		}
 	}
 
 	/**
@@ -780,33 +795,38 @@ public class ImportHandler extends TaskExcuteHandler {
 								ConvertUtil.executeConvert(transModel.getPropertyValue(), null, null).toString());
 					}
 					String sql = null;
-					if (beforeOrEnd && (transModel.isLoopBeforeMain() == filterTrue))
+					if (beforeOrEnd && (transModel.isLoopBeforeMain() == filterTrue)) {
 						isRun = true;
-					if (!beforeOrEnd && (transModel.isLoopAfterMain() == filterTrue))
+					}
+					if (!beforeOrEnd && (transModel.isLoopAfterMain() == filterTrue)) {
 						isRun = true;
+					}
 					if (errorRun && transModel.isErrorRun()) {
 						isRun = true;
 					}
 					// 仅仅错误时才执行
-					if (!errorRun && transModel.isOnlyError())
+					if (!errorRun && transModel.isOnlyError()) {
 						isRun = false;
+					}
 
 					if (isRun) {
 						// sql文件
 						if (transModel.isSqlFile()) {
 							File sqlFile;
 							// 跟路径
-							if (FileUtil.isRootPath(transModel.getSql()))
+							if (FileUtil.isRootPath(transModel.getSql())) {
 								sqlFile = new File(transModel.getSql());
-							else
+							} else {
 								sqlFile = new File(ExcelToyConstants.getBaseDir(), transModel.getSql());
+							}
 							if (!sqlFile.exists()) {
 								logger.error("导入sql文件:{}不存在请确认!", transModel.getSql());
 							}
 							// 增加剔除注释
 							sql = SqlUtils.clearMark(FileUtil.readAsString(sqlFile, transModel.getEncoding()));
-						} else
+						} else {
 							sql = transModel.getSql();
+						}
 						int index = sql.indexOf("@");
 						if (index != -1) {
 							// 转换器调用
@@ -838,8 +858,9 @@ public class ImportHandler extends TaskExcuteHandler {
 	private boolean hasAutoIncrementField(HashMap<String, TableColumnMeta> fieldsMap) {
 		Iterator<TableColumnMeta> iter = fieldsMap.values().iterator();
 		while (iter.hasNext()) {
-			if (iter.next().isAutoIncrement())
+			if (iter.next().isAutoIncrement()) {
 				return true;
+			}
 		}
 		return false;
 	}

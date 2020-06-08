@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.sagacity.tools.exceltoy.ExcelToyConstants;
@@ -93,8 +92,7 @@ public class SqlUtils {
 	 */
 	public static PaginationModel findPageByJdbc(final String queryStr, final Object[] paramsValue,
 			final PaginationModel paginationModel, final Connection conn) throws Exception {
-		if (logger.isDebugEnabled())
-			logger.debug("findPageByJdbc:分页查询sql为:".concat(queryStr));
+		logger.debug("findPageByJdbc:分页查询sql为:".concat(queryStr));
 		int dbType = DataSourceUtils.getDbType(conn);
 		PaginationModel result = null;
 		switch (dbType) {
@@ -121,9 +119,8 @@ public class SqlUtils {
 			result = findPageByCursor(queryStr, paramsValue, paginationModel, conn, dbType);
 			break;
 		}
-		if (logger.isDebugEnabled())
-			logger.debug("findPageByJdbc" + (result == null ? "结果为空"
-					: "记录条数:" + result.getRecordCount() + "共" + result.getTotalPage() + "页!"));
+		logger.debug("findPageByJdbc"
+				+ (result == null ? "结果为空" : "记录条数:" + result.getRecordCount() + "共" + result.getTotalPage() + "页!"));
 		return result;
 	}
 
@@ -187,8 +184,9 @@ public class SqlUtils {
 						pageSql.append(" ) SAG_Paginationtable ) t_sag_pageTable ");
 						pageSql.append("where t_sag_pageTable.page_row_id <=? and t_sag_pageTable.page_row_id >?");
 						// db2 排除正在修改和插入的数据
-						if (appendWithUR())
+						if (appendWithUR()) {
 							pageSql.append(DB2_QUERY_APPEND);
+						}
 						startColIndex = 1;
 						break;
 					// sqlserver2012
@@ -216,11 +214,11 @@ public class SqlUtils {
 						break;
 					}
 					pageSql.insert(0, withSql.getWithSql());
-				} else
+				} else {
 					pageSql.append(queryStr);
+				}
 
-				if (logger.isDebugEnabled())
-					logger.debug("分页sql:" + pageSql.toString());
+				logger.debug("分页sql:" + pageSql.toString());
 				pst = conn.prepareStatement(pageSql.toString());
 
 				// informix数据库参数从2开始
@@ -256,8 +254,9 @@ public class SqlUtils {
 				}
 
 				// 设置查询参数
-				if (params != null && params.length > 0)
+				if (params != null && params.length > 0) {
 					setParamsValue(conn, pst, params, null, paramIndex);
+				}
 
 				rs = pst.executeQuery();
 				this.setResult(processPageResultSet(rs, paginationModel, recordCount, realStartPage, startColIndex));
@@ -305,8 +304,9 @@ public class SqlUtils {
 				setParamsValue(conn, pst, params, null, 0);
 
 				// 设置最大查询行
-				if (realStartPage != -1)
+				if (realStartPage != -1) {
 					pst.setMaxRows((new Long(realStartPage * paginationModel.getPageSize())).intValue());
+				}
 				rs = pst.executeQuery();
 
 				if (realStartPage > 1) {
@@ -355,9 +355,10 @@ public class SqlUtils {
 				&& (groupIndex == -1 || groupIndex < lastBracketIndex)) {
 			int sql_from_index = 0;
 			// sql不以from开头，截取from 后的部分语句
-			if (StringUtil.indexOfIgnoreCase(query_tmp, "from") != 0)
+			if (StringUtil.indexOfIgnoreCase(query_tmp, "from") != 0) {
 				sql_from_index = StringUtil.getSymMarkMatchIndex("(?i)select\\s+", "(?i)\\s+from[\\(|\\s+]", query_tmp,
 						0);
+			}
 			// 截取from后的部分
 			countQueryStr.append("select count(1) ")
 					.append((sql_from_index != -1 ? query_tmp.substring(sql_from_index) : query_tmp));
@@ -389,8 +390,9 @@ public class SqlUtils {
 					setParamsValue(conn, pst, realParams, null, 0);
 				}
 				rs = pst.executeQuery();
-				while (rs.next())
+				while (rs.next()) {
 					resultCount = rs.getLong(1);
+				}
 				this.setResult(resultCount);
 			}
 		});
@@ -445,39 +447,11 @@ public class SqlUtils {
 		// 特殊处理 order by，通过ORder这种非常规写法代表
 		if (judgeUpcase) {
 			int upcaseOrderBy = StringUtil.matchLastIndex(sql, "\\WORder\\s+");
-			if (upcaseOrderBy > lastBracketIndex)
+			if (upcaseOrderBy > lastBracketIndex) {
 				result = false;
-		}
-		return result;
-	}
-
-	/**
-	 * @todo 判断是否复杂分页查询(union,多表关联、存在top 、distinct等)
-	 * @param queryStr
-	 * @return
-	 */
-	private static boolean isComplexPageQuery(String queryStr) {
-		String tmpQuery = StringUtil.clearMistyChars(queryStr.toLowerCase(), " ");
-		boolean isComplexQuery = hasUnion(tmpQuery, false);
-		// from 和 where之间有","表示多表查询
-		if (!isComplexQuery) {
-			int fromIndex = StringUtil.getSymMarkMatchIndex("(?i)select\\s+", "(?i)\\s+from[\\(|\\s+]", tmpQuery, 0);
-			int fromWhereIndex = StringUtil.getSymMarkMatchIndex("\\s+from[\\(|\\s+]", "\\s+where[\\(|\\s+]", tmpQuery,
-					fromIndex - 1);
-			String fromLastStr = (fromWhereIndex == -1) ? tmpQuery.substring(fromIndex)
-					: tmpQuery.substring(fromIndex, fromWhereIndex).toLowerCase();
-			if (fromLastStr.indexOf(",") != -1 || fromLastStr.indexOf(" join ") != -1 || fromLastStr.indexOf("(") != -1)
-				isComplexQuery = true;
-
-			// 不存在union且非复杂关联查询
-			if (!isComplexQuery) {
-				// 截取select 到 from之间的字段
-				String tmpColumn = tmpQuery.substring(0, fromIndex);
-				if (tmpColumn.indexOf(" top ") != -1 || tmpColumn.indexOf(" distinct ") != -1)
-					isComplexQuery = true;
 			}
 		}
-		return isComplexQuery;
+		return result;
 	}
 
 	/**
@@ -521,10 +495,11 @@ public class SqlUtils {
 				(pageModel.getPageNo() != -1) ? (realStartPage - 1) * pageModel.getPageSize() + 1 : 1);
 
 		resultPageModel.setPageSize(pageModel.getPageSize());
-		if (pageModel.getPageNo() != -1)
+		if (pageModel.getPageNo() != -1) {
 			resultPageModel.setPageNo(realStartPage);
-		else
+		} else {
 			resultPageModel.setPageNo(-1);
+		}
 		return resultPageModel;
 	}
 
@@ -536,8 +511,7 @@ public class SqlUtils {
 		String flag = ExcelToyConstants.getKeyValue(DB2_QUERY_UR_FLAG);
 		if (flag == null)
 			return true;
-		else
-			return Boolean.parseBoolean(flag);
+		return Boolean.parseBoolean(flag);
 	}
 
 	/**
@@ -564,8 +538,7 @@ public class SqlUtils {
 		}
 		if (sb == null)
 			return null;
-		else
-			return sb.toString();
+		return sb.toString();
 	}
 
 	/**
@@ -589,8 +562,9 @@ public class SqlUtils {
 			if (symMarkEnd != -1) {
 				lastSql.delete(start, symMarkEnd + 1);
 				start = lastSql.indexOf("(");
-			} else
+			} else {
 				break;
+			}
 		}
 		if (StringUtil.matches(lastSql.toString(), UNION_PATTERN))
 			return true;
@@ -614,9 +588,10 @@ public class SqlUtils {
 			if (endMarkIndex == -1 || endMarkIndex == sql.length() - 3) {
 				sql = sql.substring(0, markIndex);
 				break;
-			} else
+			} else {
 				// update 2017-6-5
 				sql = sql.substring(0, markIndex).concat(" ").concat(sql.substring(endMarkIndex + 3));
+			}
 			markIndex = sql.indexOf("<!--");
 		}
 		// 剔除/* */形式的多行注释(如果是/*+ALL_ROWS*/ 或 /*! ALL_ROWS*/形式的诸如oracle hint的用法不看作是注释)
@@ -626,9 +601,10 @@ public class SqlUtils {
 			if (endMarkIndex == -1 || endMarkIndex == sql.length() - 2) {
 				sql = sql.substring(0, markIndex);
 				break;
-			} else
+			} else {
 				// update 2017-6-5
 				sql = sql.substring(0, markIndex).concat(" ").concat(sql.substring(endMarkIndex + 2));
+			}
 			markIndex = StringUtil.matchIndex(sql, maskPattern);
 		}
 		// 剔除单行注释
@@ -639,9 +615,10 @@ public class SqlUtils {
 			if (endMarkIndex == -1 || endMarkIndex == sql.length() - 1) {
 				sql = sql.substring(0, markIndex);
 				break;
-			} else
+			} else {
 				// update 2017-6-5 增加concat(" ")避免因换行导致sql语句直接相连
 				sql = sql.substring(0, markIndex).concat(" ").concat(sql.substring(endMarkIndex + 1));
+			}
 			markIndex = sql.indexOf("--");
 		}
 		return sql;
@@ -660,12 +637,15 @@ public class SqlUtils {
 	public static void setParamsValue(Connection conn, PreparedStatement pst, Object[] params, Integer[] paramsType,
 			int fromIndex) throws SQLException, IOException {
 		if (null != params && params.length > 0) {
-			if (null == paramsType || paramsType.length == 0)
-				for (int i = 0, n = params.length; i < n; i++)
+			if (null == paramsType || paramsType.length == 0) {
+				for (int i = 0, n = params.length; i < n; i++) {
 					setParamValue(conn, pst, params[i], -1, fromIndex + 1 + i);
-			else
-				for (int i = 0, n = params.length; i < n; i++)
+				}
+			} else {
+				for (int i = 0, n = params.length; i < n; i++) {
 					setParamValue(conn, pst, params[i], paramsType[i], fromIndex + 1 + i);
+				}
+			}
 		}
 	}
 
@@ -683,12 +663,15 @@ public class SqlUtils {
 	public static void setParamsValue(Connection conn, PreparedStatement pst, Object[] params, Integer[] paramsType,
 			int fromIndex, int endIndex) throws SQLException, IOException {
 		if (null != params && params.length > 0) {
-			if (null == paramsType || paramsType.length == 0)
-				for (int i = 0; i < endIndex; i++)
+			if (null == paramsType || paramsType.length == 0) {
+				for (int i = 0; i < endIndex; i++) {
 					setParamValue(conn, pst, params[i], -1, fromIndex + 1 + i);
-			else
-				for (int i = 0; i < endIndex; i++)
+				}
+			} else {
+				for (int i = 0; i < endIndex; i++) {
 					setParamValue(conn, pst, params[i], paramsType[i], fromIndex + 1 + i);
+				}
+			}
 		}
 	}
 
@@ -709,10 +692,11 @@ public class SqlUtils {
 		// jdbc部分数据库赋null值时必须要指定数据类型
 		String tmpStr;
 		if (null == paramValue) {
-			if (jdbcType != -1)
+			if (jdbcType != -1) {
 				pst.setNull(paramIndex, jdbcType);
-			else
+			} else {
 				pst.setNull(paramIndex, java.sql.Types.NULL);
+			}
 		} else {
 			if (paramValue instanceof java.lang.String) {
 				tmpStr = (String) paramValue;
@@ -777,17 +761,19 @@ public class SqlUtils {
 					} catch (Exception e) {
 						pst.setBytes(paramIndex, (byte[]) paramValue);
 					}
-				} else
+				} else {
 					pst.setBytes(paramIndex, (byte[]) paramValue);
+				}
 			} else if (paramValue instanceof java.lang.Short) {
 				pst.setShort(paramIndex, (java.lang.Short) paramValue);
 			} else if (paramValue instanceof java.lang.Float) {
 				pst.setFloat(paramIndex, ((Float) paramValue).floatValue());
 			} else {
-				if (jdbcType != -1)
+				if (jdbcType != -1) {
 					pst.setObject(paramIndex, paramValue, jdbcType);
-				else
+				} else {
 					pst.setObject(paramIndex, paramValue);
+				}
 			}
 		}
 	}
@@ -811,8 +797,9 @@ public class SqlUtils {
 		}
 		// 判断sql中参数模式，?或:named 模式，两种模式不可以混合使用
 		String sign = "?";
-		if (tmpStr.indexOf("?") == -1)
+		if (tmpStr.indexOf("?") == -1) {
 			sign = ":";
+		}
 		int index = 0;
 		while ((index = tmpStr.indexOf(sign, index + 1)) != -1) {
 			paramCnt++;
@@ -917,9 +904,10 @@ public class SqlUtils {
 				}
 				ids = findByJdbcQuery(firstNextNodeQuery.toString(), new Object[] { treeTableModel.getIdValue() }, null,
 						conn);
-			} else
+			} else {
 				ids = findByJdbcQuery(nextNodeQueryStr.toString().replaceFirst("\\$\\{inStr\\}",
 						flag + treeTableModel.getRootId() + flag), null, null, conn);
+			}
 			if (ids != null && !ids.isEmpty()) {
 				processNextLevel(updateLevelAndRoute.toString(), nextNodeQueryStr.toString(), treeTableModel, pidsMap,
 						ids, nodeLevel + 1, conn);
@@ -1007,24 +995,28 @@ public class SqlUtils {
 					nodeRoute = "";
 					if (!treeTableModel.isChar() || treeTableModel.isAppendZero()) {
 						// 负数
-						if (NumberUtil.isInteger(pid) && pid.indexOf("-") == 0)
+						if (NumberUtil.isInteger(pid) && pid.indexOf("-") == 0) {
 							nodeRoute = nodeRoute.concat("-")
 									.concat(StringUtil.addLeftZero2Len(pid.substring(1), size - 1));
-						else
+						} else {
 							nodeRoute = nodeRoute.concat(StringUtil.addLeftZero2Len(pid, size));
+						}
 					} else {
 						nodeRoute = nodeRoute.concat(StringUtil.addRightBlank2Len(pid, size));
 					}
-				} else
+				} else {
 					nodeRoute = nodeRoute.trim();
+				}
 				// update 2018-1-9 增加判断是否以逗号结尾,解决修改过程中出现双逗号问题
-				if (!nodeRoute.endsWith(treeTableModel.getSplitSign()))
+				if (!nodeRoute.endsWith(treeTableModel.getSplitSign())) {
 					nodeRoute = nodeRoute.concat(treeTableModel.getSplitSign());
+				}
 				// 回置节点的nodeRoute值
-				if (!treeTableModel.isChar() || treeTableModel.isAppendZero())
+				if (!treeTableModel.isChar() || treeTableModel.isAppendZero()) {
 					nodeRoute = nodeRoute.concat(StringUtil.addLeftZero2Len(id, size));
-				else
+				} else {
 					nodeRoute = nodeRoute.concat(StringUtil.addRightBlank2Len(id, size));
+				}
 
 				((List) rowData).set(1, nodeRoute);
 				// 节点等级
@@ -1034,8 +1026,9 @@ public class SqlUtils {
 
 				if (treeTableModel.isChar()) {
 					pst.setString(3, id);
-				} else
+				} else {
 					pst.setLong(3, Long.parseLong(id));
+				}
 			}
 		}, null, false, conn);
 
@@ -1059,9 +1052,9 @@ public class SqlUtils {
 			if (fromIndex >= toIndex) {
 				subIds = new ArrayList();
 				subIds.add(ids.get(toIndex));
-			} else
+			} else {
 				subIds = ids.subList(fromIndex, toIndex + 1);
-
+			}
 			inStrs = combineQueryInStr(subIds, 0, null, treeTableModel.isChar());
 
 			// 获取下一层节点
@@ -1071,8 +1064,9 @@ public class SqlUtils {
 				processNextLevel(updateLevelAndRoute, nextNodeQueryStr, treeTableModel,
 						CollectionUtil.hashList(subIds, 0, 1, true), nextIds, nodeLevel + 1, conn);
 			}
-			if (exist)
+			if (exist) {
 				break;
+			}
 		}
 	}
 
@@ -1099,8 +1093,9 @@ public class SqlUtils {
 			}
 		});
 		// 为null返回一个空集合
-		if (result == null)
+		if (result == null) {
 			result = new ArrayList();
+		}
 		return result;
 	}
 
@@ -1115,8 +1110,7 @@ public class SqlUtils {
 	 */
 	private static Long executeSql(final String executeSql, final Object[] params, final Integer[] paramsType,
 			final Connection conn, final Boolean autoCommit) throws Exception {
-		if (logger.isDebugEnabled())
-			logger.debug("executeJdbcSql=" + executeSql);
+		logger.debug("executeJdbcSql=" + executeSql);
 		boolean hasSetAutoCommit = false;
 		Long updateCounts = null;
 		if (autoCommit != null) {
@@ -1184,9 +1178,9 @@ public class SqlUtils {
 				index++;
 				if (rowData != null) {
 					// 使用反调
-					if (useCallHandler)
+					if (useCallHandler) {
 						insertCallhandler.process(pst, index, rowData);
-					else {
+					} else {
 						// 使用对象properties方式传值
 						if (rowData.getClass().isArray()) {
 							Object[] tmp = CollectionUtil.convertArray(rowData);
@@ -1253,8 +1247,9 @@ public class SqlUtils {
 		StringBuilder conditons = new StringBuilder(64);
 		String flag = "";
 		// 是否是字符类型
-		if (isChar)
+		if (isChar) {
 			flag = "'";
+		}
 		// 判断数据集合维度
 		int dimen = CollectionUtil.judgeObjectDimen(conditions);
 		switch (dimen) {
@@ -1265,21 +1260,24 @@ public class SqlUtils {
 		// 一维数组
 		case 1: {
 			Object[] array;
-			if (conditions instanceof Collection)
+			if (conditions instanceof Collection) {
 				array = ((Collection) conditions).toArray();
-			else if (conditions.getClass().isArray())
+			} else if (conditions.getClass().isArray()) {
 				array = CollectionUtil.convertArray(conditions);
-			else
+			} else {
 				array = ((Map) conditions).values().toArray();
+			}
 
 			for (int i = 0; i < array.length; i++) {
-				if (i != 0)
+				if (i != 0) {
 					conditons.append(",");
+				}
 				conditons.append(flag);
-				if (null == property)
+				if (null == property) {
 					conditons.append(array[i]);
-				else
-					conditons.append(BeanUtils.getProperty(array[i], property));
+				} else {
+					conditons.append(BeanUtil.getProperty(array[i], property));
+				}
 				conditons.append(flag);
 			}
 			break;
@@ -1287,20 +1285,23 @@ public class SqlUtils {
 		// 二维数据
 		case 2: {
 			Object[][] array;
-			if (conditions instanceof Collection)
+			if (conditions instanceof Collection) {
 				array = CollectionUtil.twoDimenlistToArray((Collection) conditions);
-			else if (conditions instanceof Object[][])
+			} else if (conditions instanceof Object[][]) {
 				array = (Object[][]) conditions;
-			else
+			} else {
 				array = CollectionUtil.twoDimenlistToArray(((Map) conditions).values());
+			}
 			for (int i = 0; i < array.length; i++) {
-				if (i != 0)
+				if (i != 0) {
 					conditons.append(",");
+				}
 				conditons.append(flag);
-				if (null == property)
+				if (null == property) {
 					conditons.append(array[i][colIndex.intValue()]);
-				else
-					conditons.append(BeanUtils.getProperty(array[i][colIndex.intValue()], property));
+				} else {
+					conditons.append(BeanUtil.getProperty(array[i][colIndex.intValue()], property));
+				}
 				conditons.append(flag);
 			}
 			break;
@@ -1322,8 +1323,9 @@ public class SqlUtils {
 		String lastSplitSign = StringUtil.isBlank(splitSign) ? ";" : splitSign;
 		// 剔除sql中的注释
 		sqlContent = clearMark(sqlContent);
-		if (lastSplitSign.toLowerCase().indexOf("go") != -1)
+		if (lastSplitSign.toLowerCase().indexOf("go") != -1) {
 			sqlContent = StringUtil.clearMistyChars(sqlContent, " ");
+		}
 		// sqlserver sybase 数据库以go 分割,则整个sql文件作为一个语句执行
 		String[] statments = StringUtil.splitExcludeSymMark(sqlContent, lastSplitSign, sqlCommentfilters);
 		boolean setAuto = false;
@@ -1338,8 +1340,7 @@ public class SqlUtils {
 			if (StringUtil.isNotBlank(sql)) {
 				try {
 					stat = conn.createStatement();
-					if (logger.isDebugEnabled())
-						logger.debug("######正在执行sql:" + sql.trim());
+					logger.debug("######正在执行sql:" + sql.trim());
 					stat.execute(sql.trim());
 				} catch (SQLException e) {
 					logger.error(e.getMessage(), e);
@@ -1349,9 +1350,11 @@ public class SqlUtils {
 				}
 			}
 		}
-		if (autoCommit)
+		if (autoCommit) {
 			conn.commit();
-		if (setAuto)
+		}
+		if (setAuto) {
 			conn.setAutoCommit(true);
+		}
 	}
 }

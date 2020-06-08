@@ -79,10 +79,11 @@ public class TemplateGenerator {
 
 			out = new FileOutputStream(distFile);
 
-			if (StringUtil.isNotBlank(this.encoding))
+			if (StringUtil.isNotBlank(this.encoding)) {
 				writer = new BufferedWriter(new OutputStreamWriter(out, this.encoding));
-			else
+			} else {
 				writer = new BufferedWriter(new OutputStreamWriter(out));
+			}
 			logger.info("generate file " + distFile);
 			template.process(root, writer);
 			writer.flush();

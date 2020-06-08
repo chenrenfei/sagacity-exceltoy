@@ -32,8 +32,9 @@ public class UpdateHandler extends TaskExcuteHandler {
 	private static TaskExcuteHandler me;
 
 	public static TaskExcuteHandler getInstance() {
-		if (me == null)
+		if (me == null) {
 			me = new UpdateHandler();
+		}
 		return me;
 	}
 
@@ -70,53 +71,67 @@ public class UpdateHandler extends TaskExcuteHandler {
 					int base = Integer.parseInt(loopBeginEnd[0]);
 					int target = Integer.parseInt(loopBeginEnd[1]);
 					int count = target - base;
-					if (count < 0)
+					if (count < 0) {
 						subOrAdd = true;
+					}
 					int totalCount = Math.abs(count);
-					for (int i = 0; i < totalCount; i++)
+					for (int i = 0; i < totalCount; i++) {
 						doUpdate(i, totalCount, subOrAdd ? Integer.toString(base - i) : Integer.toString(base + i));
+					}
 				} else if (updateModel.getLoopType().equalsIgnoreCase("date")) {
 					Date base = DateUtil.parseString(loopBeginEnd[0]);
 					Date target = DateUtil.parseString(loopBeginEnd[1]);
 					long count = 0;
-					if (dateType.equals("day"))
+					if (dateType.equals("day")) {
 						count = new Double(DateUtil.getIntervalDays(base, target)).intValue();
-					if (dateType.equals("month"))
+					}
+					if (dateType.equals("month")) {
 						count = DateUtil.getIntervalMonths(base, target);
-					if (dateType.equals("year"))
+					}
+					if (dateType.equals("year")) {
 						count = DateUtil.getIntervalYears(base, target);
-					if (dateType.equals("second"))
+					}
+					if (dateType.equals("second")) {
 						count = Double.valueOf(DateUtil.getIntervalSeconds(base, target)).longValue();
-					if (dateType.equals("hour"))
+					}
+					if (dateType.equals("hour")) {
 						count = Double.valueOf(DateUtil.getIntervalHours(base, target)).longValue();
-					if (dateType.equals("millsecond"))
+					}
+					if (dateType.equals("millsecond")) {
 						count = DateUtil.getIntervalMillSeconds(base, target);
-					if (count < 0)
+					}
+					if (count < 0) {
 						subOrAdd = true;
+					}
 					Date tmp = null;
 					int meter = 0;
 					int totalCount = Long.valueOf(Math.abs(count)).intValue();
 					for (int i = 0; i < totalCount; i++) {
 						meter = subOrAdd ? 0 - i : i;
-						if (dateType.equals("day"))
+						if (dateType.equals("day")) {
 							tmp = DateUtil.addDay(base, meter);
-						if (dateType.equals("month"))
+						}
+						if (dateType.equals("month")) {
 							tmp = DateUtil.addMonth(base, meter);
-						if (dateType.equals("year"))
+						}
+						if (dateType.equals("year")) {
 							tmp = DateUtil.addYear(base, meter);
-						if (dateType.equals("second"))
+						}
+						if (dateType.equals("second")) {
 							tmp = DateUtil.addSecond(base, meter);
-						if (dateType.equals("hour"))
+						}
+						if (dateType.equals("hour")) {
 							tmp = DateUtil.addHour(base, meter);
-						if (dateType.equals("millsecond"))
+						}
+						if (dateType.equals("millsecond")) {
 							tmp = DateUtil.addMilliSecond(base, meter);
+						}
 						doUpdate(i, totalCount, DateUtil.formatDate(tmp, updateModel.getDateFormat()));
 					}
 				}
-			} else
+			} else {
 				logger.info("update task:{} excel 文件:{}为空!", updateModel.getId(), updateModel.getFiles());
-			// logger.info("执行批量sql语句!");
-			// DBHelper.batchSqlText(updateModel.getSql(),updateModel.getSqlSplit());
+			}
 			return;
 		} else {
 			logger.info("excel size={}!", excelFiles.size());
@@ -132,10 +147,11 @@ public class UpdateHandler extends TaskExcuteHandler {
 	private void doUpdate(List excelFiles) throws Exception {
 		// do eql
 		List excelTitles = null;
-		if (updateModel.getTitleRow() > 0)
+		if (updateModel.getTitleRow() > 0) {
 			excelTitles = ExcelUtil.read(EQLUtil.getExcelFileSuffix(((File) excelFiles.get(0)).getName()),
 					excelFiles.get(0), updateModel.getSheet(), updateModel.getTitleRow(), updateModel.getTitleRow(),
 					updateModel.getBeginCol(), updateModel.getEndCol());
+		}
 		/**
 		 * excel文件标题列对应数据列
 		 */
@@ -207,8 +223,9 @@ public class UpdateHandler extends TaskExcuteHandler {
 			logger.error("第:{}个excel文件,第:{}行执行错误，执行的sql=[{}", i, j, sql);
 			e.printStackTrace();
 		} finally {
-			if (state != null)
+			if (state != null) {
 				state.close();
+			}
 		}
 	}
 
@@ -249,8 +266,9 @@ public class UpdateHandler extends TaskExcuteHandler {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (state != null)
+			if (state != null) {
 				state.close();
+			}
 		}
 	}
 }

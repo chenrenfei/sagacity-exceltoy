@@ -50,10 +50,8 @@ public class SecurityConfirm {
 			String choose = buf.readLine();
 			if (choose.equalsIgnoreCase(confirmMsg))
 				return true;
-			else {
-				System.err.println("【################ 输入内容不相符,任务被禁止执行!  #########】");
-				return false;
-			}
+			System.err.println("【################ 输入内容不相符,任务被禁止执行!  #########】");
+			return false;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

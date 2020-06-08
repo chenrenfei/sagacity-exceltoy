@@ -46,40 +46,39 @@ public class SubStrConvert extends AbstractConvert {
 			result = args[0].substring(beginIndex, endIndex);
 		} else if (args.length == 2) {
 			int start = Integer.parseInt(args[1]);
-			if (start > 0)
+			if (start > 0) {
 				result = args[0].substring(0, Integer.parseInt(args[1]));
-			else
+			} else {
 				result = args[0];
+			}
 		} else {
 			int start = Integer.parseInt(args[1]);
 			int end = Integer.parseInt(args[2]);
-			if (end < start || start < 0 || end < 0)
+			if (end < start || start < 0 || end < 0) {
 				result = args[0];
-			else
+			} else {
 				result = args[0].substring(start, Integer.parseInt(args[2]));
+			}
 		}
 		return result;
 	}
 
 	/**
-	 * @param beginIndex
-	 *            the beginIndex to set
+	 * @param beginIndex the beginIndex to set
 	 */
 	public void setBeginIndex(String beginIndex) {
 		this.beginIndex = Integer.parseInt(beginIndex);
 	}
 
 	/**
-	 * @param endIndex
-	 *            the endIndex to set
+	 * @param endIndex the endIndex to set
 	 */
 	public void setEndIndex(String endIndex) {
 		this.endIndex = Integer.parseInt(endIndex);
 	}
 
 	/**
-	 * @param splitSign
-	 *            the splitSign to set
+	 * @param splitSign the splitSign to set
 	 */
 	public void setSplitSign(String splitSign) {
 		this.splitSign = splitSign;
@@ -92,7 +91,6 @@ public class SubStrConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -103,7 +101,6 @@ public class SubStrConvert extends AbstractConvert {
 	 */
 	public SubStrConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (SubStrConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

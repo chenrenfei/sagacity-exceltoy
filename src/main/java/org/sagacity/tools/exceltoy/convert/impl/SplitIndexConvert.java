@@ -39,8 +39,9 @@ public class SplitIndexConvert extends AbstractConvert {
 		String source = ConvertUtil.jsonParamSet(this, key);
 		if (StringUtil.isNotBlank(source)) {
 			String[] splitAry = source.split(this.splitSign);
-			if (index < splitAry.length)
+			if (index < splitAry.length) {
 				return trim.equalsIgnoreCase("true") ? splitAry[index].trim() : splitAry[index];
+			}
 		}
 		return "";
 	}
@@ -53,8 +54,7 @@ public class SplitIndexConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param splitSign
-	 *            the splitSign to set
+	 * @param splitSign the splitSign to set
 	 */
 	public void setSplitSign(String splitSign) {
 		this.splitSign = splitSign;
@@ -68,8 +68,7 @@ public class SplitIndexConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param trim
-	 *            the trim to set
+	 * @param trim the trim to set
 	 */
 	public void setTrim(String trim) {
 		this.trim = trim;
@@ -83,8 +82,7 @@ public class SplitIndexConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param index
-	 *            the index to set
+	 * @param index the index to set
 	 */
 	public void setIndex(int index) {
 		this.index = index;
@@ -97,7 +95,6 @@ public class SplitIndexConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -108,7 +105,6 @@ public class SplitIndexConvert extends AbstractConvert {
 	 */
 	public SplitIndexConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (SplitIndexConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

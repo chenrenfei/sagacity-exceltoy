@@ -24,8 +24,9 @@ public class DataFactoryHandler extends TaskExcuteHandler {
 	private static TaskExcuteHandler me;
 
 	public static TaskExcuteHandler getInstance() {
-		if (me == null)
+		if (me == null) {
 			me = new EQLWrapHandler();
+		}
 		return me;
 	}
 
@@ -51,10 +52,11 @@ public class DataFactoryHandler extends TaskExcuteHandler {
 				boolean first = true;
 				for (int i = 0; i < titles.size(); i++) {
 					if (titles.get(i) != null) {
-						if (first)
+						if (first) {
 							eqlQuery.append("${" + titles.get(i).toString() + "}");
-						else
+						} else {
 							eqlQuery.append(",${" + titles.get(i).toString() + "}");
+						}
 						first = false;
 					}
 				}
@@ -68,8 +70,9 @@ public class DataFactoryHandler extends TaskExcuteHandler {
 			TableColumnMeta colMeta;
 			for (int i = 0; i < colMates.size(); i++) {
 				colMeta = (TableColumnMeta) colMates.get(i);
-				if (i != 0)
+				if (i != 0) {
 					eqlQuery.append(",");
+				}
 				eqlQuery.append(colMeta.getColName());
 			}
 		}

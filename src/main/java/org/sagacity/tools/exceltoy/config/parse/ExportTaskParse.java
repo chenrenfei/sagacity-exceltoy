@@ -57,21 +57,25 @@ public class ExportTaskParse {
 				// 目标路径
 				if (elt.attribute("dist") != null) {
 					dist = ExcelToyConstants.replaceConstants(elt.attributeValue("dist"));
-					if (FileUtil.isRootPath(dist))
+					if (FileUtil.isRootPath(dist)) {
 						model.setDist(dist);
-					else
+					} else {
 						model.setDist(FileUtil.linkPath(ExcelToyConstants.getBaseDir(), dist));
-				} else
+					}
+				} else {
 					model.setDist(ExcelToyConstants.getBaseDir());
+				}
 				model.setSql(elt.getText());
 				// 数据库大数据类型字段导成excel文件时数据的存放方式
-				if (elt.attribute("blobAsFile") != null)
+				if (elt.attribute("blobAsFile") != null) {
 					model.setBlobFile(ExcelToyConstants.replaceConstants(elt.attributeValue("blobAsFile")));
-				else
+				} else {
 					model.setBlobFile(ExcelToyConstants.getKeyValue("export.blob.save"));
+				}
 				if (StringUtil.isNotBlank(model.getBlobFile())) {
-					if (!FileUtil.isRootPath(model.getBlobFile()))
+					if (!FileUtil.isRootPath(model.getBlobFile())) {
 						model.setBlobFile(FileUtil.linkPath(ExcelToyConstants.getBaseDir(), model.getBlobFile()));
+					}
 				}
 				if (elt.attribute("mapping-tables") != null) {
 					model.setMappingTables(ExcelToyConstants.replaceConstants(elt.attributeValue("mapping-tables")));

@@ -75,25 +75,31 @@ public class ImportTaskParse {
 							.booleanValue());
 				if (elt.attribute("dist") != null) {
 					dist = ExcelToyConstants.replaceConstants(elt.attributeValue("dist"));
-					if (FileUtil.isRootPath(dist))
+					if (FileUtil.isRootPath(dist)) {
 						model.setDist(dist);
-					else
+					} else {
 						model.setDist(FileUtil.linkPath(ExcelToyConstants.getBaseDir(), dist));
-				} else
+					}
+				} else {
 					model.setDist(ExcelToyConstants.getBaseDir());
-				if (elt.attribute("files") != null)
+				}
+				if (elt.attribute("files") != null) {
 					model.setFiles(ExcelToyConstants.replaceConstants(elt.attributeValue("files")));
-				if (elt.attribute("sheet") != null)
+				}
+				if (elt.attribute("sheet") != null) {
 					model.setSheet(ExcelToyConstants.replaceConstants(elt.attributeValue("sheet")));
+				}
 				if (elt.attribute("blobAsFile") != null) {
 					model.setBlobFile(ExcelToyConstants.replaceConstants(elt.attributeValue("blobAsFile")));
-					if (!FileUtil.isRootPath(model.getBlobFile()))
+					if (!FileUtil.isRootPath(model.getBlobFile())) {
 						model.setBlobFile(FileUtil.linkPath(ExcelToyConstants.getBaseDir(), model.getBlobFile()));
+					}
 				}
 				if (elt.attribute("reportFile") != null) {
 					model.setReportFile(ExcelToyConstants.replaceConstants(elt.attributeValue("reportFile")));
-					if (!FileUtil.isRootPath(model.getReportFile()))
+					if (!FileUtil.isRootPath(model.getReportFile())) {
 						model.setReportFile(FileUtil.linkPath(ExcelToyConstants.getBaseDir(), model.getReportFile()));
+					}
 				}
 				try {
 					// 解析导入前置事务
@@ -104,8 +110,9 @@ public class ImportTaskParse {
 						beforeElt = (Element) beforeIters.next();
 						TransationModel beforeTrans = new TransationModel();
 						// 编码格式
-						if (beforeElt.attribute("encoding") != null)
+						if (beforeElt.attribute("encoding") != null) {
 							beforeTrans.setEncoding(beforeElt.attributeValue("encoding"));
+						}
 						// 动态定义property
 						if (beforeElt.attribute("property") != null) {
 							beforeTrans.setProperty(beforeElt.attributeValue("property"));
@@ -117,18 +124,22 @@ public class ImportTaskParse {
 							// 文件模式默认设置为自动提交
 							beforeTrans.setAutoCommit(true);
 							beforeTrans.setSql(ExcelToyConstants.replaceConstants(beforeElt.attributeValue("file")));
-						} else
+						} else {
 							beforeTrans.setSql(ExcelToyConstants.replaceConstants(beforeElt.getTextTrim()));
-						if (beforeElt.attribute("split") != null)
+						}
+						if (beforeElt.attribute("split") != null) {
 							beforeTrans.setSplitSign(
 									ExcelToyConstants.replaceConstants(beforeElt.attributeValue("split")));
-						if (beforeElt.attribute("autoCommit") != null)
+						}
+						if (beforeElt.attribute("autoCommit") != null) {
 							beforeTrans
 									.setAutoCommit(new Boolean(beforeElt.attributeValue("autoCommit")).booleanValue());
+						}
 						// 前置事务是否在每个excel文件导入前执行，而不是一批excel导入前
-						if (beforeElt.attribute("loopBeforeMain") != null)
+						if (beforeElt.attribute("loopBeforeMain") != null) {
 							beforeTrans.setLoopBeforeMain(
 									new Boolean(beforeElt.attributeValue("loopBeforeMain")).booleanValue());
+						}
 						beforeList.add(beforeTrans);
 					}
 					model.setBefores(beforeList);
@@ -152,20 +163,23 @@ public class ImportTaskParse {
 						if (tmpElt.attribute("pk") != null)
 							model.setMainPK(ExcelToyConstants.replaceConstants(tmpElt.attributeValue("pk")));
 						// 依据主键对数据值进行合并,非空的代替空数据
-						if (tmpElt.attribute("pk-data-merge") != null)
+						if (tmpElt.attribute("pk-data-merge") != null) {
 							model.setPkDataMerge(Boolean.parseBoolean(
 									ExcelToyConstants.replaceConstants(tmpElt.attributeValue("pk-data-merge"))));
+						}
 						// 判断clear是否设置在主表上
-						if (tmpElt.attribute("clear") != null)
+						if (tmpElt.attribute("clear") != null) {
 							model.setMainClear(
 									new Boolean(ExcelToyConstants.replaceConstants(tmpElt.attributeValue("clear")))
 											.booleanValue());
+						}
 						if (tmpElt.attribute("ignore-insert") != null) {
 							model.setIgnoreMainInsert(new Boolean(
 									ExcelToyConstants.replaceConstants(tmpElt.attributeValue("ignore-insert")))
 											.booleanValue());
-							if (model.isIgnoreMainInsert())
+							if (model.isIgnoreMainInsert()) {
 								model.setMainClear(false);
+							}
 						}
 						Element subTables = doElt.element("subTables");
 						if (subTables != null) {
@@ -193,20 +207,25 @@ public class ImportTaskParse {
 									if (eqlElt.attribute("break") != null) {
 										eqlModel.setBreak(Boolean.parseBoolean(eqlElt.attributeValue("break")));
 									}
-									if (eqlElt.attribute("split") != null)
+									if (eqlElt.attribute("split") != null) {
 										eqlModel.setSplitSign(eqlElt.attributeValue("split"));
+									}
 									// 子表loop-column通过split分割后是否过滤空或null的值
-									if (eqlElt.attribute("skipNull") != null)
+									if (eqlElt.attribute("skipNull") != null) {
 										eqlModel.setSkipNull(
 												new Boolean(eqlElt.attributeValue("skipNull")).booleanValue());
+									}
 									// 排除过滤loop-column切割后重复的值
-									if (eqlElt.attribute("skipRepeat") != null)
+									if (eqlElt.attribute("skipRepeat") != null) {
 										eqlModel.setSkipRepeat(
 												new Boolean(eqlElt.attributeValue("skipRepeat")).booleanValue());
-									if (eqlElt.attribute("as") != null)
+									}
+									if (eqlElt.attribute("as") != null) {
 										eqlModel.setLoopAs(eqlElt.attributeValue("as"));
-									if (eqlElt.attribute("clear") != null)
+									}
+									if (eqlElt.attribute("clear") != null) {
 										eqlModel.setClear(eqlElt.attributeValue("clear"));
+									}
 									// subtable eql常量替换在执行过程中处理，要优先替换主表值
 									eqlModel.setEqlContent(SqlUtils.clearMark(eqlElt.getText()).trim());
 									eqlList.add(eqlModel);
@@ -222,29 +241,36 @@ public class ImportTaskParse {
 					while (endIters.hasNext()) {
 						endElt = (Element) endIters.next();
 						TransationModel endTrans = new TransationModel();
-						if (endElt.attribute("split") != null)
+						if (endElt.attribute("split") != null) {
 							endTrans.setSplitSign(ExcelToyConstants.replaceConstants(endElt.attributeValue("split")));
-						if (endElt.attribute("encoding") != null)
+						}
+						if (endElt.attribute("encoding") != null) {
 							endTrans.setEncoding(ExcelToyConstants.replaceConstants(endElt.attributeValue("encoding")));
+						}
 						if (endElt.attribute("file") != null) {
 							endTrans.setSqlFile(true);
 							// 文件模式默认设置为自动提交
 							endTrans.setAutoCommit(true);
 							endTrans.setSql(ExcelToyConstants.replaceConstants(endElt.attributeValue("file")));
-						} else
+						} else {
 							endTrans.setSql(
 									SqlUtils.clearMark(ExcelToyConstants.replaceConstants(endElt.getText())).trim());
-						if (endElt.attribute("autoCommit") != null)
+						}
+						if (endElt.attribute("autoCommit") != null) {
 							endTrans.setAutoCommit(
 									new Boolean(ExcelToyConstants.replaceConstants(endElt.attributeValue("autoCommit")))
 											.booleanValue());
-						if (endElt.attribute("loopAfterMain") != null)
+						}
+						if (endElt.attribute("loopAfterMain") != null) {
 							endTrans.setLoopAfterMain(
 									new Boolean(endElt.attributeValue("loopAfterMain")).booleanValue());
-						if (endElt.attribute("errorRun") != null)
+						}
+						if (endElt.attribute("errorRun") != null) {
 							endTrans.setErrorRun(new Boolean(endElt.attributeValue("errorRun")).booleanValue());
-						if (endElt.attribute("onlyError") != null)
+						}
+						if (endElt.attribute("onlyError") != null) {
 							endTrans.setOnlyError(new Boolean(endElt.attributeValue("onlyError")).booleanValue());
+						}
 						endList.add(endTrans);
 					}
 					model.setAfters(endList);

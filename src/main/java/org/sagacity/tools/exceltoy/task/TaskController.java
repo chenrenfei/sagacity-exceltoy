@@ -76,9 +76,9 @@ public class TaskController {
 		// update 2012-5-6,修改原本任务按照配置顺序执行机制，改为按照指定执行的任务顺序执行的方式
 		List realRunTasks = null;
 		String[] pointTasks = ExcelToyConstants.getPointTasks();
-		if (pointTasks == null)
+		if (pointTasks == null) {
 			realRunTasks = taskList;
-		else {
+		} else {
 			realRunTasks = new ArrayList();
 			String pointTask;
 			boolean matched = false;
@@ -117,26 +117,27 @@ public class TaskController {
 					File[] files = taskFiles == null ? null : taskFiles.get(taskModel.getId());
 					logger.info("使用数据库:{}", taskModel.getDatasource());
 					// 为每个任务登记数据库连接
-					if (isInnerTask)
+					if (isInnerTask) {
 						DBHelper.registConnection(taskModel.getDatasource(), taskModel.getIsolationlevel(),
 								taskModel.getAutoCommit());
-					else {
+					} else {
 						DBHelper.registConnection(dataSource == null ? conn : dataSource.getConnection());
 						// 设置connection的提交方式
 						if (StringUtil.isNotBlank(taskModel.getAutoCommit())) {
 							conn.setAutoCommit(Boolean.parseBoolean(taskModel.getAutoCommit()));
 						}
 					}
-					if (taskModel.getType().equalsIgnoreCase("export"))
+					if (taskModel.getType().equalsIgnoreCase("export")) {
 						ExportHandler.getInstance().doTask(taskModel, null);
-					else if (taskModel.getType().equalsIgnoreCase("import"))
+					} else if (taskModel.getType().equalsIgnoreCase("import")) {
 						ImportHandler.getInstance().doTask(taskModel, CollectionUtil.arrayToList(files));
-					else if (taskModel.getType().equalsIgnoreCase("outputTables"))
+					} else if (taskModel.getType().equalsIgnoreCase("outputTables")) {
 						OutputTablesHandler.getInstance().doTask(taskModel, null);
-					else if (taskModel.getType().equalsIgnoreCase("eqlwrap"))
+					} else if (taskModel.getType().equalsIgnoreCase("eqlwrap")) {
 						EQLWrapHandler.getInstance().doTask(taskModel, null);
-					else if (taskModel.getType().equalsIgnoreCase("update"))
+					} else if (taskModel.getType().equalsIgnoreCase("update")) {
 						UpdateHandler.getInstance().doTask(taskModel, null);
+					}
 					// 设置任务执行状态为完成
 					setTaskStatus(taskModel.getId(), STATUS_FINISH);
 					XMLConfigLoader.disableTask(taskModel.getId());
@@ -146,8 +147,9 @@ public class TaskController {
 					logger.error("xxxxxxxxxxxxxxxxxxxxxx任务id=:" + taskModel.getId() + " 执行失败!xxxxxxxxxxxxxxxx", e);
 					e.printStackTrace();
 					// 数据库事务回滚
-					if (dataSource == null)
+					if (dataSource == null) {
 						DBHelper.rollback();
+					}
 					// 设置任务执行状态
 					setTaskStatus(taskModel.getId(), STATUS_EXCEPTION);
 				} finally {

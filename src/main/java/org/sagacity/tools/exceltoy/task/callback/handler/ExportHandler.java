@@ -29,8 +29,9 @@ public class ExportHandler extends TaskExcuteHandler {
 	private static TaskExcuteHandler me;
 
 	public static TaskExcuteHandler getInstance() {
-		if (me == null)
+		if (me == null) {
 			me = new ExportHandler();
+		}
 		return me;
 	}
 
@@ -54,22 +55,25 @@ public class ExportHandler extends TaskExcuteHandler {
 				table = (XMLTableModel) exportModel.getTables().get(i);
 				String maxLimit = null;
 				if (exportModel.getMaxLimit() != null && table.getEndRow() != null) {
-					if (exportModel.getMaxLimit().compareTo(table.getEndRow()) > 0)
+					if (exportModel.getMaxLimit().compareTo(table.getEndRow()) > 0) {
 						maxLimit = table.getEndRow();
-					else
+					} else {
 						maxLimit = exportModel.getMaxLimit();
+					}
 				} else {
 					maxLimit = (exportModel.getMaxLimit() == null) ? table.getEndRow() : exportModel.getMaxLimit();
 				}
 				sql = table.getSql();
-				if (StringUtil.isBlank(sql))
+				if (StringUtil.isBlank(sql)) {
 					sql = "select * from " + table.getName();
-				else {
+				} else {
 					lowcaseSql = sql.toLowerCase().trim();
-					if (!lowcaseSql.startsWith("select "))
+					if (!lowcaseSql.startsWith("select ")) {
 						sql = "select " + sql;
-					if (!StringUtil.matches(lowcaseSql, "\\Wfrom\\W"))
+					}
+					if (!StringUtil.matches(lowcaseSql, "\\Wfrom\\W")) {
 						sql = sql + " from " + table.getName();
+					}
 				}
 				logger.info("开始执行表:{}数据导出!", table.getName());
 				export(sql, maxLimit, maxcnt, exportModel.getDist(), table.getDist(), exportModel.getSheet(),
@@ -99,8 +103,9 @@ public class ExportHandler extends TaskExcuteHandler {
 		long recordCnt = DBHelper.getJdbcRecordCount(queryStr);
 		// 最大查询记录数
 		long maxCnt = (maxLimit != null && recordCnt > Long.parseLong(maxLimit)) ? Long.parseLong(maxLimit) : recordCnt;
-		if (tableName == null && dist.lastIndexOf(".") == -1)
+		if (tableName == null && dist.lastIndexOf(".") == -1) {
 			dist += "." + ExcelToyConstants.getExcelFileSuffix();
+		}
 		String exportFile = (tableName == null) ? dist
 				: FileUtil.linkPath(dist, tableName + "." + ExcelToyConstants.getExcelFileSuffix());
 		// 清除之前导出的文件

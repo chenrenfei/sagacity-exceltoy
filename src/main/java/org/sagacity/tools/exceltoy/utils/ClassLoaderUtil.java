@@ -77,15 +77,17 @@ public class ClassLoaderUtil {
 		File tmpFile;
 		for (int i = 0; i < jarFiles.size(); i++) {
 			tmpFile = (File) jarFiles.get(i);
-			if (tmpFile.exists() && !tmpFile.isDirectory())
+			if (tmpFile.exists() && !tmpFile.isDirectory()) {
 				pureJarFiles.add(jarFiles.get(i));
+			}
 		}
 
 		// 加载驱动类
 		if (!pureJarFiles.isEmpty()) {
 			File[] pureFiles = new File[pureJarFiles.size()];
-			for (int i = 0; i < pureFiles.length; i++)
+			for (int i = 0; i < pureFiles.length; i++) {
 				pureFiles[i] = (File) pureJarFiles.get(i);
+			}
 			addClassPath((URLClassLoader) ClassLoader.getSystemClassLoader(), pureFiles);
 		}
 	}

@@ -42,10 +42,11 @@ public class IOUtil {
 		StringBuilder buffer = new StringBuilder();
 		BufferedReader in = null;
 		try {
-			if (StringUtil.isNotBlank(encoding))
+			if (StringUtil.isNotBlank(encoding)) {
 				in = new BufferedReader(new InputStreamReader(is, encoding));
-			else
+			} else {
 				in = new BufferedReader(new InputStreamReader(is));
+			}
 			String line = "";
 			while ((line = in.readLine()) != null) {
 				buffer.append(line);

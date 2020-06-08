@@ -28,7 +28,6 @@ public class LowerConvert extends AbstractConvert {
 		if (param == null)
 			return null;
 		param = super.replaceParams(param);
-		// TODO Auto-generated method stub
 		return ((String) param).toLowerCase();
 	}
 
@@ -39,7 +38,6 @@ public class LowerConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -50,7 +48,6 @@ public class LowerConvert extends AbstractConvert {
 	 */
 	public LowerConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (LowerConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

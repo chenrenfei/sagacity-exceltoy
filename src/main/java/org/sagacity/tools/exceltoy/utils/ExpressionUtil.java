@@ -27,7 +27,7 @@ public class ExpressionUtil {
 	private final static Logger logger = LogManager.getLogger(ExpressionUtil.class);
 
 	public static final String OPTS = "+-*/%><][!|&=#";
-	
+
 	@SuppressWarnings("unchecked")
 	public static Object calculate(String expression) {
 		try {
@@ -206,49 +206,41 @@ public class ExpressionUtil {
 			} else if (opt.equals("*")) {
 				return bdValue1.multiply(bdValue2).doubleValue();
 			} else if (opt.equals("/")) {
-				return bdValue1.divide(bdValue2,10,RoundingMode.CEILING).doubleValue();
+				return bdValue1.divide(bdValue2, 10, RoundingMode.CEILING).doubleValue();
 			} else if (opt.equals("%")) {
 				return bdValue1.remainder(bdValue2).doubleValue();
 			} else if (opt.equals(">")) {
 				if (dbValue1 > dbValue2)
 					return 1;
-				else
-					return 0;
+				return 0;
 			} else if (opt.equals("<")) {
 				if (dbValue1 < dbValue2)
 					return 1;
-				else
-					return 0;
+				return 0;
 			} else if (opt.equals("]")) {
 				if (dbValue1 >= dbValue2)
 					return 1;
-				else
-					return 0;
+				return 0;
 			} else if (opt.equals("[")) {
 				if (dbValue1 <= dbValue2)
 					return 1;
-				else
-					return 0;
+				return 0;
 			} else if (opt.equals("!")) {
 				if (dbValue1 != dbValue2)
 					return 1;
-				else
-					return 0;
+				return 0;
 			} else if (opt.equals("|")) {
 				if (dbValue1 > 0 || dbValue2 > 0)
 					return 1;
-				else
-					return 0;
+				return 0;
 			} else if (opt.equals("&")) {
 				if (dbValue1 > 0 && dbValue2 > 0)
 					return 1;
-				else
-					return 0;
+				return 0;
 			} else if (opt.equals("=")) {
 				if (dbValue1 == dbValue2)
 					return 1;
-				else
-					return 0;
+				return 0;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

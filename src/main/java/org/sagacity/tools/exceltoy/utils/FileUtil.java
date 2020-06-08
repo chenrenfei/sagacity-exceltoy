@@ -142,8 +142,7 @@ public class FileUtil {
 		byte[] fileBytes = readAsByteArray(file);
 		if (StringUtil.isBlank(charset))
 			return new String(fileBytes);
-		else
-			return new String(fileBytes, charset);
+		return new String(fileBytes, charset);
 	}
 
 	public static String readLineAsString(File file, String charset) {
@@ -253,8 +252,9 @@ public class FileUtil {
 		File file;
 		if (baseDir instanceof String) {
 			file = getFile((String) baseDir);
-		} else
+		} else {
 			file = (File) baseDir;
+		}
 		getPathFiles(file, fileList, filters);
 		return fileList;
 	}
@@ -267,12 +267,11 @@ public class FileUtil {
 	public static boolean isRootPath(String path) {
 		// linux操作系统
 		if (System.getProperty("os.name").toUpperCase().indexOf("WINDOWS") == -1) {
-			if (path.indexOf("/") == 0)
+			if (path.indexOf("/") == 0) {
 				return true;
-		} else {
-			if (StringUtil.matches(path, "^[a-z|A-Z]+:\\w*"))
-				return true;
-		}
+			}
+		} else if (StringUtil.matches(path, "^[a-z|A-Z]+:\\w*"))
+			return true;
 		return false;
 	}
 
@@ -283,9 +282,9 @@ public class FileUtil {
 	 * @param filters
 	 */
 	private static void matchFilters(List fileList, File file, String[] filters) {
-		if (filters == null || filters.length == 0)
+		if (filters == null || filters.length == 0) {
 			fileList.add(file);
-		else {
+		} else {
 			for (int i = 0; i < filters.length; i++) {
 				if (file.getName().equals(filters[i]) || StringUtil.matches(file.getName(), filters[i])) {
 					fileList.add(file);
@@ -415,10 +414,9 @@ public class FileUtil {
 				}
 				fs.flush();
 				return true;
-			} else {
-				logger.error("文件=" + oldPathFile + "不存在!计划改名对应的文件为=" + newPathFile);
-				return false;
 			}
+			logger.error("文件=" + oldPathFile + "不存在!计划改名对应的文件为=" + newPathFile);
+			return false;
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("复制文件:" + oldPathFile + " 到目标文件:" + newPathFile + " 操作失败!");
@@ -450,15 +448,18 @@ public class FileUtil {
 
 		if (!firstPath.equals("")) {
 			if (firstPath.substring(firstPath.length() - 1).equals("/")
-					|| firstPath.substring(firstPath.length() - 1).equals("\\"))
+					|| firstPath.substring(firstPath.length() - 1).equals("\\")) {
 				firstPath = firstPath.substring(0, firstPath.length() - 1) + separator;
-			else
+			} else {
 				firstPath += separator;
-		} else
+			}
+		} else {
 			firstPath += separator;
+		}
 		if (!secondPath.equals("")
-				&& (secondPath.substring(0, 1).equals("/") || secondPath.substring(0, 1).equals("\\")))
+				&& (secondPath.substring(0, 1).equals("/") || secondPath.substring(0, 1).equals("\\"))) {
 			secondPath = secondPath.substring(1);
+		}
 		return firstPath.concat(secondPath);
 	}
 
@@ -485,8 +486,9 @@ public class FileUtil {
 		File result = null;
 		if (fileName.trim().toLowerCase().startsWith("classpath:")) {
 			String realPath = fileName.trim().substring(10).trim();
-			if (realPath.charAt(0) == '/')
+			if (realPath.charAt(0) == '/') {
 				realPath = realPath.substring(1);
+			}
 			URL url = Thread.currentThread().getContextClassLoader().getResource(realPath);
 			if (url != null && url.getProtocol().equals("file"))
 				try {
@@ -494,8 +496,9 @@ public class FileUtil {
 				} catch (URISyntaxException e) {
 					e.printStackTrace();
 				}
-		} else
+		} else {
 			result = new File(fileName);
+		}
 		return result;
 	}
 
@@ -525,21 +528,17 @@ public class FileUtil {
 		try {
 			if (file instanceof InputStream)
 				return (InputStream) file;
-			else if (file instanceof File)
+			if (file instanceof File)
 				return new FileInputStream((File) file);
-			else {
-				// 文件路径
-				if (new File((String) file).exists())
-					return new FileInputStream((String) file);
-				else {
-					String realFile = (String) file;
-					if (StringUtil.indexOfIgnoreCase(realFile.trim(), "classpath:") == 0)
-						realFile = realFile.trim().substring(10).trim();
-					if (realFile.charAt(0) == '/')
-						realFile = realFile.substring(1);
-					return Thread.currentThread().getContextClassLoader().getResourceAsStream(realFile);
-				}
-			}
+			// 文件路径
+			if (new File((String) file).exists())
+				return new FileInputStream((String) file);
+			String realFile = (String) file;
+			if (StringUtil.indexOfIgnoreCase(realFile.trim(), "classpath:") == 0)
+				realFile = realFile.trim().substring(10).trim();
+			if (realFile.charAt(0) == '/')
+				realFile = realFile.substring(1);
+			return Thread.currentThread().getContextClassLoader().getResourceAsStream(realFile);
 		} catch (FileNotFoundException fn) {
 			fn.printStackTrace();
 		}
@@ -554,10 +553,11 @@ public class FileUtil {
 	public static String getParentPath(String fileName) {
 		if (fileName.lastIndexOf("/") != -1) {
 			return fileName.substring(0, fileName.lastIndexOf("/"));
-		} else if (fileName.lastIndexOf("\\") != -1) {
+		}
+		if (fileName.lastIndexOf("\\") != -1) {
 			return fileName.substring(0, fileName.lastIndexOf("\\"));
-		} else
-			return null;
+		}
+		return null;
 	}
 
 	/**

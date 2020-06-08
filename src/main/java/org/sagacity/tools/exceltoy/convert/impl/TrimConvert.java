@@ -39,7 +39,6 @@ public class TrimConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -50,7 +49,6 @@ public class TrimConvert extends AbstractConvert {
 	 */
 	public TrimConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (TrimConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

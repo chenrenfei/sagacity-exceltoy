@@ -11,13 +11,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.Element;
 import org.sagacity.tools.exceltoy.ExcelToyConstants;
 import org.sagacity.tools.exceltoy.convert.AbstractConvert;
 import org.sagacity.tools.exceltoy.convert.ConvertDataSource;
+import org.springframework.beans.BeanUtils;
 
 /**
  * @project sagacity-tools
@@ -96,12 +96,13 @@ public class ConvertUtil {
 				for (int i = 0; i < params.size(); i++) {
 					param = (Element) params.get(i);
 					paramKey = param.attributeValue("name");
-					if (param.attribute("value") != null)
+					if (param.attribute("value") != null) {
 						value = param.attributeValue("value");
-					else
+					} else {
 						value = param.getText();
+					}
 					// 设置常量替换后的值
-					BeanUtils.setProperty(convert, paramKey, ExcelToyConstants.getPropertyValue(value));
+					BeanUtil.setProperty(convert, paramKey, ExcelToyConstants.getPropertyValue(value));
 				}
 			}
 			convertInstanceMap.put(id, convert);
@@ -127,19 +128,22 @@ public class ConvertUtil {
 		for (int i = 0; i < convertElts.size(); i++) {
 			convertElt = (Element) convertElts.get(i);
 			// 默认用id来定义唯一转换器，同时提供用名称定义
-			if (convertElt.attribute("id") != null)
+			if (convertElt.attribute("id") != null) {
 				id = convertElt.attributeValue("id");
-			else
+			} else {
 				id = convertElt.attributeValue("name");
+			}
 			allConvertName.add("@" + id + "(");
-			if (convertElt.attribute("class") != null)
+			if (convertElt.attribute("class") != null) {
 				processClass = convertElt.attributeValue("class");
-			else
+			} else {
 				processClass = null;
-			if (convertElt.attribute("extend") != null)
+			}
+			if (convertElt.attribute("extend") != null) {
 				extend = convertElt.attributeValue("extend");
-			else
+			} else {
 				extend = null;
+			}
 			params = convertElt.elements("param");
 
 			// 定义class和extend对应的转换器已经定义的先加载
@@ -151,9 +155,9 @@ public class ConvertUtil {
 				i = -1;
 			}
 		}
-		if (convertElts.size() == 0)
+		if (convertElts.size() == 0) {
 			logger.info("所有定义的转换器全部加载成功!");
-		else {
+		} else {
 			for (int i = 0; i < convertElts.size(); i++) {
 				convertElt = (Element) convertElts.get(i);
 				logger.error("转换器:id=" + convertElt.attributeValue("id") + "未能加载!请正确检查其extend对象是否正确定义!");
@@ -172,8 +176,7 @@ public class ConvertUtil {
 		Object result = convertInstanceMap.get(realKey);
 		if (null != result)
 			return (AbstractConvert) result;
-		else
-			return null;
+		return null;
 	}
 
 	/**
@@ -235,14 +238,15 @@ public class ConvertUtil {
 			// 用excel数据替换相关参数占位符号
 			String paramValue = convertStack;
 			// 子表用分割符号分割excel数据某列，其每个值作为子表的某个列的数据源
-			if (loopAs != null)
+			if (loopAs != null) {
 				paramValue = StringUtil.replaceAllStr(paramValue, "#{" + loopAs + "}", asValue);
-
+			}
 			// 非链式，返回字符串，有别于链式，链式可以直接返回转换后的对象
 			if (StringUtil.matches(paramValue, convertPattern) && isConvert(paramValue, false)) {
 				result = replaceConvert(paramValue);
-			} else
+			} else {
 				result = paramValue;
+			}
 			if (result instanceof String) {
 				String str = result.toString();
 				// 使用#[parentTable_field]参数，则用主表的数据替换相关主表字段占位符号，其占位符号跟常量一致
@@ -254,12 +258,13 @@ public class ConvertUtil {
 								ConvertDataSource.getMainTableRowData()[i][1].toString());
 					}
 				}
-				if (str.indexOf("${") != -1)
+				if (str.indexOf("${") != -1) {
 					str = EQLUtil.replaceHolder(str, EQLUtil.parseExcelFields(str));
+				}
 				// 常量替换
 				return ExcelToyConstants.replaceConstants(str);
-			} else
-				return result;
+			}
+			return result;
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;
@@ -328,16 +333,18 @@ public class ConvertUtil {
 			// 逆向取对称符号
 			int argsBeginIndex = StringUtil.getSymMarkReverseIndex("{", "}", paramStr, argsEndIndex);
 			result = paramStr.substring(0, argsBeginIndex);
-			if (result.trim().lastIndexOf(",") != -1)
+			if (result.trim().lastIndexOf(",") != -1) {
 				result = result.substring(0, result.lastIndexOf(","));
+			}
 
 			String[] params = paramStr.substring(argsBeginIndex + 1, argsEndIndex).split(",");
 			String[] paramValue;
 			if (params != null) {
 				for (int i = 0; i < params.length; i++) {
 					paramValue = params[i].split(":");
-					if (paramValue.length > 1)
-						BeanUtils.setProperty(obj, paramValue[0].trim(), paramValue[1].trim());
+					if (paramValue.length > 1) {
+						BeanUtil.setProperty(obj, paramValue[0].trim(), paramValue[1].trim());
+					}
 				}
 			}
 		}
@@ -373,15 +380,17 @@ public class ConvertUtil {
 			// 逆向取对称符号
 			int argsBeginIndex = StringUtil.getSymMarkReverseIndex("{", "}", paramStr, argsEndIndex);
 			result = paramStr.substring(0, argsBeginIndex);
-			if (result.trim().lastIndexOf(",") != -1)
+			if (result.trim().lastIndexOf(",") != -1) {
 				result = result.substring(0, result.lastIndexOf(","));
+			}
 			String[] params = paramStr.substring(argsBeginIndex + 1, argsEndIndex).split(",");
 			String[] paramValue;
 			if (params != null) {
 				for (int i = 0; i < params.length; i++) {
 					paramValue = params[i].split(":");
-					if (paramValue.length > 1)
+					if (paramValue.length > 1) {
 						resultMap.put(paramValue[0].trim(), paramValue[1].trim());
+					}
 				}
 			}
 		}

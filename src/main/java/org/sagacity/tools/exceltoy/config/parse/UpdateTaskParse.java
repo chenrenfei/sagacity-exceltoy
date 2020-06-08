@@ -71,27 +71,33 @@ public class UpdateTaskParse {
 				if (elt.attribute("sqlFile") != null)
 					model.setSqlFile(ExcelToyConstants.replaceConstants(elt.attributeValue("sqlFile")));
 				// 批量执行量
-				if (elt.attribute("batchSize") != null)
+				if (elt.attribute("batchSize") != null) {
 					model.setBatchSize(
 							new Integer(ExcelToyConstants.replaceConstants(elt.attributeValue("batchSize"))));
+				}
 				// 批量sql的分割符号
-				if (elt.attribute("split") != null)
+				if (elt.attribute("split") != null) {
 					model.setSqlSplit(ExcelToyConstants.replaceConstants(elt.attributeValue("split")));
+				}
 
 				// 判断是否采用快速预处理模式
-				if (elt.attribute("prepared") != null)
+				if (elt.attribute("prepared") != null) {
 					model.setPrepared(ExcelToyConstants.replaceConstants(elt.attributeValue("prepared")));
-				if (elt.attribute("files") != null)
+				}
+				if (elt.attribute("files") != null) {
 					model.setFiles(ExcelToyConstants.replaceConstants(elt.attributeValue("files")));
+				}
 				// 目标路径
 				if (elt.attribute("dist") != null) {
 					dist = ExcelToyConstants.replaceConstants(elt.attributeValue("dist"));
-					if (FileUtil.isRootPath(dist))
+					if (FileUtil.isRootPath(dist)) {
 						model.setDist(dist);
-					else
+					} else {
 						model.setDist(FileUtil.linkPath(ExcelToyConstants.getBaseDir(), dist));
-				} else
+					}
+				} else {
 					model.setDist(ExcelToyConstants.getBaseDir());
+				}
 				model.setSql(SqlUtils.clearMark(ExcelToyConstants.replaceConstants(elt.getText())).trim());
 				updateTasks.put(model.getId(), model);
 			}

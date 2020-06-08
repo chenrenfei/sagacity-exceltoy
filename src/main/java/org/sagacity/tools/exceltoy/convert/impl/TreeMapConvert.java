@@ -74,45 +74,39 @@ public class TreeMapConvert extends AbstractConvert {
 			}
 		}
 		logger.error("根据父节点名称未找到树对应父节点id!");
-		// throw new Exception("根据父节点名称未找到树对应父节点id!");
 		return rootPid;
 	}
 
 	/**
-	 * @param idIndex
-	 *            the idIndex to set
+	 * @param idIndex the idIndex to set
 	 */
 	public void setIdIndex(String idIndex) {
 		this.idIndex = Integer.valueOf(idIndex);
 	}
 
 	/**
-	 * @param idIndex
-	 *            the idIndex to set
+	 * @param idIndex the idIndex to set
 	 */
 	public void setIdIndex(int idIndex) {
 		this.idIndex = idIndex;
 	}
 
 	/**
-	 * @param idNameIndex
-	 *            the idNameIndex to set
+	 * @param idNameIndex the idNameIndex to set
 	 */
 	public void setIdNameIndex(int idNameIndex) {
 		this.idNameIndex = idNameIndex;
 	}
 
 	/**
-	 * @param dynId
-	 *            the dynId to set
+	 * @param dynId the dynId to set
 	 */
 	public void setDynId(boolean dynId) {
 		this.dynId = dynId;
 	}
 
 	/**
-	 * @param rootPid
-	 *            the rootPid to set
+	 * @param rootPid the rootPid to set
 	 */
 	public void setRootPid(String rootPid) {
 		this.rootPid = rootPid;
@@ -125,7 +119,6 @@ public class TreeMapConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -136,7 +129,6 @@ public class TreeMapConvert extends AbstractConvert {
 	 */
 	public TreeMapConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (TreeMapConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

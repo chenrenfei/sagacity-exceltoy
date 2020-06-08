@@ -102,12 +102,14 @@ public class ExcelUtil {
 			setTitle(xlsSheet, headStyle, (List) rowDatas.get(0));
 			// 删除第一行
 			rowDatas.remove(0);
-			if (!rowDatas.isEmpty())
+			if (!rowDatas.isEmpty()) {
 				addRows(xlsSheet, valueStyle, rowDatas, ((List) rowDatas.get(0)).size(), blobSaveFile, charset);
+			}
 			File exportFile = new File(distFile);
 			// 判断路径是否存在，不存在则创建路径
-			if (!exportFile.getParentFile().exists())
+			if (!exportFile.getParentFile().exists()) {
 				exportFile.getParentFile().mkdirs();
+			}
 			FileOutputStream fileOut = new FileOutputStream(exportFile);
 			wb.write(fileOut);
 			fileOut.flush();
@@ -166,17 +168,18 @@ public class ExcelUtil {
 		for (int i = 0, n = rowsData.size(); i < n; i++) {
 			rowDatas = xlsSheet.createRow(i + 1);
 			row = (List) rowsData.get(i);
-			if (width > row.size())
+			if (width > row.size()) {
 				width = row.size();
+			}
 			for (int j = 0; j < width; j++) {
 				cell = rowDatas.createCell(j);
 				cell.setCellStyle(valueStyle);
 				cellData = row.get(j);
-				if (cellData == null)
+				if (cellData == null) {
 					cell.setCellValue("");
-				else if (cellData instanceof Boolean)
+				} else if (cellData instanceof Boolean) {
 					cell.setCellValue(((Boolean) cellData).booleanValue());
-				else if (cellData instanceof Number) {
+				} else if (cellData instanceof Number) {
 					cell.setCellValue(cellData.toString());
 				} else {
 					if (StringUtil.isNotBlank(saveBlobFile)) {
@@ -192,15 +195,17 @@ public class ExcelUtil {
 						} else if (StringUtil.indexOfIgnoreCase(fieldType, "image") != -1) {
 							FileUtil.putByteArrayToFile(row.get(j).toString().getBytes(), fileName);
 							cell.setCellValue(fileName);
-						} else
+						} else {
 							cell.setCellValue(row.get(j) == null ? "" : row.get(j).toString());
+						}
 					} else {
-						if (row.get(j) == null)
+						if (row.get(j) == null) {
 							cell.setCellValue("");
-						else if (row.get(j) instanceof java.sql.Clob)
+						} else if (row.get(j) instanceof java.sql.Clob) {
 							cell.setCellValue(clobToString((java.sql.Clob) row.get(j)));
-						else
+						} else {
 							cell.setCellValue(row.get(j).toString());
+						}
 					}
 				}
 			}
@@ -258,8 +263,7 @@ public class ExcelUtil {
 			File excelFile = new File((String) excelData);
 			if (!excelFile.exists())
 				return null;
-			else
-				excelInputStream = new FileInputStream(excelFile);
+			excelInputStream = new FileInputStream(excelFile);
 		}
 		if (excelInputStream == null)
 			return null;
@@ -268,10 +272,11 @@ public class ExcelUtil {
 		List result = new ArrayList();
 		try {
 			wb = isXls ? new HSSFWorkbook(excelInputStream) : new XSSFWorkbook(excelInputStream);
-			if (StringUtil.isNotBlank(sheetName))
+			if (StringUtil.isNotBlank(sheetName)) {
 				sheet = wb.getSheet(sheetName);
-			else
+			} else {
 				sheet = wb.getSheetAt(0);
+			}
 			// excel数据为空
 			if (sheet.getLastRowNum() < 1) {
 				wb.close();
@@ -301,23 +306,25 @@ public class ExcelUtil {
 							? (row.getLastCellNum() > 255 ? 255 : row.getLastCellNum() - 1)
 							: endCol.intValue() - 1;
 					for (int i = realBeginCol; i <= realEndCol; i++) {
-						if (i >= row.getLastCellNum())
+						if (i >= row.getLastCellNum()) {
 							content = null;
-						else {
+						} else {
 							cell = row.getCell(i);
-							if (cell == null)
+							if (cell == null) {
 								content = null;
-							else {
+							} else {
 								// 存在合并区域
 								if (hasMerge) {
 									content = getMergedRegionValue(sheet, cell, row.getRowNum(), cell.getColumnIndex());
-								} else
+								} else {
 									content = getCellValue(cell);
+								}
 							}
 						}
 						rowData.add(content);
-						if (content == null || content.toString().equals(""))
+						if (content == null || content.toString().equals("")) {
 							emptyCnt++;
+						}
 					}
 					if (emptyCnt == realEndCol - realBeginCol + 1 && emptyCnt != 0)
 						break;
@@ -444,7 +451,6 @@ public class ExcelUtil {
 		}
 		if (sb == null)
 			return null;
-		else
-			return sb.toString();
+		return sb.toString();
 	}
 }

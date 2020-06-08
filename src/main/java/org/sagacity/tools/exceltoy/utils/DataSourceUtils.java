@@ -188,25 +188,25 @@ public class DataSourceUtils {
 			if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.ORACLE) != -1)
 				return Dialect.ORACLE;
 			// db2
-			else if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.DB2) != -1)
+			if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.DB2) != -1)
 				return Dialect.DB2;
 			// sqlserver,只支持2000或以上版本
-			else if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.SQLSERVER) != -1
+			if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.SQLSERVER) != -1
 					|| StringUtil.indexOfIgnoreCase(dbDialect, "Microsoft SQL Server") != -1)
 				return Dialect.SQLSERVER;
 			// mysql以及mysql的分支数据库
-			else if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.MYSQL) != -1
+			if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.MYSQL) != -1
 					|| StringUtil.indexOfIgnoreCase(dbDialect, Dialect.MARIADB) != -1
 					|| StringUtil.indexOfIgnoreCase(dbDialect, Dialect.INNOSQL) != -1)
 				return Dialect.MYSQL;
 			// sqlite
-			else if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.SQLITE) != -1)
+			if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.SQLITE) != -1)
 				return Dialect.SQLITE;
 			// postgresql
-			else if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.POSTGRESQL) != -1)
+			if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.POSTGRESQL) != -1)
 				return Dialect.POSTGRESQL;
 			// sybase iq
-			else if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.SYBASE_IQ) != -1
+			if (StringUtil.indexOfIgnoreCase(dbDialect, Dialect.SYBASE_IQ) != -1
 					|| StringUtil.indexOfIgnoreCase(dbDialect, "Sybase IQ") != -1
 					|| (StringUtil.indexOfIgnoreCase(dbDialect, "sap") != -1
 							&& StringUtil.indexOfIgnoreCase(dbDialect, "iq") != -1))
@@ -326,41 +326,4 @@ public class DataSourceUtils {
 			return "select 1";
 		}
 	}
-
-//	/**
-//	 * @todo <b>统一处理DataSource以及对应的Connection，便于跟spring事务集成</b>
-//	 * @param sqltoyContext
-//	 * @param datasource
-//	 * @param handler
-//	 * @return
-//	 * @throws Exception
-//	 */
-//	public static Object processDataSource(SqlToyContext sqltoyContext, DataSource datasource,
-//			DataSourceCallbackHandler handler) throws Exception {
-//		Connection conn = org.springframework.jdbc.datasource.DataSourceUtils.getConnection(datasource);
-//		Integer dbType;
-//		String dialect;
-//		// 统一提取数据库方言类型
-//		if (null != sqltoyContext && StringUtil.isNotBlank(sqltoyContext.getDialect())) {
-//			dialect = sqltoyContext.getDialect();
-//			dbType = getDBType(dialect);
-//		} else {
-//			dbType = getDbType(conn);
-//			dialect = getDialect(dbType);
-//		}
-//		try {
-//			// 调用反调，传入conn和数据库类型进行实际业务处理(数据库类型主要便于DialectFactory获取对应方言处理类)
-//			handler.doConnection(conn, dbType, dialect);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//			org.springframework.jdbc.datasource.DataSourceUtils.releaseConnection(conn, datasource);
-//			conn = null;
-//			throw e;
-//		} finally {
-//			// 释放连接,连接池实际是归还连接，未必一定关闭
-//			org.springframework.jdbc.datasource.DataSourceUtils.releaseConnection(conn, datasource);
-//		}
-//		// 返回反调的结果
-//		return handler.getResult();
-//	}
 }

@@ -91,10 +91,11 @@ public class TableSequenceConvert extends AbstractConvert {
 						+ "," + this.dateValueField + ") values ('" + realKeyName + "',(select max(" + pkName
 						+ ") from " + this.keyName + ")," + realSeqDate + ")";
 				List result = DBHelper.findByJdbcQuery(selectSql, null);
-				if (result == null || result.isEmpty())
+				if (result == null || result.isEmpty()) {
 					DBHelper.execute(insertSql, true);
-				else
+				} else {
 					DBHelper.execute(updateSql, true);
+				}
 			} else {
 				logger.error("主键存在零个或多个，请检查数据库连接配置中的schema、catalog或者表设计是否有问题!");
 				throw new Exception("主键不存在或存在多个主键，请检查数据库连接配置中的schema、catalog或者表设计是否有问题!");
@@ -104,56 +105,49 @@ public class TableSequenceConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param seqDate
-	 *            the seqDate to set
+	 * @param seqDate the seqDate to set
 	 */
 	public void setSeqDate(String seqDate) {
 		this.seqDate = seqDate;
 	}
 
 	/**
-	 * @param keyName
-	 *            the keyName to set
+	 * @param keyName the keyName to set
 	 */
 	public void setKeyName(String keyName) {
 		this.keyName = keyName;
 	}
 
 	/**
-	 * @param isClassStyle
-	 *            the isClassStyle to set
+	 * @param isClassStyle the isClassStyle to set
 	 */
 	public void setClassStyle(boolean classStyle) {
 		this.classStyle = classStyle;
 	}
 
 	/**
-	 * @param seqTableName
-	 *            the seqTableName to set
+	 * @param seqTableName the seqTableName to set
 	 */
 	public void setSeqTableName(String seqTableName) {
 		this.seqTableName = seqTableName;
 	}
 
 	/**
-	 * @param keyNameField
-	 *            the keyNameField to set
+	 * @param keyNameField the keyNameField to set
 	 */
 	public void setKeyNameField(String keyNameField) {
 		this.keyNameField = keyNameField;
 	}
 
 	/**
-	 * @param keyValueField
-	 *            the keyValueField to set
+	 * @param keyValueField the keyValueField to set
 	 */
 	public void setKeyValueField(String keyValueField) {
 		this.keyValueField = keyValueField;
 	}
 
 	/**
-	 * @param dateValueField
-	 *            the dateValueField to set
+	 * @param dateValueField the dateValueField to set
 	 */
 	public void setDateValueField(String dateValueField) {
 		this.dateValueField = dateValueField;
@@ -167,8 +161,7 @@ public class TableSequenceConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param preSet
-	 *            the preSet to set
+	 * @param preSet the preSet to set
 	 */
 	public void setPreSet(boolean preSet) {
 		this.preSet = preSet;
@@ -181,7 +174,6 @@ public class TableSequenceConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -192,7 +184,6 @@ public class TableSequenceConvert extends AbstractConvert {
 	 */
 	public TableSequenceConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (TableSequenceConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

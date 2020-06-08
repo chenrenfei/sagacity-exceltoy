@@ -22,7 +22,6 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.dom4j.Element;
-
 import org.sagacity.tools.exceltoy.ExcelToyConstants;
 import org.sagacity.tools.exceltoy.model.DataSourceModel;
 import org.sagacity.tools.exceltoy.model.PaginationModel;
@@ -85,16 +84,17 @@ public class DBHelper {
 		connLocal.remove();
 		Connection conn;
 		dbModel = null;
-		if (datasource != null)
+		if (datasource != null) {
 			dbModel = (DataSourceModel) datasourceMap.get(datasource);
-		else {
+		} else {
 			if (datasourceMap.size() == 1) {
 				Iterator iter = datasourceMap.values().iterator();
 				dbModel = (DataSourceModel) iter.next();
 			}
 		}
-		if (dbModel == null)
+		if (dbModel == null) {
 			throw new Exception("任务设置的对应datasource='" + datasource + "',未能正确匹配，请检查配置!");
+		}
 		try {
 			logger.info("数据库地址信息:{}", dbModel.getUrl());
 			Class.forName(dbModel.getDriver());
@@ -110,25 +110,25 @@ public class DBHelper {
 			throw se;
 		}
 
-		if (StringUtil.isNotBlank(autoCommit))
+		if (StringUtil.isNotBlank(autoCommit)) {
 			conn.setAutoCommit(new Boolean(autoCommit));
-		else
+		} else {
 			conn.setAutoCommit(true);
+		}
 
 		// 设置事务隔离级别
 		if (StringUtil.isNotBlank(isolationlevel)) {
-			if (isolationlevel.equalsIgnoreCase("TRANSACTION_NONE"))
+			if (isolationlevel.equalsIgnoreCase("TRANSACTION_NONE")) {
 				conn.setTransactionIsolation(conn.TRANSACTION_NONE);
-			else if (isolationlevel.equalsIgnoreCase("TRANSACTION_READ_COMMITTED"))
+			} else if (isolationlevel.equalsIgnoreCase("TRANSACTION_READ_COMMITTED")) {
 				conn.setTransactionIsolation(conn.TRANSACTION_READ_COMMITTED);
-			else if (isolationlevel.equalsIgnoreCase("TRANSACTION_READ_UNCOMMITTED"))
+			} else if (isolationlevel.equalsIgnoreCase("TRANSACTION_READ_UNCOMMITTED")) {
 				conn.setTransactionIsolation(conn.TRANSACTION_READ_UNCOMMITTED);
-			else if (isolationlevel.equalsIgnoreCase("TRANSACTION_REPEATABLE_READ"))
+			} else if (isolationlevel.equalsIgnoreCase("TRANSACTION_REPEATABLE_READ")) {
 				conn.setTransactionIsolation(conn.TRANSACTION_REPEATABLE_READ);
-			else if (isolationlevel.equalsIgnoreCase("TRANSACTION_SERIALIZABLE"))
+			} else if (isolationlevel.equalsIgnoreCase("TRANSACTION_SERIALIZABLE")) {
 				conn.setTransactionIsolation(conn.TRANSACTION_SERIALIZABLE);
-		} else {
-			// conn.setTransactionIsolation(conn.TRANSACTION_SERIALIZABLE);
+			}
 		}
 	}
 
@@ -154,8 +154,9 @@ public class DBHelper {
 		try {
 			Connection conn = connLocal.get();
 			if (conn != null) {
-				if (!conn.getAutoCommit())
+				if (!conn.getAutoCommit()) {
 					conn.commit();
+				}
 				conn.close();
 				conn = null;
 			}
@@ -170,8 +171,9 @@ public class DBHelper {
 	public static void rollback() {
 		try {
 			Connection conn = connLocal.get();
-			if (conn != null)
+			if (conn != null) {
 				conn.rollback();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -196,12 +198,15 @@ public class DBHelper {
 			schema = null;
 			forbid = null;
 			elt = (Element) datasouceElts.get(i);
-			if (elt.attribute("catalog") != null)
+			if (elt.attribute("catalog") != null) {
 				catalog = ExcelToyConstants.getPropertyValue(elt.attributeValue("catalog"));
-			if (elt.attribute("schema") != null)
+			}
+			if (elt.attribute("schema") != null) {
 				schema = ExcelToyConstants.getPropertyValue(elt.attributeValue("schema"));
-			if (elt.attribute("forbid") != null)
+			}
+			if (elt.attribute("forbid") != null) {
 				forbid = ExcelToyConstants.getPropertyValue(elt.attributeValue("forbid"));
+			}
 			DataSourceModel dbModel = new DataSourceModel(ExcelToyConstants.getPropertyValue(elt.attributeValue("url")),
 					ExcelToyConstants.getPropertyValue(elt.attributeValue("driver")),
 					ExcelToyConstants.getPropertyValue(elt.attributeValue("username")),
@@ -235,8 +240,9 @@ public class DBHelper {
 			tableMeta = (TableMeta) orderTables.get(i);
 			tableMeta.setColMetas(getTableColumnMetaList(tableMeta.getTableName()));
 			// 针对sqlserver
-			if (StringUtil.isBlank(tableMeta.getTableRemark()))
+			if (StringUtil.isBlank(tableMeta.getTableRemark())) {
 				tableMeta.setTableRemark(getTableComment(conn, tableMeta.getTableName()));
+			}
 		}
 		for (int i = 0; i < orderTables.size(); i++) {
 			tableName = ((TableMeta) orderTables.get(i)).getTableName();
@@ -244,8 +250,9 @@ public class DBHelper {
 				tableFKs = getTableImpForeignKeys(conn, (dbModel == null) ? null : dbModel.getCatalog(),
 						(dbModel == null) ? null : dbModel.getSchema(), tableName);
 				tableFkMap.put(tableName, tableFKs);
-			} else
+			} else {
 				tableFKs = (List) tableFkMap.get(tableName);
+			}
 
 			moveCnt = 0;
 			if (tableFKs != null && !tableFKs.isEmpty()) {
@@ -266,8 +273,9 @@ public class DBHelper {
 					}
 				}
 			}
-			if (moveCnt != 0)
+			if (moveCnt != 0) {
 				i--;
+			}
 		}
 		return orderTables;
 	}
@@ -294,8 +302,9 @@ public class DBHelper {
 		} catch (Exception e) {
 			e.fillInStackTrace();
 		}
-		if (result == null)
+		if (result == null) {
 			result = new ArrayList();
+		}
 		return result;
 	}
 
@@ -364,8 +373,9 @@ public class DBHelper {
 					pst.execute();
 				}
 			});
-			if (hasSetAutoCommit)
+			if (hasSetAutoCommit) {
 				conn.setAutoCommit(!autoCommit);
+			}
 		} catch (Exception e) {
 			logger.error("执行SQL错误:" + sql, e);
 			e.fillInStackTrace();
@@ -418,10 +428,11 @@ public class DBHelper {
 				: tableName;
 		final int dbType = DataSourceUtils.getDbType(conn);
 		ResultSet rs;
-		if (dbType == DBType.MYSQL || dbType == DBType.MYSQL8)
+		if (dbType == DBType.MYSQL || dbType == DBType.MYSQL8) {
 			rs = conn.getMetaData().getColumns(catalog, schema, realTableName, "%");
-		else
+		} else {
 			rs = conn.getMetaData().getColumns(catalog, schema, realTableName, null);
+		}
 		return (List) SqlUtils.preparedStatementProcess(null, null, rs, new PreparedStatementResultHandler() {
 			public void execute(Object obj, PreparedStatement pst, ResultSet rs) throws SQLException {
 				List result = new ArrayList();
@@ -438,8 +449,9 @@ public class DBHelper {
 					colMeta.setTypeName(dataType);
 					if (dataType.equals("string") || dataType.equals("varchar") || dataType.equals("nvarchar")
 							|| dataType.equals("varchar2") || dataType.equals("text") || dataType.equals("long varchar")
-							|| dataType.equals("long text"))
+							|| dataType.equals("long text")) {
 						colMeta.setTypeName("string");
+					}
 					colMeta.setLength(rs.getInt("COLUMN_SIZE"));
 					colMeta.setPrecision(colMeta.getLength());
 					colMeta.setScale(rs.getInt("DECIMAL_DIGITS"));
@@ -450,15 +462,17 @@ public class DBHelper {
 								&& (isAutoIncrement.equalsIgnoreCase("true") || isAutoIncrement.equalsIgnoreCase("YES")
 										|| isAutoIncrement.equalsIgnoreCase("Y") || isAutoIncrement.equals("1"))) {
 							colMeta.setAutoIncrement(true);
-						} else
+						} else {
 							colMeta.setAutoIncrement(false);
+						}
 					} catch (Exception e) {
 					}
 
-					if (rs.getInt("NULLABLE") == 1)
+					if (rs.getInt("NULLABLE") == 1) {
 						colMeta.setNullable(true);
-					else
+					} else {
 						colMeta.setNullable(false);
+					}
 					result.add(colMeta);
 				}
 				this.setResult(result);
@@ -497,8 +511,7 @@ public class DBHelper {
 				});
 		if (fkMaps == null || fkMaps.isEmpty())
 			return null;
-		else
-			return fkMaps;
+		return fkMaps;
 	}
 
 	/**
@@ -602,10 +615,11 @@ public class DBHelper {
 					for (Iterator iter = fieldsMap.entrySet().iterator(); iter.hasNext();) {
 						entry = (Map.Entry) iter.next();
 						fieldName = entry.getKey().toString();
-						if (fieldExcelTitleMap.get(fieldName) != null)
+						if (fieldExcelTitleMap.get(fieldName) != null) {
 							excelTitle = fieldExcelTitleMap.get(fieldName).toString();
-						else
+						} else {
 							excelTitle = fieldName;
+						}
 						colMeta = (TableColumnMeta) fieldsMap.get(fieldName);
 						setParam(
 								excelTitleMap.get(excelTitle) == null ? null
@@ -613,17 +627,18 @@ public class DBHelper {
 								colMeta, pst, dbType, j + 1, blobFile, charset);
 						j++;
 					}
-					if (1 == dataSize)
+					if (1 == dataSize) {
 						pst.execute();
-					else {
+					} else {
 						pst.addBatch();
 						if (((rowMeter + 1) % ExcelToyConstants.getBatchSize()) == 0 || (rowMeter + 1) == data.size()) {
 							logger.info("正在执行第[" + (rowMeter + 1) + "]条记录的插入,请耐心等待!");
 							pst.executeBatch();
 						}
 					}
-				} else
+				} else {
 					logger.error("第 [" + (rowMeter + 1) + "]行数据因外键不存在跳过!");
+				}
 			}
 		} catch (Exception e) {
 			logger.error("在执行第:\"" + (rowMeter + 1) + "\"行时发生错误，sql语句:" + insertSql, e);
@@ -650,10 +665,12 @@ public class DBHelper {
 		if (defaultValue.indexOf("(") != -1 && defaultValue.indexOf(")") != -1 && defaultValue.indexOf("::") != -1) {
 			return defaultValue.substring(defaultValue.indexOf("(") + 1, defaultValue.indexOf("::"));
 		}
-		if (defaultValue.startsWith("((") && defaultValue.endsWith("))"))
+		if (defaultValue.startsWith("((") && defaultValue.endsWith("))")) {
 			return defaultValue.substring(2, defaultValue.length() - 2);
-		else if (defaultValue.startsWith("(") && defaultValue.endsWith(")"))
+		}
+		if (defaultValue.startsWith("(") && defaultValue.endsWith(")")) {
 			return defaultValue.substring(1, defaultValue.length() - 1);
+		}
 
 		return defaultValue;
 	}
@@ -676,85 +693,93 @@ public class DBHelper {
 			// 数据为空
 			if (colData == null || StringUtil.isBlank(colData.toString())) {
 				if (dataType.equals("string")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.VARCHAR);
-					else
+					} else {
 						pst.setString(index, defaultValue != null ? defaultValue : "");
+					}
 				} else if (dataType.equals("char")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.CHAR);
-					else
+					} else {
 						pst.setString(index, defaultValue != null ? defaultValue : "");
+					}
 				} else if (dataType.equals("boolean")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.BOOLEAN);
-					else
+					} else {
 						pst.setBoolean(index, Boolean.parseBoolean(defaultValue != null ? defaultValue : "false"));
+					}
 				} else if (dataType.startsWith("timestamp")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.TIMESTAMP);
-					else {
-						if (defaultValue != null)
+					} else {
+						if (defaultValue != null) {
 							pst.setTimestamp(index, DateUtil.getTimestamp(
 									"CURRENT_TIMESTAMP".equalsIgnoreCase(defaultValue) || defaultValue.indexOf("0") == 0
 											? new Date()
 											: defaultValue));
-						else
+						} else {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
+						}
 					}
 				} else if (dataType.equals("date")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.DATE);
-					else {
-						if (defaultValue != null)
+					} else {
+						if (defaultValue != null) {
 							pst.setTimestamp(index, DateUtil.getTimestamp(defaultValue));
-						else
+						} else {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
+						}
 					}
 				} else if (dataType.equals("datetime")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.DATE);
-					else {
-						if (defaultValue != null)
+					} else {
+						if (defaultValue != null) {
 							pst.setTimestamp(index, DateUtil.getTimestamp(defaultValue));
-						else
+						} else {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
+						}
 					}
 				} else if (dataType.equals("time")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.TIME);
-					else {
+					} else {
 						if (defaultValue != null)
 							pst.setTime(index, new java.sql.Time(DateUtil.parseString(defaultValue).getTime()));
 						else
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
 					}
 				} else if (dataType.equals("double")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.DOUBLE);
-					else {
-						if (defaultValue != null)
+					} else {
+						if (defaultValue != null) {
 							pst.setDouble(index, new Double(defaultValue));
-						else
+						} else {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
+						}
 					}
 				} else if (dataType.equals("float")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.FLOAT);
-					else {
+					} else {
 						if (defaultValue != null)
 							pst.setFloat(index, new Float(defaultValue));
 						else
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
 					}
 				} else if (dataType.equals("number") || dataType.equals("numeric")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.NUMERIC);
-					else {
-						if (defaultValue != null)
+					} else {
+						if (defaultValue != null) {
 							pst.setBigDecimal(index, new BigDecimal(defaultValue));
-						else
+						} else {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
+						}
 					}
 				} else if (dataType.equals("byte")) {
 					if (colModel.isNullable()) {
@@ -769,131 +794,152 @@ public class DBHelper {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
 					}
 				} else if (dataType.equals("decimal")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.DECIMAL);
-					else {
-						if (defaultValue != null)
+					} else {
+						if (defaultValue != null) {
 							pst.setBigDecimal(index, new BigDecimal(defaultValue));
-						else
+						} else {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
+						}
 					}
 				} else if (dataType.equals("integer") || dataType.equals("int")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.INTEGER);
-					else {
-						if (defaultValue != null)
+					} else {
+						if (defaultValue != null) {
 							pst.setInt(index, new Integer(defaultValue));
-						else
+						} else {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
+						}
 					}
 				} else if (dataType.equals("long")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.DECIMAL);
-					else {
-						if (defaultValue != null)
+					} else {
+						if (defaultValue != null) {
 							pst.setLong(index, new Long(defaultValue));
-						else
+						} else {
 							throw new SQLException("第:" + index + "列数据位空!" + "colName:" + colModel.getColName());
+						}
 					}
 				} else if (dataType.equals("blob") || dataType.equals("bytea") || dataType.equals("image")
 						|| dataType.equals("binary")) {
 					if (colModel.isNullable()) {
-						if (dbType == DBType.POSTGRESQL)
+						if (dbType == DBType.POSTGRESQL) {
 							pst.setNull(index, java.sql.Types.BINARY);
-						else
+						} else {
 							pst.setNull(index, java.sql.Types.BLOB);
+						}
 					} else {
 						pst.setBytes(index, "".getBytes());
 					}
 				} else if (dataType.equals("clob")) {
-					if (colModel.isNullable())
+					if (colModel.isNullable()) {
 						pst.setNull(index, java.sql.Types.CLOB);
-					else
+					} else {
 						pst.setString(index, "");
+					}
 				} else {
 					pst.setNull(index, java.sql.Types.NULL);
 				}
 			} else {
 				String colDataStr = colData.toString().trim();
 				if (dataType.equals("string")) {
-					if (colModel.getPrecision() > 0 && colDataStr.length() > colModel.getPrecision())
+					if (colModel.getPrecision() > 0 && colDataStr.length() > colModel.getPrecision()) {
 						colDataStr = colDataStr.substring(0, colModel.getPrecision());
+					}
 					pst.setString(index, colDataStr);
 				} else if (dataType.equals("boolean")) {
 					pst.setBoolean(index, Boolean.parseBoolean(colDataStr));
 				} else if (dataType.startsWith("timestamp")) {
 					pst.setTimestamp(index, DateUtil.getTimestamp(colDataStr));
 				} else if (dataType.equals("date") || dataType.equals("datetime")) {
-					if (colData instanceof java.util.Date)
+					if (colData instanceof java.util.Date) {
 						pst.setTimestamp(index, new Timestamp(((java.util.Date) colData).getTime()));
-					else
+					} else {
 						pst.setTimestamp(index, DateUtil.getTimestamp(colDataStr));
+					}
 				} else if (dataType.equals("time")) {
-					if (colData instanceof java.util.Date)
+					if (colData instanceof java.util.Date) {
 						pst.setTime(index, new java.sql.Time(((java.util.Date) colData).getTime()));
-					else
+					} else {
 						pst.setTime(index, new java.sql.Time(DateUtil.parseString(colDataStr).getTime()));
+					}
 				} else if (dataType.equals("double")) {
 					pst.setDouble(index, new Double(colDataStr));
 				} else if (dataType.equals("float")) {
-					if (colData instanceof Double)
+					if (colData instanceof Double) {
 						pst.setFloat(index, ((Double) colData).floatValue());
-					else
+					} else {
 						pst.setFloat(index, new Float(colDataStr));
+					}
 				} else if (dataType.equals("short")) {
-					if (colData instanceof Double)
+					if (colData instanceof Double) {
 						pst.setShort(index, ((Double) colData).shortValue());
-					else
+					} else {
 						pst.setShort(index, new Short(colDataStr));
+					}
 				} else if (dataType.equals("byte")) {
 					pst.setByte(index, colDataStr.getBytes()[0]);
 				} else if (dataType.equals("number") || dataType.equals("numeric")) {
 					pst.setBigDecimal(index, new BigDecimal(new Double(colDataStr)));
 				} else if (dataType.equals("decimal")) {
-					if (colData instanceof Double)
+					if (colData instanceof Double) {
 						pst.setBigDecimal(index, new BigDecimal((Double) colData));
-					else
+					} else {
 						pst.setBigDecimal(index, new BigDecimal(colDataStr));
+					}
 				} else if (dataType.equals("integer") || dataType.equals("int")) {
-					if (colData instanceof Double)
+					if (colData instanceof Double) {
 						pst.setInt(index, ((Double) colData).intValue());
-					else
+					} else {
 						pst.setInt(index, Integer.valueOf(colDataStr));
+					}
 				} else if (dataType.equals("long")) {
-					if (colData instanceof Double)
+					if (colData instanceof Double) {
 						pst.setLong(index, ((Double) colData).longValue());
-					else
+					} else {
 						pst.setLong(index, new Long(colDataStr));
+					}
 				} else if (dataType.equals("clob")) {
 					if (blobFile != null && isFilePath(colDataStr)) {
 						File tmp = new File(colDataStr);
 						pst.setString(index, FileUtil.readAsString(tmp, charset));
-					} else
+					} else {
 						pst.setString(index, colDataStr);
+					}
 				} else if (dataType.equals("blob") || dataType.equals("image") || dataType.equals("bytea")
 						|| dataType.equals("binary")) {
 					byte[] bytes = null;
 					if (blobFile != null) {
 						File tmp = new File(colDataStr);
-						if (tmp.exists())
+						if (tmp.exists()) {
 							bytes = FileUtil.readAsByteArray(tmp);
-					} else
+						}
+					} else {
 						bytes = colDataStr.getBytes();
+					}
 					if (bytes != null) {
 						pst.setBytes(index, bytes);
 					} else {
-						if (dataType.equals("blob"))
+						if (dataType.equals("blob")) {
 							pst.setNull(index, java.sql.Types.BLOB);
-						if (dataType.equals("binary"))
+						}
+						if (dataType.equals("binary")) {
 							pst.setNull(index, java.sql.Types.BINARY);
-						if (dataType.equals("image"))
+						}
+						if (dataType.equals("image")) {
 							pst.setNull(index, java.sql.Types.BINARY);
-						if (dataType.equals("bytea"))
+						}
+						if (dataType.equals("bytea")) {
 							pst.setNull(index, java.sql.Types.BINARY);
+						}
 					}
 				} else {
-					if (colModel.getPrecision() > 0 && colDataStr.length() > colModel.getPrecision())
+					if (colModel.getPrecision() > 0 && colDataStr.length() > colModel.getPrecision()) {
 						colDataStr = colDataStr.substring(0, colModel.getPrecision());
+					}
 					pst.setString(index, colDataStr);
 				}
 			}
@@ -1025,8 +1071,7 @@ public class DBHelper {
 	public static boolean isStore(String sql) {
 		if (StringUtil.matches(sql, "\\{(\\s*\\?\\s*\\=\\s*)?call\\s+\\w+\\("))
 			return true;
-		else
-			return false;
+		return false;
 	}
 
 	/**
@@ -1040,10 +1085,11 @@ public class DBHelper {
 	 */
 	public static void batchSqlFile(Object sqlFile, String splitSign, boolean isAutoCommit) throws Exception {
 		String sqlContent;
-		if (sqlFile instanceof String)
+		if (sqlFile instanceof String) {
 			sqlContent = FileUtil.readAsString(new File((String) sqlFile), ExcelToyConstants.getXMLCharSet());
-		else
+		} else {
 			sqlContent = FileUtil.readAsString((File) sqlFile, ExcelToyConstants.getXMLCharSet());
+		}
 		batchSqlText(sqlContent, splitSign, isAutoCommit);
 	}
 
@@ -1075,9 +1121,9 @@ public class DBHelper {
 			if (null == tableFkMap.get(tableName)) {
 				tableFKs = getTableImpForeignKeys(conn, catalog, schema, tableName);
 				tableFkMap.put(tableName, tableFKs);
-			} else
+			} else {
 				tableFKs = (List) tableFkMap.get(tableName);
-
+			}
 			moveCnt = 0;
 			if (tableFKs != null && !tableFKs.isEmpty()) {
 				TableConstractModel fkTable;
@@ -1158,8 +1204,9 @@ public class DBHelper {
 			if (types != null) {
 				queryStr.append(" and (");
 				for (int i = 0; i < types.length; i++) {
-					if (i > 0)
+					if (i > 0) {
 						queryStr.append(" or ");
+					}
 					queryStr.append(" TABLE_TYPE like '%").append(types[i]).append("'");
 				}
 				queryStr.append(")");
@@ -1186,8 +1233,9 @@ public class DBHelper {
 								break;
 							}
 						}
-					} else
+					} else {
 						is_include = true;
+					}
 					if (excludes != null && excludes.length > 0) {
 						for (int j = 0; j < excludes.length; j++) {
 							if (StringUtil.matches(tableName, excludes[j])) {

@@ -37,16 +37,19 @@ public class LessConvert extends AbstractConvert {
 		String[] args = param.toString().concat(" ").split(",");
 		String compare = args[0].trim();
 		int length = args.length;
-		for (int i = 0; i <= ((length-1) / 2); i = i + 2) {
+		for (int i = 0; i <= ((length - 1) / 2); i = i + 2) {
 			if (type.equals("number")) {
-				if (Double.parseDouble(compare) < Double.parseDouble(args[i + 1].trim()))
+				if (Double.parseDouble(compare) < Double.parseDouble(args[i + 1].trim())) {
 					return args[i + 2];
+				}
 			} else if (type.equals("timestamp")) {
-				if (DateUtil.parseString(compare).before(DateUtil.parseString(args[1].trim())))
+				if (DateUtil.parseString(compare).before(DateUtil.parseString(args[1].trim()))) {
 					return args[i + 2];
+				}
 			} else {
-				if (compare.compareTo(args[1].trim()) < 0)
+				if (compare.compareTo(args[1].trim()) < 0) {
 					return args[i + 2];
+				}
 			}
 		}
 		String other = args[length - 1];
@@ -61,8 +64,7 @@ public class LessConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param splitSign
-	 *            the splitSign to set
+	 * @param splitSign the splitSign to set
 	 */
 	public void setSplitSign(String splitSign) {
 		this.splitSign = splitSign;
@@ -76,17 +78,18 @@ public class LessConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param type
-	 *            the type to set
+	 * @param type the type to set
 	 */
 	public void setType(String type) {
 		if (type.equalsIgnoreCase("decimal") || type.equalsIgnoreCase("bigdecimal") || type.equalsIgnoreCase("double")
-				|| type.equalsIgnoreCase("float") || type.equalsIgnoreCase("int") || type.equalsIgnoreCase("integer"))
+				|| type.equalsIgnoreCase("float") || type.equalsIgnoreCase("int") || type.equalsIgnoreCase("integer")) {
 			this.type = "number";
-		else if (type.equalsIgnoreCase("date") || type.equalsIgnoreCase("time") || type.equalsIgnoreCase("timestamp"))
+		} else if (type.equalsIgnoreCase("date") || type.equalsIgnoreCase("time")
+				|| type.equalsIgnoreCase("timestamp")) {
 			this.type = "timestamp";
-		else
+		} else {
 			this.type = "string";
+		}
 	}
 
 	/*
@@ -96,7 +99,6 @@ public class LessConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -107,7 +109,6 @@ public class LessConvert extends AbstractConvert {
 	 */
 	public LessConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (LessConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

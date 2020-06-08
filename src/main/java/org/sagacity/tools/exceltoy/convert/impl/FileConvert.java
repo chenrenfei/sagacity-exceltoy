@@ -54,29 +54,25 @@ public class FileConvert extends AbstractConvert {
 		randFileName = "" + System.nanoTime() + (this.extName.indexOf(".") == 0 ? this.extName : "." + this.extName);
 		if (FileUtil.copyFile(realFileName, FileUtil.linkPath(distPath, randFileName)))
 			return randFileName;
-		else
-			return "";
+		return "";
 	}
 
 	/**
-	 * @param filePath
-	 *            the filePath to set
+	 * @param filePath the filePath to set
 	 */
 	public void setFilePath(String filePath) {
 		this.filePath = filePath;
 	}
 
 	/**
-	 * @param distPath
-	 *            the distPath to set
+	 * @param distPath the distPath to set
 	 */
 	public void setDistPath(String distPath) {
 		this.distPath = distPath;
 	}
 
 	/**
-	 * @param extName
-	 *            the extName to set
+	 * @param extName the extName to set
 	 */
 	public void setExtName(String extName) {
 		this.extName = extName;
@@ -89,7 +85,6 @@ public class FileConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -100,7 +95,6 @@ public class FileConvert extends AbstractConvert {
 	 */
 	public FileConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (FileConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

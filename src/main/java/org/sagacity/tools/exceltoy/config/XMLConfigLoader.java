@@ -79,8 +79,9 @@ public class XMLConfigLoader {
 
 			// 解析数据库
 			if (!classPath
-					|| (classPath && root.elements("datasource") != null && !root.elements("datasource").isEmpty()))
+					|| (classPath && root.elements("datasource") != null && !root.elements("datasource").isEmpty())) {
 				DBHelper.loadDatasource(root.elements("datasource"));
+			}
 
 			// 将任务加载到任务控制器中，便于主控程序中调用
 			parseTasks2Controller(root.elements());
@@ -149,9 +150,10 @@ public class XMLConfigLoader {
 					|| elt.getName().equalsIgnoreCase("update") || elt.getName().equalsIgnoreCase("dataFactory")) {
 				// 状态必须是true
 				if (elt.attribute("active") == null || (elt.attribute("active") != null
-						&& ExcelToyConstants.replaceConstants(elt.attributeValue("active")).equalsIgnoreCase("true")))
+						&& ExcelToyConstants.replaceConstants(elt.attributeValue("active")).equalsIgnoreCase("true"))) {
 					TaskController.addTask(id, elt.getName(), depends, datasource, autoCommit, isolationlevel,
 							securityCode, securityTip);
+				}
 			}
 		}
 	}
@@ -177,10 +179,11 @@ public class XMLConfigLoader {
 							if (obj != null) {
 								Element elt = (Element) obj;
 								if (elt.attribute("active") != null && ExcelToyConstants
-										.replaceConstants(elt.attributeValue("active")).equalsIgnoreCase("true"))
+										.replaceConstants(elt.attributeValue("active")).equalsIgnoreCase("true")) {
 									elt.attribute("active").setData("false");
-								else
+								} else {
 									elt.addAttribute("active", "false");
+								}
 								return true;
 							}
 							return false;
@@ -231,8 +234,9 @@ public class XMLConfigLoader {
 		InputStream ifile = null;
 		if (!classPath) {
 			File cfgFile = new File(parentPath, xmlConfig);
-			if (!cfgFile.exists())
+			if (!cfgFile.exists()) {
 				cfgFile = new File(xmlConfig);
+			}
 			if (!cfgFile.exists()) {
 				logger.error("任务配置文件:" + xmlConfig + "不存在,请检查确认");
 				throw new Exception("主任务配置文件不存在!");
@@ -245,10 +249,11 @@ public class XMLConfigLoader {
 		}
 		SAXReader saxReader = new SAXReader();
 		InputStreamReader ir = null;
-		if (ExcelToyConstants.getXMLCharSet() != null)
+		if (ExcelToyConstants.getXMLCharSet() != null) {
 			ir = new InputStreamReader(ifile, ExcelToyConstants.getXMLCharSet());
-		else
+		} else {
 			ir = new InputStreamReader(ifile);
+		}
 		saxReader.setEncoding(ExcelToyConstants.getXMLCharSet());
 		Document doc = saxReader.read(ir);
 		Element root = doc.getRootElement();
@@ -295,14 +300,16 @@ public class XMLConfigLoader {
 			// 放入文件列表中
 			configXMLs.add(cfgFile);
 			ifile = new FileInputStream(cfgFile);
-		} else
+		} else {
 			ifile = FileUtil.getResourceAsStream(xmlFile);
+		}
 		SAXReader saxReader = new SAXReader();
 		InputStreamReader ir = null;
-		if (ExcelToyConstants.getXMLCharSet() != null)
+		if (ExcelToyConstants.getXMLCharSet() != null) {
 			ir = new InputStreamReader(ifile, ExcelToyConstants.getXMLCharSet());
-		else
+		} else {
 			ir = new InputStreamReader(ifile);
+		}
 		saxReader.setEncoding(ExcelToyConstants.getXMLCharSet());
 		Document doc = saxReader.read(ir);
 		Element root = doc.getRootElement();
@@ -327,17 +334,18 @@ public class XMLConfigLoader {
 		List tables = new ArrayList();
 		if (StringUtil.indexOfIgnoreCase(mappingTables, ".xml") != -1) {
 			File mapXml = new File(ExcelToyConstants.getBaseDir(), mappingTables);
-			if (!mapXml.exists())
+			if (!mapXml.exists()) {
 				mapXml = new File(mappingTables);
+			}
 			if (!mapXml.exists()) {
 				logger.error("excel导出任务:" + id + "属性mappint-tables对应的文件不存在!");
 			} else {
 				try {
 					Object expTables = XMLUtil.getXPathElement(mapXml, "//tables/table[@active='true']");
 					List tablesElt = null;
-					if (expTables instanceof List)
+					if (expTables instanceof List) {
 						tablesElt = (List) expTables;
-					else {
+					} else {
 						if (expTables != null) {
 							tablesElt = new ArrayList();
 							tablesElt.add(expTables);
@@ -350,12 +358,14 @@ public class XMLConfigLoader {
 							tableElt = (Element) tablesElt.get(i);
 							table.setName(ExcelToyConstants.replaceConstants(tableElt.attributeValue("name")));
 							table.setDist(ExcelToyConstants.replaceConstants(tableElt.attributeValue("dist")));
-							if (tableElt.attribute("fkFilter") != null)
+							if (tableElt.attribute("fkFilter") != null) {
 								table.setFkFilter(new Boolean(
 										ExcelToyConstants.replaceConstants(tableElt.attributeValue("fkFilter")))
 												.booleanValue());
-							if (tableElt.attribute("endRow") != null)
+							}
+							if (tableElt.attribute("endRow") != null) {
 								table.setEndRow(ExcelToyConstants.replaceConstants(tableElt.attributeValue("endRow")));
+							}
 							if (tableElt.attribute("fieldMapping") != null) {
 								String mapping = ExcelToyConstants
 										.replaceConstants(tableElt.attributeValue("fieldMapping"));
@@ -368,8 +378,9 @@ public class XMLConfigLoader {
 								}
 								table.setFieldMapping(fieldMapping);
 							}
-							if (StringUtil.isNotBlank(tableElt.getTextTrim()))
+							if (StringUtil.isNotBlank(tableElt.getTextTrim())) {
 								table.setSql(StringUtil.clearMistyChars(tableElt.getTextTrim(), " "));
+							}
 							tables.add(table);
 						}
 					}

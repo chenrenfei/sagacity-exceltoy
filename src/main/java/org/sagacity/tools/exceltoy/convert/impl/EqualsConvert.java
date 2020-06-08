@@ -39,23 +39,27 @@ public class EqualsConvert extends AbstractConvert {
 		// 增加一个空格避免split出空数组
 		String[] args = param.toString().concat(" ").split(",");
 		String compare = args[0].trim();
-		if (compare.equals("null"))
+		if (compare.equals("null")) {
 			compare = "";
+		}
 		int length = args.length;
 		for (int i = 0; i <= ((length - 1) / 2); i = i + 2) {
-			if (args[i + 1].trim().equals("null"))
+			if (args[i + 1].trim().equals("null")) {
 				args[i + 1] = "";
+			}
 			if (ignoreCase) {
-				if (compare.equalsIgnoreCase(args[i + 1].trim()))
+				if (compare.equalsIgnoreCase(args[i + 1].trim())) {
 					return args[i + 2];
-			} else if (compare.equals(args[i + 1].trim()))
+				}
+			} else if (compare.equals(args[i + 1].trim())) {
 				return args[i + 2];
+			}
 		}
 		if ((length % 2) == 0) {
 			String other = args[length - 1];
 			return other.substring(0, other.length() - 1);
-		} else
-			return compare;
+		}
+		return compare;
 	}
 
 	/**
@@ -66,8 +70,7 @@ public class EqualsConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param splitSign
-	 *            the splitSign to set
+	 * @param splitSign the splitSign to set
 	 */
 	public void setSplitSign(String splitSign) {
 		this.splitSign = splitSign;
@@ -81,8 +84,7 @@ public class EqualsConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param ignoreCase
-	 *            the ignoreCase to set
+	 * @param ignoreCase the ignoreCase to set
 	 */
 	public void setIgnoreCase(String ignoreCase) {
 		this.ignoreCase = Boolean.parseBoolean(ignoreCase);
@@ -95,7 +97,6 @@ public class EqualsConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 

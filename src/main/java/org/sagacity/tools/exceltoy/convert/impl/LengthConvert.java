@@ -24,7 +24,6 @@ public class LengthConvert extends AbstractConvert {
 
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 

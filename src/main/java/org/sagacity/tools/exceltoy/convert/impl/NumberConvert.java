@@ -42,25 +42,23 @@ public class NumberConvert extends AbstractConvert {
 		String key = ConvertUtil.jsonParamSet(this, param);
 		// 大写
 		if (capital) {
-			if (format != null)
+			if (format != null) {
 				return NumberUtil.format(NumberUtil.capitalMoneyToNum(key), format);
-			else
-				return NumberUtil.capitalMoneyToNum(key);
+			}
+			return NumberUtil.capitalMoneyToNum(key);
 		}
 		return NumberUtil.format(key, format);
 	}
 
 	/**
-	 * @param format
-	 *            the format to set
+	 * @param format the format to set
 	 */
 	public void setFormat(String format) {
 		this.format = format;
 	}
 
 	/**
-	 * @param capital
-	 *            the capital to set
+	 * @param capital the capital to set
 	 */
 	public void setCapital(String capital) {
 		this.capital = new Boolean(capital).booleanValue();
@@ -73,7 +71,6 @@ public class NumberConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -84,7 +81,6 @@ public class NumberConvert extends AbstractConvert {
 	 */
 	public NumberConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (NumberConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

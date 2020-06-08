@@ -43,8 +43,7 @@ public class IndexOfConvert extends AbstractConvert {
 		try {
 			if (isLast)
 				return source.lastIndexOf(regex);
-			else
-				return source.indexOf(regex, fromIndex);
+			return source.indexOf(regex, fromIndex);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -52,24 +51,21 @@ public class IndexOfConvert extends AbstractConvert {
 	}
 
 	/**
-	 * @param regex
-	 *            the regex to set
+	 * @param regex the regex to set
 	 */
 	public void setRegex(String regex) {
 		this.regex = regex;
 	}
 
 	/**
-	 * @param fromIndex
-	 *            the fromIndex to set
+	 * @param fromIndex the fromIndex to set
 	 */
 	public void setFromIndex(String fromIndex) {
 		this.fromIndex = Integer.parseInt(fromIndex);
 	}
 
 	/**
-	 * @param isLast
-	 *            the isLast to set
+	 * @param isLast the isLast to set
 	 */
 	public void setLast(boolean isLast) {
 		this.isLast = isLast;
@@ -82,7 +78,6 @@ public class IndexOfConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -93,7 +88,6 @@ public class IndexOfConvert extends AbstractConvert {
 	 */
 	public IndexOfConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (IndexOfConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

@@ -44,7 +44,7 @@
 				<xsd:element name="convert" minOccurs="0"
 					maxOccurs="unbounded">
 					<xsd:complexType>
-						<xsd:choice maxOccurs="unbounded">
+						<xsd:choice maxOccurs="unbounded" minOccurs="0">
 							<xsd:element name="param" maxOccurs="unbounded">
 								<xsd:complexType mixed="true">
 									<xsd:attribute name="name" type="xsd:string"
@@ -323,8 +323,7 @@
 	<xsd:attributeGroup name="excelToyCommonAttrs">
 		<xsd:attribute name="id" type="xsd:string"
 			use="required" />
-		<xsd:attribute name="datasource" type="xsd:string"
-			use="required" />
+		<xsd:attribute name="datasource" type="xsd:string"/>
 		<xsd:attribute name="active" type="xsd:boolean"
 			default="true" />
 	</xsd:attributeGroup>

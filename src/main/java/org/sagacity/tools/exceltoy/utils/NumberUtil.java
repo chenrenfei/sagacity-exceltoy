@@ -83,14 +83,13 @@ public class NumberUtil {
 			if (pattern.equalsIgnoreCase(Pattern.CAPITAL))
 				return numberToChina(tmpStr, false);
 			// 数字转换成大写汉字金额
-			else if (pattern.equalsIgnoreCase(Pattern.CAPITAL_MONEY))
+			if (pattern.equalsIgnoreCase(Pattern.CAPITAL_MONEY))
 				return toCapitalMoney(tmp);
-			else {
-				DecimalFormat df = (DecimalFormat) (StringUtil.isBlank(locale) ? DecimalFormat.getInstance()
-						: DecimalFormat.getInstance(new Locale(locale)));
-				df.applyPattern(pattern);
-				return df.format(tmp);
-			}
+
+			DecimalFormat df = (DecimalFormat) (StringUtil.isBlank(locale) ? DecimalFormat.getInstance()
+					: DecimalFormat.getInstance(new Locale(locale)));
+			df.applyPattern(pattern);
+			return df.format(tmp);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("value:" + target + ";pattern=" + pattern + e.getMessage());
@@ -117,14 +116,12 @@ public class NumberUtil {
 			BigDecimal tmp = new BigDecimal(tmpStr);
 			if (pattern.equalsIgnoreCase(Pattern.CAPITAL))
 				return numberToChina(tmpStr, false);
-			else if (pattern.equalsIgnoreCase(Pattern.CAPITAL_MONEY))
+			if (pattern.equalsIgnoreCase(Pattern.CAPITAL_MONEY))
 				return toCapitalMoney(tmp);
-			else {
-				DecimalFormat df = (DecimalFormat) (StringUtil.isBlank(locale) ? DecimalFormat.getCurrencyInstance()
-						: DecimalFormat.getCurrencyInstance(new Locale(locale)));
-				df.applyPattern(pattern);
-				return df.format(tmp);
-			}
+			DecimalFormat df = (DecimalFormat) (StringUtil.isBlank(locale) ? DecimalFormat.getCurrencyInstance()
+					: DecimalFormat.getCurrencyInstance(new Locale(locale)));
+			df.applyPattern(pattern);
+			return df.format(tmp);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage());
@@ -216,17 +213,18 @@ public class NumberUtil {
 		if (billionIndex != -1) {
 			splitsCapitalMoney[0] = capitalMoney.substring(0, billionIndex);
 			splitsCapitalMoney[1] = capitalMoney.substring(billionIndex + 1, capitalMoney.indexOf("圆"));
-		} else if (capitalMoney.indexOf("圆") != -1)
+		} else if (capitalMoney.indexOf("圆") != -1) {
 			splitsCapitalMoney[1] = capitalMoney.substring(0, capitalMoney.indexOf("圆"));
-		if (capitalMoney.indexOf("圆") != capitalMoney.length() - 1)
+		}
+		if (capitalMoney.indexOf("圆") != capitalMoney.length() - 1) {
 			splitsCapitalMoney[2] = capitalMoney.substring(capitalMoney.indexOf("圆") + 1);
+		}
 		// 分段处理合并
 		BigDecimal result = parseMillMoney(splitsCapitalMoney[0]).multiply(new BigDecimal("100000000"))
 				.add(parseMillMoney(splitsCapitalMoney[1])).add(parseLowThousandMoney(splitsCapitalMoney[2]));
 		if (capitalMoney.indexOf("负") == 0)
 			return new BigDecimal(0).subtract(result).setScale(scale, BigDecimal.ROUND_HALF_UP);
-		else
-			return result.setScale(scale, BigDecimal.ROUND_HALF_UP);
+		return result.setScale(scale, BigDecimal.ROUND_HALF_UP);
 	}
 
 	/**
@@ -301,8 +299,9 @@ public class NumberUtil {
 	public static BigDecimal getMax(BigDecimal[] bigArray) {
 		BigDecimal max = bigArray[0];
 		for (int i = 0; i < bigArray.length; i++) {
-			if (max.compareTo(bigArray[i]) < 0)
+			if (max.compareTo(bigArray[i]) < 0) {
 				max = bigArray[i];
+			}
 		}
 		return max;
 	}
@@ -377,8 +376,9 @@ public class NumberUtil {
 			if (maxFractionDigits != null)
 				nf.setMaximumFractionDigits(maxFractionDigits.intValue());
 			// 最小小数位
-			if (minFractionDigits != null)
+			if (minFractionDigits != null) {
 				nf.setMinimumFractionDigits(minFractionDigits.intValue());
+			}
 			// nf.setRoundingMode(RoundingMode.HALF_UP);
 			return nf.parse(parseTarget.replace(",", ""));
 		} catch (ParseException e) {
@@ -401,8 +401,9 @@ public class NumberUtil {
 		if (millIndex != -1) {
 			millStr = capitalMoneyStr.substring(0, millIndex);
 			lowthousand = (millIndex != capitalMoneyStr.length() - 1) ? capitalMoneyStr.substring(millIndex + 1) : "0";
-		} else
+		} else {
 			lowthousand = capitalMoneyStr;
+		}
 		return parseLowThousandMoney(millStr).multiply(new BigDecimal("10000")).add(parseLowThousandMoney(lowthousand));
 	}
 
@@ -421,19 +422,22 @@ public class NumberUtil {
 		StringBuilder targetStr = new StringBuilder("");
 		String firstChar;
 		for (int i = 0; i < length; i++) {
-			if (targetStr.length() > 0)
+			if (targetStr.length() > 0) {
 				firstChar = String.valueOf(targetStr.charAt(0));
-			else
+			} else {
 				firstChar = "零";
+			}
 			// 从低位处理
 			temp = Integer.parseInt(sourceInt.substring(length - i - 1, length - i));
 			if (temp == 0) {
-				if (i > 0 && i % 4 == 0)
+				if (i > 0 && i % 4 == 0) {
 					targetStr.insert(0, numUOM[i - 1]);
-				else if ("零万亿兆京".indexOf(firstChar) == -1)
+				} else if ("零万亿兆京".indexOf(firstChar) == -1) {
 					targetStr.insert(0, "零");
-			} else
+				}
+			} else {
 				targetStr.insert(0, chinaNum[temp] + ((i > 0) ? realUOM[i - 1] : ""));
+			}
 		}
 		return targetStr.toString();
 	}

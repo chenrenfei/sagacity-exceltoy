@@ -77,8 +77,9 @@ public class EQLUtil {
 		for (int i = 0; i < tableFields.length; i++) {
 			tableFields[i] = tableFields[i].trim();
 		}
-		for (int i = 0; i < insertParams.length - 1; i++)
+		for (int i = 0; i < insertParams.length - 1; i++) {
 			insertSql.append("?,");
+		}
 		insertSql.append("?)");
 
 		List<String> excelFileds = new ArrayList();
@@ -87,8 +88,9 @@ public class EQLUtil {
 			excelField = insertParams[i];
 			String[] tempFields = parseExcelFields(excelField);
 			for (int j = 0; j < tempFields.length; j++) {
-				if (!excelFileds.contains(tempFields[j]))
+				if (!excelFileds.contains(tempFields[j])) {
 					excelFileds.add(tempFields[j].trim());
+				}
 			}
 		}
 		if (insertParams.length != tableFields.length) {
@@ -98,8 +100,6 @@ public class EQLUtil {
 		result.setExcelCols((String[]) excelFileds.toArray(new String[excelFileds.size()]));
 		result.setFields(tableFields);
 		// //将eql里面常量值替换掉
-		// for (int i = 0; i < insertParams.length - 1; i++)
-		// insertParams[i] = ExcelToyConstants.replaceConstants(insertParams[i]);
 		result.setParams(insertParams);
 		result.setTableName(table);
 		result.setInsertSql(insertSql.toString());
@@ -115,8 +115,7 @@ public class EQLUtil {
 		eql = StringUtil.clearMistyChars(eql, " ");
 		int intoIndex = StringUtil.indexOfIgnoreCase(eql, "into", StringUtil.getSymMarkIndex("(", ")", eql, 0));
 		// 表名
-		String tableName = eql.substring(intoIndex + 5, eql.indexOf("(", intoIndex));
-		return tableName;
+		return eql.substring(intoIndex + 5, eql.indexOf("(", intoIndex));
 	}
 
 	/**
@@ -138,8 +137,9 @@ public class EQLUtil {
 				beginIndex = tmp.indexOf(ExcelToyConstants.EXCEL_TITLE_BEGIN_MARK);
 				symIndex = StringUtil.getSymMarkIndex(ExcelToyConstants.EXCEL_TITLE_BEGIN_MARK,
 						ExcelToyConstants.EXCEL_TITLE_END_MARK, tmp, 0);
-				if (!fields.contains(field))
+				if (!fields.contains(field)) {
 					fields.add(field);
+				}
 			}
 			String[] result = (String[]) fields.toArray(new String[fields.size()]);
 			templateFieldsMap.put(template, result);
@@ -164,10 +164,11 @@ public class EQLUtil {
 			// 换用StringUtil替换解决result.replaceAll("\\$\\{\\}","$"),替换内容中存在"$"符合报错问题
 			if (index != -1) {
 				if (ConvertDataSource.getExcelRowData().size() < index + 1
-						|| ConvertDataSource.getExcelRowData().get(index) == null)
+						|| ConvertDataSource.getExcelRowData().get(index) == null) {
 					replace = "";
-				else
+				} else {
 					replace = ConvertDataSource.getExcelRowData().get(index).toString();
+				}
 				result = StringUtil.replaceAllStr(result, ExcelToyConstants.EXCEL_TITLE_BEGIN_MARK.concat(pkCols[i])
 						.concat(ExcelToyConstants.EXCEL_TITLE_END_MARK), replace);
 			} else {
@@ -190,8 +191,7 @@ public class EQLUtil {
 			index = ConvertDataSource.getExcelColMapDataIndex().get(field);
 		if (index == null)
 			return -1;
-		else
-			return (Integer) index;
+		return (Integer) index;
 	}
 
 	/**
@@ -205,21 +205,20 @@ public class EQLUtil {
 	public static HashMap mappingExcelTitleAndDataIndex(List excelTitleList, int excelBeginCol, int excelEndCol) {
 		if (excelTitleList == null) {
 			return mappingExcelColAndDataIndex(excelBeginCol, excelEndCol);
-		} else {
-			HashMap excelTitleMapDataIndex = new HashMap();
-			List realTitle = (List) excelTitleList.get(0);
-			String title;
-			for (int i = 0; i < realTitle.size(); i++) {
-				if (realTitle.get(i) != null) {
-					title = realTitle.get(i).toString().trim();
-					excelTitleMapDataIndex.put(title, i);
-					excelTitleMapDataIndex.put(StringUtil.clearMistyChars(title.replaceAll("\\s+", ""), ""), i);
-					excelTitleMapDataIndex.put(ExcelToyConstants.EXCEL_TITLE_BEGIN_MARK.concat(title)
-							.concat(ExcelToyConstants.EXCEL_TITLE_END_MARK), i);
-				}
-			}
-			return excelTitleMapDataIndex;
 		}
+		HashMap excelTitleMapDataIndex = new HashMap();
+		List realTitle = (List) excelTitleList.get(0);
+		String title;
+		for (int i = 0; i < realTitle.size(); i++) {
+			if (realTitle.get(i) != null) {
+				title = realTitle.get(i).toString().trim();
+				excelTitleMapDataIndex.put(title, i);
+				excelTitleMapDataIndex.put(StringUtil.clearMistyChars(title.replaceAll("\\s+", ""), ""), i);
+				excelTitleMapDataIndex.put(ExcelToyConstants.EXCEL_TITLE_BEGIN_MARK.concat(title)
+						.concat(ExcelToyConstants.EXCEL_TITLE_END_MARK), i);
+			}
+		}
+		return excelTitleMapDataIndex;
 	}
 
 	/**
@@ -247,14 +246,11 @@ public class EQLUtil {
 		String lowercaseName = (fileName == null) ? "" : fileName.toLowerCase();
 		if (StringUtil.matches(lowercaseName, "\\.xlsx$"))
 			return "xlsx";
-		else if (StringUtil.matches(lowercaseName, "\\.xls$"))
+		if (StringUtil.matches(lowercaseName, "\\.xls$"))
 			return "xls";
-		else {
-			if (StringUtil.isBlank(ExcelToyConstants.getExcelFileSuffix()))
-				return "xls";
-			else {
-				return ExcelToyConstants.getExcelFileSuffix();
-			}
-		}
+
+		if (StringUtil.isBlank(ExcelToyConstants.getExcelFileSuffix()))
+			return "xls";
+		return ExcelToyConstants.getExcelFileSuffix();
 	}
 }
