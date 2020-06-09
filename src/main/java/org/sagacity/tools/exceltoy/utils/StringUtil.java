@@ -232,14 +232,17 @@ public class StringUtil {
 		int addSize = length - source.length();
 		StringBuilder addStr = new StringBuilder();
 		// 右边
-		if (leftOrRight == 1)
+		if (leftOrRight == 1) {
 			addStr.append(source);
+		}
 		String sign = (flag == 1) ? " " : "0";
-		for (int i = 0; i < addSize; i++)
+		for (int i = 0; i < addSize; i++) {
 			addStr.append(sign);
+		}
 		// 左边
-		if (leftOrRight == 0)
+		if (leftOrRight == 0) {
 			addStr.append(source);
+		}
 		return addStr.toString();
 	}
 
@@ -257,8 +260,9 @@ public class StringUtil {
 		if (loopSize == 1)
 			return source;
 		StringBuilder result = new StringBuilder(source);
-		for (int i = 1; i < loopSize; i++)
+		for (int i = 1; i < loopSize; i++) {
 			result.append(sign).append(source);
+		}
 		return result.toString();
 	}
 
@@ -277,13 +281,15 @@ public class StringUtil {
 			length = source.length();
 			tmpStr = source;
 		}
-		if (!isLeft)
+		if (!isLeft) {
 			addStr.append(tmpStr);
+		}
 		for (int i = 0; i < size - length; i++) {
 			addStr.append(sign);
 		}
-		if (isLeft)
+		if (isLeft) {
 			addStr.append(tmpStr);
+		}
 		return addStr.toString();
 	}
 
@@ -312,8 +318,9 @@ public class StringUtil {
 	public static void mixChars(StringBuffer result, char[] chars) {
 		if (chars != null && chars.length > 0) {
 			int pos = (int) Math.floor(Math.random() * chars.length);
-			if (result == null)
+			if (result == null) {
 				result = new StringBuffer();
+			}
 			result.append(chars[pos]);
 			if (chars.length > 1) {
 				char[] tmp = new char[chars.length - 1];

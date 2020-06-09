@@ -25,8 +25,9 @@ public class TrimConvert extends AbstractConvert {
 	 * .Object)
 	 */
 	public Object convert(Object param) throws Exception {
-		if (param == null)
+		if (param == null) {
 			return null;
+		}
 		param = super.replaceParams(param);
 		String result = (String) param;
 		return result.trim();

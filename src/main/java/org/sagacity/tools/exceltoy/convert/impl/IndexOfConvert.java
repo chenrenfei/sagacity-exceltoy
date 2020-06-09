@@ -41,8 +41,9 @@ public class IndexOfConvert extends AbstractConvert {
 		String source = ConvertUtil.jsonParamSet(this, param);
 		int result = -1;
 		try {
-			if (isLast)
+			if (isLast) {
 				return source.lastIndexOf(regex);
+			}
 			return source.indexOf(regex, fromIndex);
 		} catch (Exception e) {
 			e.printStackTrace();

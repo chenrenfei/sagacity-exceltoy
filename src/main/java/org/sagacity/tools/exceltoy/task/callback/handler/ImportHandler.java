@@ -178,8 +178,9 @@ public class ImportHandler extends TaskExcuteHandler {
 								1, null, 1, null);
 						// 表头对应的数据库字段信息
 						List fields = (List) excelData.get(0);
-						if (fields.size() != fieldsMap.size())
+						if (fields.size() != fieldsMap.size()) {
 							logger.error("数据库表:{}的字段数量和excel文件:{}字段数量不符!", tableName, excelFiles.get(j));
+						}
 						// 去除表头
 						excelData.remove(0);
 

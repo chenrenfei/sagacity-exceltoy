@@ -68,16 +68,21 @@ public class SequenceConvert extends AbstractConvert {
 	public Object convert(Object key) throws Exception {
 		key = super.replaceParams(key);
 		// 应用级流水
-		if (appSeq)
+		if (appSeq) {
 			return IdUtil.getShortNanoTimeId(null).toString();
-		if (uuid)
+		}
+		if (uuid) {
 			return IdUtil.getUUID();
-		if (type.equalsIgnoreCase("nanotime"))
+		}
+		if (type.equalsIgnoreCase("nanotime")) {
 			return IdUtil.getNanoTimeId(null).toString();
-		if (type.equalsIgnoreCase("shortnanotime"))
+		}
+		if (type.equalsIgnoreCase("shortnanotime")) {
 			return IdUtil.getShortNanoTimeId(null).toString();
-		if (type.equalsIgnoreCase("uuid"))
+		}
+		if (type.equalsIgnoreCase("uuid")) {
 			return IdUtil.getUUID();
+		}
 
 		String mapKey = (key == null) ? defaultKey : key.toString();
 		long sequenceNo = initValue.longValue();
@@ -181,7 +186,6 @@ public class SequenceConvert extends AbstractConvert {
 	 */
 	@Override
 	public void reset() {
-		// TODO Auto-generated method stub
 		seqMap.clear();
 	}
 

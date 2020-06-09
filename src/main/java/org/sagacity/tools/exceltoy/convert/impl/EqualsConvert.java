@@ -107,7 +107,6 @@ public class EqualsConvert extends AbstractConvert {
 	 */
 	public EqualsConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (EqualsConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

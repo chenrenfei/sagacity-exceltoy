@@ -36,8 +36,9 @@ public class NumberConvert extends AbstractConvert {
 	 * .Object)
 	 */
 	public Object convert(Object param) throws Exception {
-		if (param == null)
+		if (param == null) {
 			return null;
+		}
 		param = super.replaceParams(param);
 		String key = ConvertUtil.jsonParamSet(this, param);
 		// 大写

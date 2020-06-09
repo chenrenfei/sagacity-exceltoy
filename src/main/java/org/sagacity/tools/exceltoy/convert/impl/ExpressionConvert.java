@@ -48,7 +48,6 @@ public class ExpressionConvert extends AbstractConvert {
 	 */
 	public ExpressionConvert clone() {
 		try {
-			// TODO Auto-generated method stub
 			return (ExpressionConvert) super.clone();
 		} catch (CloneNotSupportedException e) {
 			e.printStackTrace();

@@ -48,8 +48,9 @@ public class SecurityConfirm {
 			System.out.println("---------------------------------------------------------------------------");
 			System.out.println("==请输入以下文字,并以回车键确认:【" + confirmMsg + "】====");
 			String choose = buf.readLine();
-			if (choose.equalsIgnoreCase(confirmMsg))
+			if (choose.equalsIgnoreCase(confirmMsg)) {
 				return true;
+			}
 			System.err.println("【################ 输入内容不相符,任务被禁止执行!  #########】");
 			return false;
 		} catch (Exception e) {

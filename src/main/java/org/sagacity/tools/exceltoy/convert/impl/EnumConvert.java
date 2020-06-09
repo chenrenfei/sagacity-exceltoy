@@ -62,8 +62,9 @@ public class EnumConvert extends AbstractConvert {
 				}
 			}
 			if (enumMap.get(key) == null) {
-				if (other == null)
+				if (other == null) {
 					return key;
+				}
 				return other;
 			}
 			return enumMap.get(key);

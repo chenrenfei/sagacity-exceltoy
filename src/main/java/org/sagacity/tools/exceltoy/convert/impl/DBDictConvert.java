@@ -79,8 +79,9 @@ public class DBDictConvert extends AbstractConvert {
 		} else {
 			if (dictMap == null) {
 				dictMap = new HashMap();
-				if (StringUtil.isBlank(sql))
+				if (StringUtil.isBlank(sql)) {
 					return null;
+				}
 				logger.info("查询数据库获得数据对照关系,提供key,value形式的map取值!");
 				List result = DBHelper.findByJdbcQuery(sql, null);
 				List row;

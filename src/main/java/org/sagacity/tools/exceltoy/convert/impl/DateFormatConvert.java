@@ -53,8 +53,9 @@ public class DateFormatConvert extends AbstractConvert {
 		// @dateFormat()模式
 		if (null == key || key.toString().trim().equals("")) {
 			// 不使用当前日期
-			if (!currentDate)
+			if (!currentDate) {
 				return null;
+			}
 			parseDate = DateUtil.getNowTime();
 		} else {
 			if (key instanceof Date) {
@@ -68,8 +69,9 @@ public class DateFormatConvert extends AbstractConvert {
 			}
 		}
 		// 字符串类型
-		if (dataType.equalsIgnoreCase("string") || dataType.equalsIgnoreCase("str"))
+		if (dataType.equalsIgnoreCase("string") || dataType.equalsIgnoreCase("str")) {
 			return DateUtil.formatDate(parseDate, format);
+		}
 		return parseDate;
 	}
 

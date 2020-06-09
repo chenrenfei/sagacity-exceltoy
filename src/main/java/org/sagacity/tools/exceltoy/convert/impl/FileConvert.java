@@ -43,8 +43,9 @@ public class FileConvert extends AbstractConvert {
 	 */
 	@SuppressWarnings("static-access")
 	public Object convert(Object param) throws Exception {
-		if (param == null)
+		if (param == null) {
 			return param;
+		}
 		param = super.replaceParams(param);
 		String randFileName = "";
 		String fileName = ConvertUtil.jsonParamSet(this, param);
@@ -52,8 +53,9 @@ public class FileConvert extends AbstractConvert {
 		// 防止执行过快，获取的nanoTime一致
 		Thread.currentThread().sleep(25);
 		randFileName = "" + System.nanoTime() + (this.extName.indexOf(".") == 0 ? this.extName : "." + this.extName);
-		if (FileUtil.copyFile(realFileName, FileUtil.linkPath(distPath, randFileName)))
+		if (FileUtil.copyFile(realFileName, FileUtil.linkPath(distPath, randFileName))) {
 			return randFileName;
+		}
 		return "";
 	}
 

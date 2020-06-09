@@ -16,8 +16,9 @@ public class LengthConvert extends AbstractConvert {
 
 	@Override
 	public Object convert(Object param) throws Exception {
-		if (param == null)
+		if (param == null) {
 			return 0;
+		}
 		param = super.replaceParams(param);
 		return param.toString().length();
 	}

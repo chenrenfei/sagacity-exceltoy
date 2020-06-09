@@ -25,8 +25,9 @@ public class LowerConvert extends AbstractConvert {
 	 * .Object)
 	 */
 	public Object convert(Object param) throws Exception {
-		if (param == null)
+		if (param == null) {
 			return null;
+		}
 		param = super.replaceParams(param);
 		return ((String) param).toLowerCase();
 	}

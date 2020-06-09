@@ -25,8 +25,9 @@ public class EQLWrapTaskParse {
 	 * @param elts
 	 */
 	public static HashMap parse(List elts) {
-		if (elts == null || elts.isEmpty())
+		if (elts == null || elts.isEmpty()) {
 			return null;
+		}
 		HashMap eqlWrapTask = new HashMap();
 		Element elt;
 		for (int i = 0; i < elts.size(); i++) {

@@ -36,40 +36,54 @@ public class UpdateTaskParse {
 			if (elt.attribute("active") == null || elt.attributeValue("active").equalsIgnoreCase("true")) {
 				UpdateModel model = new UpdateModel();
 				model.setId(ExcelToyConstants.replaceConstants(elt.attributeValue("id")));
-				if (elt.attribute("datasource") != null)
+				if (elt.attribute("datasource") != null) {
 					model.setDatasource(ExcelToyConstants.replaceConstants(elt.attributeValue("datasource")));
+				}
 				// 是否自动提交
-				if (elt.attribute("autoCommit") != null)
+				if (elt.attribute("autoCommit") != null) {
 					model.setAutoCommit(ExcelToyConstants.replaceConstants(elt.attributeValue("autoCommit")));
-				if (elt.attribute("sheet") != null)
+				}
+				if (elt.attribute("sheet") != null) {
 					model.setSheet(ExcelToyConstants.replaceConstants(elt.attributeValue("sheet")));
-				if (elt.attribute("loop") != null)
+				}
+				if (elt.attribute("loop") != null) {
 					model.setLoop(ExcelToyConstants.replaceConstants(elt.attributeValue("loop")));
-				if (elt.attribute("loopType") != null)
+				}
+				if (elt.attribute("loopType") != null) {
 					model.setLoopType(ExcelToyConstants.replaceConstants(elt.attributeValue("loopType")));
-				if (elt.attribute("loopAlias") != null)
+				}
+				if (elt.attribute("loopAlias") != null) {
 					model.setLoopAlias(ExcelToyConstants.replaceConstants(elt.attributeValue("loopAlias")));
-				if (elt.attribute("loopDateType") != null)
+				}
+				if (elt.attribute("loopDateType") != null) {
 					model.setDateType(
 							ExcelToyConstants.replaceConstants(elt.attributeValue("loopDateType")).toLowerCase());
-				if (elt.attribute("loopDateFormat") != null)
+				}
+				if (elt.attribute("loopDateFormat") != null) {
 					model.setDateFormat(ExcelToyConstants.replaceConstants(elt.attributeValue("loopDateFormat")));
-				if (elt.attribute("startRow") != null)
+				}
+				if (elt.attribute("startRow") != null) {
 					model.setBeginRow(
 							Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("startRow"))));
-				if (elt.attribute("endRow") != null)
+				}
+				if (elt.attribute("endRow") != null) {
 					model.setEndRow(Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("endRow"))));
-				if (elt.attribute("startCol") != null)
+				}
+				if (elt.attribute("startCol") != null) {
 					model.setBeginCol(
 							Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("startCol"))));
-				if (elt.attribute("endCol") != null)
+				}
+				if (elt.attribute("endCol") != null) {
 					model.setEndCol(Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("endCol"))));
-				if (elt.attribute("titleRow") != null)
+				}
+				if (elt.attribute("titleRow") != null) {
 					model.setTitleRow(
 							Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("titleRow"))));
+				}
 				// sql文件
-				if (elt.attribute("sqlFile") != null)
+				if (elt.attribute("sqlFile") != null) {
 					model.setSqlFile(ExcelToyConstants.replaceConstants(elt.attributeValue("sqlFile")));
+				}
 				// 批量执行量
 				if (elt.attribute("batchSize") != null) {
 					model.setBatchSize(

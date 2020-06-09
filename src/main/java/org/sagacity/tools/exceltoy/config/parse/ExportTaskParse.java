@@ -28,8 +28,9 @@ public class ExportTaskParse {
 	 * @param elts
 	 */
 	public static HashMap parse(List elts) {
-		if (elts == null || elts.isEmpty())
+		if (elts == null || elts.isEmpty()) {
 			return new HashMap();
+		}
 		HashMap exportTasks = new HashMap();
 		Element elt;
 		String dist;
@@ -38,22 +39,28 @@ public class ExportTaskParse {
 			if (elt.attribute("active") == null || elt.attributeValue("active").equalsIgnoreCase("true")) {
 				ExportModel model = new ExportModel();
 				model.setId(ExcelToyConstants.replaceConstants(elt.attributeValue("id")));
-				if (elt.attribute("datasource") != null)
+				if (elt.attribute("datasource") != null) {
 					model.setDatasource(ExcelToyConstants.replaceConstants(elt.attributeValue("datasource")));
+				}
 				// 是否自动提交
-				if (elt.attribute("autoCommit") != null)
+				if (elt.attribute("autoCommit") != null) {
 					model.setAutoCommit(ExcelToyConstants.replaceConstants(elt.attributeValue("autoCommit")));
+				}
 				// 导出clob存放文件时的字符集
-				if (elt.attribute("charset") != null)
+				if (elt.attribute("charset") != null) {
 					model.setCharset(ExcelToyConstants.replaceConstants(elt.attributeValue("charset")));
-				if (elt.attribute("sheet") != null)
+				}
+				if (elt.attribute("sheet") != null) {
 					model.setSheet(ExcelToyConstants.replaceConstants(elt.attributeValue("sheet")));
+				}
 				// 最大记录限制
-				if (elt.attribute("maxLimit") != null)
+				if (elt.attribute("maxLimit") != null) {
 					model.setMaxLimit(ExcelToyConstants.replaceConstants(elt.attributeValue("maxLimit")));
+				}
 				// 删除方式
-				if (elt.attribute("delete") != null)
+				if (elt.attribute("delete") != null) {
 					model.setDelete(ExcelToyConstants.replaceConstants(elt.attributeValue("delete")));
+				}
 				// 目标路径
 				if (elt.attribute("dist") != null) {
 					dist = ExcelToyConstants.replaceConstants(elt.attributeValue("dist"));

@@ -37,8 +37,9 @@ public class SubStrConvert extends AbstractConvert {
 	 * .Object)
 	 */
 	public Object convert(Object param) throws Exception {
-		if (param == null)
+		if (param == null) {
 			return null;
+		}
 		param = super.replaceParams(param);
 		String result = ConvertUtil.jsonParamSet(this, param);
 		String[] args = result.split(splitSign);

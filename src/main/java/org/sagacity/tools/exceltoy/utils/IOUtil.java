@@ -72,8 +72,9 @@ public class IOUtil {
 		if (is == null)
 			return null;
 		// 避免空流
-		if (is.available() == 0)
+		if (is.available() == 0) {
 			return new byte[] {};
+		}
 		byte[] data = null;
 		Collection chunks = new ArrayList();
 		byte[] buffer = new byte[1024 * 1000];

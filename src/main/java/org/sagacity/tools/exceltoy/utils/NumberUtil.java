@@ -72,19 +72,23 @@ public class NumberUtil {
 	public static String format(Object target, String pattern, String locale) {
 		if (target == null)
 			return null;
-		if (pattern == null)
+		if (pattern == null) {
 			return target.toString();
+		}
 		try {
 			String tmpStr = target.toString().trim().toLowerCase().replace(",", "");
-			if (tmpStr.equals("") || tmpStr.equals("null") || tmpStr.equals("nan"))
+			if (tmpStr.equals("") || tmpStr.equals("null") || tmpStr.equals("nan")) {
 				return "";
+			}
 			BigDecimal tmp = new BigDecimal(tmpStr);
 			// 将数字转换成大写汉字
-			if (pattern.equalsIgnoreCase(Pattern.CAPITAL))
+			if (pattern.equalsIgnoreCase(Pattern.CAPITAL)) {
 				return numberToChina(tmpStr, false);
+			}
 			// 数字转换成大写汉字金额
-			if (pattern.equalsIgnoreCase(Pattern.CAPITAL_MONEY))
+			if (pattern.equalsIgnoreCase(Pattern.CAPITAL_MONEY)) {
 				return toCapitalMoney(tmp);
+			}
 
 			DecimalFormat df = (DecimalFormat) (StringUtil.isBlank(locale) ? DecimalFormat.getInstance()
 					: DecimalFormat.getInstance(new Locale(locale)));
@@ -111,13 +115,16 @@ public class NumberUtil {
 			return target.toString();
 		try {
 			String tmpStr = target.toString().trim().toLowerCase().replace(",", "");
-			if (tmpStr.equals("") || tmpStr.equals("null") || tmpStr.equals("nan"))
+			if (tmpStr.equals("") || tmpStr.equals("null") || tmpStr.equals("nan")) {
 				return "";
+			}
 			BigDecimal tmp = new BigDecimal(tmpStr);
-			if (pattern.equalsIgnoreCase(Pattern.CAPITAL))
+			if (pattern.equalsIgnoreCase(Pattern.CAPITAL)) {
 				return numberToChina(tmpStr, false);
-			if (pattern.equalsIgnoreCase(Pattern.CAPITAL_MONEY))
+			}
+			if (pattern.equalsIgnoreCase(Pattern.CAPITAL_MONEY)) {
 				return toCapitalMoney(tmp);
+			}
 			DecimalFormat df = (DecimalFormat) (StringUtil.isBlank(locale) ? DecimalFormat.getCurrencyInstance()
 					: DecimalFormat.getCurrencyInstance(new Locale(locale)));
 			df.applyPattern(pattern);
@@ -155,8 +162,9 @@ public class NumberUtil {
 	 */
 	public static Float parseFloat(String floatStr, Integer maxIntDigits, Integer maxFractionDigits) {
 		Number number = parseStr(floatStr, maxIntDigits, null, maxFractionDigits, null);
-		if (number != null)
+		if (number != null) {
 			return new Float(number.floatValue());
+		}
 		return null;
 	}
 
@@ -169,8 +177,9 @@ public class NumberUtil {
 	 */
 	public static BigDecimal parseDecimal(String decimalStr, Integer maxIntDigits, Integer maxFractionDigits) {
 		Number number = parseStr(decimalStr, maxIntDigits, null, maxFractionDigits, null);
-		if (number != null)
+		if (number != null) {
 			return new BigDecimal(number.doubleValue());
+		}
 		return null;
 	}
 
@@ -222,8 +231,9 @@ public class NumberUtil {
 		// 分段处理合并
 		BigDecimal result = parseMillMoney(splitsCapitalMoney[0]).multiply(new BigDecimal("100000000"))
 				.add(parseMillMoney(splitsCapitalMoney[1])).add(parseLowThousandMoney(splitsCapitalMoney[2]));
-		if (capitalMoney.indexOf("负") == 0)
+		if (capitalMoney.indexOf("负") == 0) {
 			return new BigDecimal(0).subtract(result).setScale(scale, BigDecimal.ROUND_HALF_UP);
+		}
 		return result.setScale(scale, BigDecimal.ROUND_HALF_UP);
 	}
 
@@ -234,32 +244,37 @@ public class NumberUtil {
 	 */
 	public static String toCapitalMoney(BigDecimal money) {
 		BigDecimal realMoney = money.setScale(5, BigDecimal.ROUND_HALF_UP).abs();
-		if (realMoney.compareTo(new BigDecimal(0)) == 0)
+		if (realMoney.compareTo(new BigDecimal(0)) == 0) {
 			return "零圆";
+		}
 		// 绝对值字符串
 		String sourceStr = realMoney.toString();
 
 		int dotIndex = sourceStr.indexOf(".");
 		String intPartStr = (dotIndex == -1) ? sourceStr : sourceStr.substring(0, dotIndex);
 		String decimalPartStr = "";
-		if (dotIndex != -1)
+		if (dotIndex != -1) {
 			decimalPartStr = sourceStr.substring(dotIndex + 1);
+		}
 		// 处理整数部分
 		String result = numberToChina(intPartStr, true);
 		// 处理以"壹拾"开头的结果统一替换成"拾"
-		if (result.startsWith("壹拾"))
+		if (result.startsWith("壹拾")) {
 			result = result.substring(1);
-		if (!result.equalsIgnoreCase(""))
+		}
+		if (!result.equalsIgnoreCase("")) {
 			result += "圆";
+		}
 
 		// 小于零
-		if (money.compareTo(new BigDecimal("0")) < 0)
+		if (money.compareTo(new BigDecimal("0")) < 0) {
 			result = "负" + result;
+		}
 
 		// 没有小数
-		if (dotIndex == -1 || (decimalPartStr.equals("") || Integer.parseInt(decimalPartStr) == 0))
+		if (dotIndex == -1 || (decimalPartStr.equals("") || Integer.parseInt(decimalPartStr) == 0)) {
 			result += "整";
-		else {
+		} else {
 			String[] uomName = { "角", "分", "厘" };
 			int indexValue;
 			boolean hasZero = false;
@@ -314,8 +329,9 @@ public class NumberUtil {
 	public static BigDecimal getMin(BigDecimal[] bigArray) {
 		BigDecimal min = bigArray[0];
 		for (int i = 0; i < bigArray.length; i++) {
-			if (min.compareTo(bigArray[i]) > 0)
+			if (min.compareTo(bigArray[i]) > 0) {
 				min = bigArray[i];
+			}
 		}
 		return min;
 	}
@@ -366,15 +382,18 @@ public class NumberUtil {
 		NumberFormat nf = NumberFormat.getInstance();
 		try {
 			// 最大整数位
-			if (maxIntDigits != null)
+			if (maxIntDigits != null) {
 				nf.setMaximumIntegerDigits(maxIntDigits.intValue());
+			}
 			// 最小整数位
-			if (minIntDigits != null)
+			if (minIntDigits != null) {
 				nf.setMinimumIntegerDigits(minIntDigits.intValue());
+			}
 
 			// 最大小数位
-			if (maxFractionDigits != null)
+			if (maxFractionDigits != null) {
 				nf.setMaximumFractionDigits(maxFractionDigits.intValue());
+			}
 			// 最小小数位
 			if (minFractionDigits != null) {
 				nf.setMinimumFractionDigits(minFractionDigits.intValue());
@@ -531,13 +550,15 @@ public class NumberUtil {
 	 */
 	public static int getProbabilityIndex(int[] probabilities) {
 		int total = 0;
-		for (int probabilitiy : probabilities)
+		for (int probabilitiy : probabilities) {
 			total = total + probabilitiy;
+		}
 		int randomData = (int) (Math.random() * total) + 1;
 		int base = 0;
 		for (int i = 0; i < probabilities.length; i++) {
-			if (randomData > base && randomData <= base + probabilities[i])
+			if (randomData > base && randomData <= base + probabilities[i]) {
 				return i;
+			}
 			base = base + probabilities[i];
 		}
 		return 0;

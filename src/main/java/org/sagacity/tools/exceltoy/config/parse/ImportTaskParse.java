@@ -29,8 +29,9 @@ public class ImportTaskParse {
 	 * @param elts
 	 */
 	public static HashMap parse(List elts) {
-		if (elts == null || elts.isEmpty())
+		if (elts == null || elts.isEmpty()) {
 			return new HashMap();
+		}
 		HashMap importTasks = new HashMap();
 		Element elt;
 		String dist;
@@ -39,40 +40,53 @@ public class ImportTaskParse {
 			if (elt.attribute("active") == null || elt.attributeValue("active").equalsIgnoreCase("true")) {
 				ImportModel model = new ImportModel();
 				model.setId(ExcelToyConstants.replaceConstants(elt.attributeValue("id")));
-				if (elt.attribute("datasource") != null)
+				if (elt.attribute("datasource") != null) {
 					model.setDatasource(ExcelToyConstants.replaceConstants(elt.attributeValue("datasource")));
-				if (elt.attribute("charset") != null)
+				}
+				if (elt.attribute("charset") != null) {
 					model.setCharset(ExcelToyConstants.replaceConstants(elt.attributeValue("charset")));
+				}
 				// 主表是否清空
-				if (elt.attribute("clear") != null)
+				if (elt.attribute("clear") != null) {
 					model.setMainClear(new Boolean(ExcelToyConstants.replaceConstants(elt.attributeValue("clear")))
 							.booleanValue());
-				if (elt.attribute("isolationlevel") != null)
+				}
+				if (elt.attribute("isolationlevel") != null) {
 					model.setIsolationlevel(ExcelToyConstants.replaceConstants(elt.attributeValue("isolationlevel")));
-				if (elt.attribute("autoCommit") != null)
+				}
+				if (elt.attribute("autoCommit") != null) {
 					model.setAutoCommit(ExcelToyConstants.replaceConstants(elt.attributeValue("autoCommit")));
-				if (elt.attribute("depends") != null)
+				}
+				if (elt.attribute("depends") != null) {
 					model.setDepends(ExcelToyConstants.replaceConstants(elt.attributeValue("depends")));
-				if (elt.attribute("mapping-tables") != null)
+				}
+				if (elt.attribute("mapping-tables") != null) {
 					model.setMappingTables(ExcelToyConstants.replaceConstants(elt.attributeValue("mapping-tables")));
-				if (elt.attribute("startRow") != null)
+				}
+				if (elt.attribute("startRow") != null) {
 					model.setBeginRow(
 							Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("startRow"))));
-				if (elt.attribute("endRow") != null)
+				}
+				if (elt.attribute("endRow") != null) {
 					model.setEndRow(Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("endRow"))));
-				if (elt.attribute("startCol") != null)
+				}
+				if (elt.attribute("startCol") != null) {
 					model.setBeginCol(
 							Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("startCol"))));
-				if (elt.attribute("endCol") != null)
+				}
+				if (elt.attribute("endCol") != null) {
 					model.setEndCol(Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("endCol"))));
-				if (elt.attribute("titleRow") != null)
+				}
+				if (elt.attribute("titleRow") != null) {
 					model.setTitleRow(
 							Integer.valueOf(ExcelToyConstants.replaceConstants(elt.attributeValue("titleRow"))));
+				}
 
 				// 启用外键约束过滤
-				if (elt.attribute("fkFilter") != null)
+				if (elt.attribute("fkFilter") != null) {
 					model.setFkFilter(new Boolean(ExcelToyConstants.replaceConstants(elt.attributeValue("fkFilter")))
 							.booleanValue());
+				}
 				if (elt.attribute("dist") != null) {
 					dist = ExcelToyConstants.replaceConstants(elt.attributeValue("dist"));
 					if (FileUtil.isRootPath(dist)) {
@@ -150,18 +164,21 @@ public class ImportTaskParse {
 						// 设置filter
 						if (tmpElt != null) {
 							model.setFilter(tmpElt.getTextTrim());
-							if (tmpElt.attribute("message") != null)
+							if (tmpElt.attribute("message") != null) {
 								model.setFilterMsg(tmpElt.attributeValue("message"));
+							}
 							// 过滤条件不符合是否异常退出
-							if (tmpElt.attribute("break") != null)
+							if (tmpElt.attribute("break") != null) {
 								model.setFilterBreak(Boolean.parseBoolean(tmpElt.attributeValue("break")));
+							}
 
 						}
 						tmpElt = doElt.element("mainTable");
 						model.setMainEql(SqlUtils.clearMark(tmpElt.getText()).trim());
 						// 主键
-						if (tmpElt.attribute("pk") != null)
+						if (tmpElt.attribute("pk") != null) {
 							model.setMainPK(ExcelToyConstants.replaceConstants(tmpElt.attributeValue("pk")));
+						}
 						// 依据主键对数据值进行合并,非空的代替空数据
 						if (tmpElt.attribute("pk-data-merge") != null) {
 							model.setPkDataMerge(Boolean.parseBoolean(

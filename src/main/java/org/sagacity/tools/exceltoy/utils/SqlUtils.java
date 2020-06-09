@@ -368,8 +368,9 @@ public class SqlUtils {
 		}
 		// 只针对db2,将查询作为脏读模式
 		if (dbType == DBType.DB2 && appendWithUR()) {
-			if (!StringUtil.matches(query_tmp, DB2_QUERY_UR_PATTERN))
+			if (!StringUtil.matches(query_tmp, DB2_QUERY_UR_PATTERN)) {
 				countQueryStr.append(DB2_QUERY_APPEND);
+			}
 		}
 		final int paramCnt = getParamsCount(countQueryStr.toString(), true);
 		final int withParamCnt = getParamsCount(sqlWith.getWithSql(), true);

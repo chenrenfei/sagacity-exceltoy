@@ -24,8 +24,9 @@ public class UpperConvert extends AbstractConvert {
 	 * .lang.Object)
 	 */
 	public Object convert(Object param) throws Exception {
-		if (param == null)
+		if (param == null) {
 			return null;
+		}
 		param = super.replaceParams(param);
 		return ((String) param).toUpperCase();
 	}
